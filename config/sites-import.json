@@ -1,0 +1,261 @@
+{
+    "defaults": {
+        "language": "en",
+        "timezone": "America/New_York",
+        "ai_rewrite": true,
+        "fetch_images": true,
+        "auto_publish": true
+    },
+    "sites": [
+        {
+            "name": "Alabama Express",
+            "domain": "alabama-express.com",
+            "wordpress_url": "https://alabama-express.com"
+        },
+        {
+            "name": "Alaska Express",
+            "domain": "alaskaexpres.com",
+            "wordpress_url": "https://alaskaexpres.com"
+        },
+        {
+            "name": "Arizona Express",
+            "domain": "arizona-express.com",
+            "wordpress_url": "https://arizona-express.com"
+        },
+        {
+            "name": "Arkansas Express",
+            "domain": "arkansas-express.com",
+            "wordpress_url": "https://arkansas-express.com"
+        },
+        {
+            "name": "California Express",
+            "domain": "californiaexpres.com",
+            "wordpress_url": "https://californiaexpres.com"
+        },
+        {
+            "name": "Colorado Express",
+            "domain": "coloradoexpres.com",
+            "wordpress_url": "https://coloradoexpres.com"
+        },
+        {
+            "name": "Connecticut Express",
+            "domain": "connecticut-express.com",
+            "wordpress_url": "https://connecticut-express.com"
+        },
+        {
+            "name": "Delaware Express",
+            "domain": "delaware-express.com",
+            "wordpress_url": "https://delaware-express.com"
+        },
+        {
+            "name": "Florida Express",
+            "domain": "florida-expres.com",
+            "wordpress_url": "https://florida-expres.com"
+        },
+        {
+            "name": "Georgia Express",
+            "domain": "georgia-express.com",
+            "wordpress_url": "https://georgia-express.com"
+        },
+        {
+            "name": "Hawaii Express",
+            "domain": "hawaiiexpres.com",
+            "wordpress_url": "https://hawaiiexpres.com"
+        },
+        {
+            "name": "Idaho Express",
+            "domain": "idaho-express.com",
+            "wordpress_url": "https://idaho-express.com"
+        },
+        {
+            "name": "Illinois Express",
+            "domain": "illinoiseexpres.com",
+            "wordpress_url": "https://illinoiseexpres.com"
+        },
+        {
+            "name": "Indiana Express",
+            "domain": "indianaexpres.com",
+            "wordpress_url": "https://indianaexpres.com"
+        },
+        {
+            "name": "Iowa Express",
+            "domain": "iowa-express.com",
+            "wordpress_url": "https://iowa-express.com"
+        },
+        {
+            "name": "Kansas Express",
+            "domain": "kansas-express.com",
+            "wordpress_url": "https://kansas-express.com"
+        },
+        {
+            "name": "Kentucky Express",
+            "domain": "kentucky-express.com",
+            "wordpress_url": "https://kentucky-express.com"
+        },
+        {
+            "name": "Louisiana Express",
+            "domain": "louisiana-express.com",
+            "wordpress_url": "https://louisiana-express.com"
+        },
+        {
+            "name": "Maine Express",
+            "domain": "maineeexpres.com",
+            "wordpress_url": "https://maineeexpres.com"
+        },
+        {
+            "name": "Maryland Express",
+            "domain": "maryland-express.com",
+            "wordpress_url": "https://maryland-express.com"
+        },
+        {
+            "name": "Massachusetts Express",
+            "domain": "massachusettsexpress.com",
+            "wordpress_url": "https://massachusettsexpress.com"
+        },
+        {
+            "name": "Michigan Express",
+            "domain": "michigan-express.com",
+            "wordpress_url": "https://michigan-express.com"
+        },
+        {
+            "name": "Minnesota Express",
+            "domain": "minnesota-express.com",
+            "wordpress_url": "https://minnesota-express.com"
+        },
+        {
+            "name": "Mississippi Express",
+            "domain": "mississippi-express.com",
+            "wordpress_url": "https://mississippi-express.com"
+        },
+        {
+            "name": "Missouri Express",
+            "domain": "missouri-express.com",
+            "wordpress_url": "https://missouri-express.com"
+        },
+        {
+            "name": "Montana Express",
+            "domain": "montana-express.com",
+            "wordpress_url": "https://montana-express.com"
+        },
+        {
+            "name": "Nebraska Express",
+            "domain": "nebraska-express.com",
+            "wordpress_url": "https://nebraska-express.com"
+        },
+        {
+            "name": "Nevada Express",
+            "domain": "nevada-express.com",
+            "wordpress_url": "https://nevada-express.com"
+        },
+        {
+            "name": "New Hampshire Express",
+            "domain": "newhampshire-express.com",
+            "wordpress_url": "https://newhampshire-express.com"
+        },
+        {
+            "name": "New Jersey Express",
+            "domain": "newjersey-express.com",
+            "wordpress_url": "https://newjersey-express.com"
+        },
+        {
+            "name": "New Mexico Express",
+            "domain": "newmexico-express.com",
+            "wordpress_url": "https://newmexico-express.com"
+        },
+        {
+            "name": "New York Express",
+            "domain": "newyork-express.com",
+            "wordpress_url": "https://newyork-express.com"
+        },
+        {
+            "name": "North Carolina Express",
+            "domain": "northcarolinasexpress.com",
+            "wordpress_url": "https://northcarolinasexpress.com"
+        },
+        {
+            "name": "North Dakota Express",
+            "domain": "northdakota-express.com",
+            "wordpress_url": "https://northdakota-express.com"
+        },
+        {
+            "name": "Ohio Express",
+            "domain": "ohioexpres.com",
+            "wordpress_url": "https://ohioexpres.com"
+        },
+        {
+            "name": "Oklahoma Express",
+            "domain": "oklahoma-express.com",
+            "wordpress_url": "https://oklahoma-express.com"
+        },
+        {
+            "name": "Oregon Express",
+            "domain": "oregon-express.com",
+            "wordpress_url": "https://oregon-express.com"
+        },
+        {
+            "name": "Pennsylvania Express",
+            "domain": "pennsylvaniaexpres.com",
+            "wordpress_url": "https://pennsylvaniaexpres.com"
+        },
+        {
+            "name": "Rhode Island Express",
+            "domain": "rhodeisland-express.com",
+            "wordpress_url": "https://rhodeisland-express.com"
+        },
+        {
+            "name": "South Carolina Express",
+            "domain": "southcarolina-express.com",
+            "wordpress_url": "https://southcarolina-express.com"
+        },
+        {
+            "name": "South Dakota Express",
+            "domain": "southdakota-express.com",
+            "wordpress_url": "https://southdakota-express.com"
+        },
+        {
+            "name": "Tennessee Express",
+            "domain": "tennesseeexpres.com",
+            "wordpress_url": "https://tennesseeexpres.com"
+        },
+        {
+            "name": "Texas Express",
+            "domain": "texasexpres.com",
+            "wordpress_url": "https://texasexpres.com"
+        },
+        {
+            "name": "Utah Express",
+            "domain": "utah-express.com",
+            "wordpress_url": "https://utah-express.com"
+        },
+        {
+            "name": "Vermont Express",
+            "domain": "vermont-express.com",
+            "wordpress_url": "https://vermont-express.com"
+        },
+        {
+            "name": "Virginia Express",
+            "domain": "virginiaexpres.com",
+            "wordpress_url": "https://virginiaexpres.com"
+        },
+        {
+            "name": "Washington Express",
+            "domain": "washingtonexpres.com",
+            "wordpress_url": "https://washingtonexpres.com"
+        },
+        {
+            "name": "West Virginia Express",
+            "domain": "westvirginia-express.com",
+            "wordpress_url": "https://westvirginia-express.com"
+        },
+        {
+            "name": "Wisconsin Express",
+            "domain": "wisconsin-express.com",
+            "wordpress_url": "https://wisconsin-express.com"
+        },
+        {
+            "name": "Wyoming Express",
+            "domain": "wyoming-express.com",
+            "wordpress_url": "https://wyoming-express.com"
+        }
+    ]
+}
