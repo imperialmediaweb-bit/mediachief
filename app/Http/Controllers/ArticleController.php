@@ -14,13 +14,27 @@ class ArticleController extends Controller
 
     public function index(Request $request)
     {
-        $articles = Article::forSite($this->tenant->id())
+        $siteId = $this->tenant->id();
+
+        // Featured articles for the hero grid (top 3 most recent)
+        $featured = Article::forSite($siteId)
             ->published()
             ->with('category')
             ->orderByDesc('published_at')
-            ->paginate(20);
+            ->limit(3)
+            ->get();
 
-        return view('frontend.articles.index', compact('articles'));
+        // Main article list (skip the featured ones)
+        $articles = Article::forSite($siteId)
+            ->published()
+            ->with('category')
+            ->when($featured->isNotEmpty(), function ($q) use ($featured) {
+                $q->whereNotIn('id', $featured->pluck('id'));
+            })
+            ->orderByDesc('published_at')
+            ->paginate(15);
+
+        return view('frontend.articles.index', compact('articles', 'featured'));
     }
 
     public function show(Article $article)
@@ -28,8 +42,22 @@ class ArticleController extends Controller
         abort_unless($article->site_id === $this->tenant->id(), 404);
         abort_unless($article->isPublished(), 404);
 
+        $article->load('category');
         $article->increment('views_count');
 
-        return view('frontend.articles.show', compact('article'));
+        // Related articles from same category
+        $related = collect();
+        if ($article->category_id) {
+            $related = Article::forSite($this->tenant->id())
+                ->published()
+                ->where('category_id', $article->category_id)
+                ->where('id', '!=', $article->id)
+                ->with('category')
+                ->orderByDesc('published_at')
+                ->limit(3)
+                ->get();
+        }
+
+        return view('frontend.articles.show', compact('article', 'related'));
     }
 }

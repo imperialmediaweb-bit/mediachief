@@ -12,7 +12,21 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Open Sans', ...defaultTheme.fontFamily.sans],
+                heading: ['Roboto', ...defaultTheme.fontFamily.sans],
+            },
+            colors: {
+                brand: {
+                    red: '#e51a2f',
+                    dark: '#0a0a0a',
+                    darker: '#070707',
+                    gray: '#1a1a1a',
+                    'gray-light': '#222222',
+                    'gray-medium': '#333333',
+                    'text-muted': '#999999',
+                    'text-light': '#aaaaaa',
+                    'border': '#2a2a2a',
+                },
             },
         },
     },

@@ -15,13 +15,23 @@
 
     @stack('head')
 </head>
-<body class="min-h-screen bg-gray-50 text-gray-900 antialiased">
+<body class="min-h-screen antialiased">
+
+    {{-- Top bar --}}
+    @include('frontend.partials.topbar')
+
+    {{-- Header --}}
     @include('frontend.partials.header')
 
-    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    {{-- Trending bar --}}
+    @include('frontend.partials.trending')
+
+    {{-- Main content --}}
+    <main>
         @yield('content')
     </main>
 
+    {{-- Footer --}}
     @include('frontend.partials.footer')
 
     @stack('scripts')

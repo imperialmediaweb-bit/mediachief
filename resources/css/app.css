@@ -1,3 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@400;500;700;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-brand-dark text-gray-300 font-sans;
+    }
+
+    a {
+        @apply transition-colors duration-200;
+    }
+}
+
+@layer components {
+    /* Category badge */
+    .cat-badge {
+        @apply inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white;
+    }
+
+    /* Article card hover effect */
+    .article-card {
+        @apply transition-all duration-300;
+    }
+    .article-card:hover .article-card-title {
+        @apply text-brand-red;
+    }
+    .article-card:hover .article-card-img {
+        @apply opacity-80;
+    }
+
+    /* Trending bar ticker */
+    .trending-bar {
+        @apply bg-brand-darker border-b border-brand-border;
+    }
+
+    /* Section header with accent line */
+    .section-header {
+        @apply relative pb-3 mb-6 text-lg font-bold font-heading uppercase tracking-wide text-white;
+    }
+    .section-header::after {
+        content: '';
+        @apply absolute bottom-0 left-0 w-16 h-0.5 bg-brand-red;
+    }
+
+    /* Widget card */
+    .widget-card {
+        @apply bg-brand-gray-light border border-brand-border p-5 mb-6;
+    }
+    .widget-card-title {
+        @apply relative pb-3 mb-4 text-sm font-bold font-heading uppercase tracking-wider text-white;
+    }
+    .widget-card-title::after {
+        content: '';
+        @apply absolute bottom-0 left-0 w-10 h-0.5 bg-brand-red;
+    }
+
+    /* Pagination */
+    .pagination-link {
+        @apply inline-flex items-center justify-center w-10 h-10 text-sm font-medium border border-brand-border text-gray-400 hover:bg-brand-red hover:text-white hover:border-brand-red transition-colors;
+    }
+    .pagination-link.active {
+        @apply bg-brand-red text-white border-brand-red;
+    }
+}
