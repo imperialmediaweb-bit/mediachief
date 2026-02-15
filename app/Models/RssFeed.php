@@ -24,6 +24,10 @@ class RssFeed extends Model
         'error_count',
         'is_active',
         'auto_publish',
+        'ai_rewrite',
+        'ai_language',
+        'ai_prompt',
+        'fetch_images',
         'field_mapping',
         'filters',
     ];
@@ -32,9 +36,19 @@ class RssFeed extends Model
         'last_fetched_at' => 'datetime',
         'is_active' => 'boolean',
         'auto_publish' => 'boolean',
+        'ai_rewrite' => 'boolean',
+        'fetch_images' => 'boolean',
         'field_mapping' => 'array',
         'filters' => 'array',
     ];
+
+    /**
+     * Check if this feed needs AI processing (rewrite or image fetch).
+     */
+    public function needsProcessing(): bool
+    {
+        return $this->ai_rewrite || $this->fetch_images;
+    }
 
     public function site(): BelongsTo
     {

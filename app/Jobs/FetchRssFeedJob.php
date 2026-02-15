@@ -62,6 +62,7 @@ class FetchRssFeedJob implements ShouldQueue
             $imported = 0;
             $skipped = 0;
             $failed = 0;
+            $needsProcessing = $this->rssFeed->needsProcessing();
 
             foreach ($items as $item) {
                 try {
@@ -96,7 +97,11 @@ class FetchRssFeedJob implements ShouldQueue
                         $image = $matches[1];
                     }
 
-                    Article::create([
+                    // If AI processing is enabled, save as draft first
+                    // ProcessArticleJob will rewrite + add image + publish
+                    $shouldPublishDirectly = $this->rssFeed->auto_publish && ! $needsProcessing;
+
+                    $article = Article::create([
                         'site_id' => $this->rssFeed->site_id,
                         'category_id' => $this->rssFeed->category_id,
                         'rss_feed_id' => $this->rssFeed->id,
@@ -108,10 +113,17 @@ class FetchRssFeedJob implements ShouldQueue
                         'source_url' => $link,
                         'source_name' => $this->rssFeed->source_name ?? parse_url($link, PHP_URL_HOST),
                         'author' => $author ?: null,
-                        'status' => $this->rssFeed->auto_publish ? 'published' : 'draft',
-                        'published_at' => $this->rssFeed->auto_publish && $pubDate ? date('Y-m-d H:i:s', strtotime($pubDate)) : null,
+                        'status' => $shouldPublishDirectly ? 'published' : 'draft',
+                        'published_at' => $shouldPublishDirectly && $pubDate
+                            ? date('Y-m-d H:i:s', strtotime($pubDate))
+                            : ($pubDate ? date('Y-m-d H:i:s', strtotime($pubDate)) : null),
                         'original_guid' => $guid,
                     ]);
+
+                    // Dispatch AI processing job if feed has AI rewrite or Pixabay enabled
+                    if ($needsProcessing) {
+                        ProcessArticleJob::dispatch($article);
+                    }
 
                     $imported++;
                 } catch (\Throwable $e) {
@@ -131,7 +143,8 @@ class FetchRssFeedJob implements ShouldQueue
                 'items_skipped' => $skipped,
                 'items_failed' => $failed,
                 'completed_at' => now(),
-                'summary' => "Found: {$itemsFound}, Imported: {$imported}, Skipped: {$skipped}, Failed: {$failed}",
+                'summary' => "Found: {$itemsFound}, Imported: {$imported}, Skipped: {$skipped}, Failed: {$failed}"
+                    .($needsProcessing ? ' (AI processing queued)' : ''),
             ]);
         } catch (\Throwable $e) {
             $this->rssFeed->markAsError($e->getMessage());

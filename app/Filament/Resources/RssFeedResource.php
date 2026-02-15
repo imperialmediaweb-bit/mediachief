@@ -3,9 +3,11 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\RssFeedResource\Pages;
+use App\Jobs\FetchRssFeedJob;
 use App\Models\RssFeed;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -76,6 +78,45 @@ class RssFeedResource extends Resource
                             ->helperText('Automatically publish imported articles'),
                     ])->columns(3),
 
+                Forms\Components\Section::make('AI Rewrite')
+                    ->description('Automatically rewrite imported articles using AI to make them unique')
+                    ->schema([
+                        Forms\Components\Toggle::make('ai_rewrite')
+                            ->label('Enable AI Rewriting')
+                            ->default(false)
+                            ->live()
+                            ->helperText('Rewrite title, body and excerpt using OpenAI'),
+                        Forms\Components\Select::make('ai_language')
+                            ->label('Output Language')
+                            ->options([
+                                'ro' => 'Romana',
+                                'en' => 'English',
+                                'de' => 'Deutsch',
+                                'fr' => 'Francais',
+                                'es' => 'Espanol',
+                                'it' => 'Italiano',
+                            ])
+                            ->default('ro')
+                            ->visible(fn (Forms\Get $get) => $get('ai_rewrite'))
+                            ->helperText('Language for the rewritten article'),
+                        Forms\Components\Textarea::make('ai_prompt')
+                            ->label('Custom Instructions')
+                            ->placeholder("E.g.: Write in a casual, conversational tone. Keep paragraphs short. Add a catchy intro.")
+                            ->rows(3)
+                            ->maxLength(1000)
+                            ->visible(fn (Forms\Get $get) => $get('ai_rewrite'))
+                            ->helperText('Optional extra instructions for the AI rewriter'),
+                    ])->columns(1),
+
+                Forms\Components\Section::make('Auto Images (Pixabay)')
+                    ->description('Automatically fetch a relevant image from Pixabay when article has no image')
+                    ->schema([
+                        Forms\Components\Toggle::make('fetch_images')
+                            ->label('Enable Pixabay Images')
+                            ->default(false)
+                            ->helperText('Search Pixabay for a photo matching the article title'),
+                    ]),
+
                 Forms\Components\Section::make('Field Mapping')
                     ->schema([
                         Forms\Components\KeyValue::make('field_mapping')
@@ -118,6 +159,20 @@ class RssFeedResource extends Resource
                 Tables\Columns\IconColumn::make('auto_publish')
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\IconColumn::make('ai_rewrite')
+                    ->label('AI')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-sparkles')
+                    ->falseIcon('heroicon-o-minus')
+                    ->trueColor('warning')
+                    ->toggleable(),
+                Tables\Columns\IconColumn::make('fetch_images')
+                    ->label('Img')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-photo')
+                    ->falseIcon('heroicon-o-minus')
+                    ->trueColor('info')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('last_fetched_at')
                     ->dateTime()
                     ->sortable(),
@@ -137,8 +192,23 @@ class RssFeedResource extends Resource
                 Tables\Filters\Filter::make('has_errors')
                     ->query(fn ($query) => $query->where('error_count', '>', 0))
                     ->toggle(),
+                Tables\Filters\TernaryFilter::make('ai_rewrite')
+                    ->label('AI Rewrite'),
             ])
             ->actions([
+                Tables\Actions\Action::make('fetch_now')
+                    ->label('Fetch Now')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->action(function (RssFeed $record) {
+                        FetchRssFeedJob::dispatch($record);
+                        Notification::make()
+                            ->title('Feed fetch job dispatched')
+                            ->body("Fetching: {$record->name}")
+                            ->success()
+                            ->send();
+                    }),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
