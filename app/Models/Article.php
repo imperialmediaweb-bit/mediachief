@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Article extends Model
 {
@@ -75,5 +77,26 @@ class Article extends Model
     public function isPublished(): bool
     {
         return $this->status === 'published' && $this->published_at?->lte(now());
+    }
+
+    /**
+     * Get the full URL for the featured image.
+     * Handles both local storage paths and legacy external URLs.
+     */
+    protected function imageUrl(): Attribute
+    {
+        return Attribute::get(function () {
+            if (empty($this->featured_image)) {
+                return null;
+            }
+
+            // Already a full URL (legacy external)
+            if (str_starts_with($this->featured_image, 'http://') || str_starts_with($this->featured_image, 'https://')) {
+                return $this->featured_image;
+            }
+
+            // Local storage path
+            return Storage::disk('public')->url($this->featured_image);
+        });
     }
 }

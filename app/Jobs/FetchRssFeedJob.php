@@ -10,6 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use App\Services\PixabayImageService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -91,10 +92,27 @@ class FetchRssFeedJob implements ShouldQueue
                         continue;
                     }
 
-                    // Extract first image from content
+                    // Extract first image from content and download locally
                     $image = null;
                     if (preg_match('/<img[^>]+src=["\']([^"\']+)/', $content, $matches)) {
-                        $image = $matches[1];
+                        $imageUrl = $matches[1];
+                        $localPath = PixabayImageService::downloadToStorage($imageUrl, $this->rssFeed->site_id);
+                        $image = $localPath; // null if download failed, path if success
+                    }
+
+                    // Also check for media:thumbnail or enclosure in RSS
+                    if (! $image) {
+                        $mediaNs = $item->children('media', true);
+                        $thumbUrl = (string) ($mediaNs->thumbnail['url'] ?? $mediaNs->content['url'] ?? '');
+                        if (empty($thumbUrl)) {
+                            $enclosure = $item->enclosure;
+                            if ($enclosure && str_contains((string) ($enclosure['type'] ?? ''), 'image')) {
+                                $thumbUrl = (string) $enclosure['url'];
+                            }
+                        }
+                        if (! empty($thumbUrl)) {
+                            $image = PixabayImageService::downloadToStorage($thumbUrl, $this->rssFeed->site_id);
+                        }
                     }
 
                     // If AI processing is enabled, save as draft first

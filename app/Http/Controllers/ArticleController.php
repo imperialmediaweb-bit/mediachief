@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\Category;
 use App\Services\TenantManager;
 use Illuminate\Http\Request;
 
@@ -24,17 +25,60 @@ class ArticleController extends Controller
             ->limit(3)
             ->get();
 
-        // Main article list (skip the featured ones)
-        $articles = Article::forSite($siteId)
+        $featuredIds = $featured->pluck('id')->toArray();
+
+        // Popular articles (4 items for the Popular row)
+        $popular = Article::forSite($siteId)
             ->published()
             ->with('category')
-            ->when($featured->isNotEmpty(), function ($q) use ($featured) {
-                $q->whereNotIn('id', $featured->pluck('id'));
-            })
-            ->orderByDesc('published_at')
-            ->paginate(15);
+            ->whereNotIn('id', $featuredIds)
+            ->orderByDesc('views_count')
+            ->limit(4)
+            ->get();
 
-        return view('frontend.articles.index', compact('articles', 'featured'));
+        $usedIds = array_merge($featuredIds, $popular->pluck('id')->toArray());
+
+        // Load all active categories with recent articles for category sections
+        $categories = Category::where('site_id', $siteId)
+            ->where('is_active', true)
+            ->whereNull('parent_id')
+            ->orderBy('sort_order')
+            ->limit(10)
+            ->get();
+
+        // For each category, load recent articles
+        $categorySections = [];
+        foreach ($categories as $category) {
+            $catArticles = Article::forSite($siteId)
+                ->published()
+                ->where('category_id', $category->id)
+                ->orderByDesc('published_at')
+                ->limit(5)
+                ->get();
+
+            if ($catArticles->isNotEmpty()) {
+                $categorySections[] = [
+                    'category' => $category,
+                    'articles' => $catArticles,
+                ];
+            }
+        }
+
+        // Latest posts for bottom section
+        $latest = Article::forSite($siteId)
+            ->published()
+            ->with('category')
+            ->whereNotIn('id', $usedIds)
+            ->orderByDesc('published_at')
+            ->limit(10)
+            ->get();
+
+        return view('frontend.articles.index', compact(
+            'featured',
+            'popular',
+            'categorySections',
+            'latest',
+        ));
     }
 
     public function show(Article $article)

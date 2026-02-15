@@ -17,7 +17,7 @@
             </span>
             <div class="flex items-center gap-6 overflow-x-auto text-sm">
                 @foreach($trendingArticles as $trending)
-                    <a href="{{ route('article.show', $trending) }}" class="shrink-0 text-gray-400 transition-colors hover:text-white">
+                    <a href="{{ route('article.show', $trending) }}" class="shrink-0 text-gray-600 transition-colors hover:text-brand-red">
                         {{ Str::limit($trending->title, 60) }}
                     </a>
                 @endforeach

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PixabayImageService
@@ -121,6 +122,80 @@ class PixabayImageService
                 'photographer' => $image['user'] ?? 'Pixabay',
             ];
         } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Find an image and download it to local storage.
+     *
+     * @return array{path: string, alt: string, photographer: string}|null
+     */
+    public function findAndDownload(string $title, int $siteId, string $language = 'en'): ?array
+    {
+        $imageData = $this->findImage($title, $language);
+
+        if (! $imageData) {
+            return null;
+        }
+
+        $localPath = self::downloadToStorage($imageData['url'], $siteId);
+
+        if (! $localPath) {
+            return null;
+        }
+
+        return [
+            'path' => $localPath,
+            'alt' => $imageData['alt'],
+            'photographer' => $imageData['photographer'],
+        ];
+    }
+
+    /**
+     * Download any image URL to local public storage.
+     * Returns the storage path (relative to public disk) or null on failure.
+     */
+    public static function downloadToStorage(string $url, int $siteId): ?string
+    {
+        try {
+            $response = Http::timeout(30)->get($url);
+
+            if (! $response->successful()) {
+                Log::warning('Image download failed', ['url' => $url, 'status' => $response->status()]);
+
+                return null;
+            }
+
+            $body = $response->body();
+
+            if (empty($body) || strlen($body) < 1000) {
+                Log::warning('Image download too small or empty', ['url' => $url]);
+
+                return null;
+            }
+
+            // Detect extension from content-type or URL
+            $contentType = $response->header('Content-Type') ?? '';
+            $ext = match (true) {
+                str_contains($contentType, 'png') => 'png',
+                str_contains($contentType, 'gif') => 'gif',
+                str_contains($contentType, 'webp') => 'webp',
+                str_contains($contentType, 'svg') => 'svg',
+                default => 'jpg',
+            };
+
+            // Organize by site: images/site-{id}/YYYY/MM/filename.ext
+            $dir = "images/site-{$siteId}/" . date('Y/m');
+            $filename = Str::random(20) . '.' . $ext;
+            $path = "{$dir}/{$filename}";
+
+            Storage::disk('public')->put($path, $body);
+
+            return $path;
+        } catch (\Throwable $e) {
+            Log::error('Image download exception', ['url' => $url, 'error' => $e->getMessage()]);
+
             return null;
         }
     }

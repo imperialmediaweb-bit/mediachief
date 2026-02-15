@@ -82,7 +82,7 @@ class ProcessArticleJob implements ShouldQueue
             }
         }
 
-        // Step 2: Pixabay Image (if no image present)
+        // Step 2: Pixabay Image - download to local storage (if no image present)
         if ($shouldFetchImage && ! $this->article->featured_image) {
             $searchTitle = $updated['title'] ?? $this->article->title;
 
@@ -91,14 +91,19 @@ class ProcessArticleJob implements ShouldQueue
                 'search' => $searchTitle,
             ]);
 
-            $image = $pixabayService->findImage($searchTitle, $language);
+            $image = $pixabayService->findAndDownload(
+                $searchTitle,
+                $this->article->site_id,
+                $language,
+            );
 
             if ($image) {
-                $updated['featured_image'] = $image['url'];
+                $updated['featured_image'] = $image['path'];
                 $updated['featured_image_alt'] = $image['alt'];
 
-                Log::info('ProcessArticleJob: image found', [
+                Log::info('ProcessArticleJob: image downloaded to server', [
                     'article_id' => $this->article->id,
+                    'path' => $image['path'],
                     'photographer' => $image['photographer'],
                 ]);
             }

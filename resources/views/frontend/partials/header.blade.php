@@ -13,37 +13,37 @@
         ->get();
 @endphp
 
-<header class="bg-brand-dark">
-    {{-- Main header with logo --}}
-    <div class="border-b border-brand-border">
+<header>
+    {{-- Main header with logo - white background --}}
+    <div class="border-b border-gray-200 bg-white">
         <div class="mx-auto max-w-7xl px-4">
             <div class="flex h-20 items-center justify-between">
                 {{-- Mobile menu button --}}
-                <button type="button" class="text-white md:hidden" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" aria-label="Menu">
+                <button type="button" class="text-gray-700 md:hidden" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" aria-label="Menu">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
 
-                {{-- Logo --}}
+                {{-- Logo - centered --}}
                 <a href="{{ route('home') }}" class="flex items-center gap-3">
                     @if($currentSite->logo ?? false)
-                        <img src="{{ asset('storage/' . $currentSite->logo) }}" alt="{{ $currentSite->name }}" class="h-10">
+                        <img src="{{ asset('storage/' . $currentSite->logo) }}" alt="{{ $currentSite->name }}" class="h-12">
                     @else
-                        <span class="font-heading text-2xl font-black uppercase tracking-tight text-white">
+                        <span class="font-heading text-3xl font-black uppercase tracking-tight text-gray-900">
                             {{ $currentSite->name }}
                         </span>
                     @endif
                 </a>
 
                 {{-- Search button --}}
-                <button type="button" class="text-white hover:text-brand-red" onclick="document.getElementById('search-overlay').classList.toggle('hidden')" aria-label="Search">
+                <button type="button" class="text-gray-600 hover:text-brand-red" onclick="document.getElementById('search-overlay').classList.toggle('hidden')" aria-label="Search">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </button>
             </div>
         </div>
     </div>
 
-    {{-- Navigation bar --}}
-    <nav class="border-b border-brand-border bg-brand-gray">
+    {{-- Navigation bar - dark --}}
+    <nav class="bg-gray-900">
         <div class="mx-auto max-w-7xl px-4">
             <div class="hidden h-12 items-center gap-0 md:flex">
                 <a href="{{ route('home') }}" class="flex h-full items-center bg-brand-red px-5 text-sm font-bold uppercase tracking-wide text-white">
@@ -67,7 +67,7 @@
     </nav>
 
     {{-- Mobile menu --}}
-    <div id="mobile-menu" class="hidden border-b border-brand-border bg-brand-gray md:hidden">
+    <div id="mobile-menu" class="hidden border-b border-gray-800 bg-gray-900 md:hidden">
         <div class="px-4 py-3">
             <a href="{{ route('home') }}" class="block py-2 text-sm font-semibold uppercase text-white">Home</a>
             @foreach($categories as $cat)

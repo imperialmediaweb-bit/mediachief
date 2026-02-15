@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\Category;
 use App\Models\ImportLog;
 use App\Models\Site;
+use App\Services\PixabayImageService;
 use App\Services\WordPressImportService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -86,6 +87,15 @@ class ImportWordPressJob implements ShouldQueue
                         $categoryId = $categoryMap[$wpCat['slug']] ?? $this->findOrCreateCategory($wpCat);
                     }
 
+                    // Download featured image to local storage
+                    $localImage = null;
+                    if (! empty($parsed['featured_image'])) {
+                        $localImage = PixabayImageService::downloadToStorage(
+                            $parsed['featured_image'],
+                            $this->site->id,
+                        );
+                    }
+
                     $article = Article::create([
                         'site_id' => $this->site->id,
                         'category_id' => $categoryId,
@@ -93,7 +103,7 @@ class ImportWordPressJob implements ShouldQueue
                         'slug' => $this->ensureUniqueSlug($parsed['slug']),
                         'excerpt' => $parsed['excerpt'],
                         'body' => $parsed['body'],
-                        'featured_image' => $parsed['featured_image'],
+                        'featured_image' => $localImage,
                         'featured_image_alt' => $parsed['featured_image_alt'],
                         'author' => $parsed['author'],
                         'source_url' => $parsed['source_url'],
