@@ -1,0 +1,35 @@
+{
+    "defaults": {
+        "language": "en",
+        "timezone": "America/New_York",
+        "ai_rewrite": true,
+        "fetch_images": true,
+        "auto_publish": true
+    },
+    "sites": [
+        {
+            "name": "Alabama News Observer",
+            "domain": "alabamanewsobserver.com",
+            "wordpress_url": "https://alabamanewsobserver.com",
+            "state": "AL"
+        },
+        {
+            "name": "Alaska News Observer",
+            "domain": "alaskanewsobserver.com",
+            "wordpress_url": "https://alaskanewsobserver.com",
+            "state": "AK"
+        },
+        {
+            "name": "Arizona News Observer",
+            "domain": "arizonanewsobserver.com",
+            "wordpress_url": "https://arizonanewsobserver.com",
+            "state": "AZ"
+        },
+        {
+            "name": "Arkansas News Observer",
+            "domain": "arkansasnewsobserver.com",
+            "wordpress_url": "https://arkansasnewsobserver.com",
+            "state": "AR"
+        }
+    ]
+}

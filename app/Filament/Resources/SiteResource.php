@@ -395,9 +395,134 @@ class SiteResource extends Resource
                     Tables\Actions\DeleteAction::make(),
                 ]),
             ])
+            ->headerActions([
+                Tables\Actions\Action::make('bulk_import_sites')
+                    ->label('Import Sites from JSON')
+                    ->icon('heroicon-o-cloud-arrow-up')
+                    ->color('info')
+                    ->modalHeading('Bulk Create Sites from JSON')
+                    ->modalDescription('Upload a JSON file with site definitions (see config/sites-example.json for format).')
+                    ->form([
+                        Forms\Components\FileUpload::make('json_file')
+                            ->label('Sites JSON File')
+                            ->required()
+                            ->acceptedFileTypes(['application/json'])
+                            ->directory('imports/sites')
+                            ->helperText('JSON file with "sites" array containing name, domain, wordpress_url'),
+                        Forms\Components\Toggle::make('ai_rewrite')
+                            ->label('Enable AI Rewrite on all campaigns')
+                            ->default(true),
+                        Forms\Components\Toggle::make('fetch_images')
+                            ->label('Enable Pixabay images on all campaigns')
+                            ->default(true),
+                    ])
+                    ->action(function (array $data) {
+                        $filePath = storage_path('app/public/' . $data['json_file']);
+
+                        if (! file_exists($filePath)) {
+                            Notification::make()->title('File not found')->danger()->send();
+
+                            return;
+                        }
+
+                        $config = json_decode(file_get_contents($filePath), true);
+
+                        if (! $config || ! isset($config['sites'])) {
+                            Notification::make()->title('Invalid JSON format')->danger()->send();
+
+                            return;
+                        }
+
+                        $created = 0;
+                        $skipped = 0;
+                        $defaults = $config['defaults'] ?? [];
+
+                        foreach ($config['sites'] as $siteData) {
+                            if (empty($siteData['domain']) || empty($siteData['name'])) {
+                                continue;
+                            }
+
+                            $existing = Site::where('domain', $siteData['domain'])->first();
+                            if ($existing) {
+                                if (empty($existing->wordpress_url) && ! empty($siteData['wordpress_url'])) {
+                                    $existing->update(['wordpress_url' => $siteData['wordpress_url']]);
+                                }
+                                $skipped++;
+
+                                continue;
+                            }
+
+                            Site::create([
+                                'name' => $siteData['name'],
+                                'slug' => Str::slug($siteData['name']),
+                                'domain' => $siteData['domain'],
+                                'wordpress_url' => $siteData['wordpress_url'] ?? null,
+                                'language' => $siteData['language'] ?? $defaults['language'] ?? 'en',
+                                'timezone' => $siteData['timezone'] ?? $defaults['timezone'] ?? 'America/New_York',
+                                'description' => $siteData['description'] ?? "{$siteData['name']} - Local News",
+                                'is_active' => true,
+                            ]);
+                            $created++;
+                        }
+
+                        @unlink($filePath);
+
+                        Notification::make()
+                            ->title("Created {$created} sites")
+                            ->body("{$skipped} already existed.")
+                            ->success()
+                            ->send();
+                    }),
+            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+
+                    Tables\Actions\BulkAction::make('bulk_migrate')
+                        ->label('Migrate from WordPress')
+                        ->icon('heroicon-o-arrow-path')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalHeading('Bulk WordPress Migration')
+                        ->modalDescription('Import articles and campaigns from WordPress for all selected sites.')
+                        ->form([
+                            Forms\Components\Toggle::make('import_articles')
+                                ->label('Import articles via WP REST API')
+                                ->default(true),
+                            Forms\Components\Toggle::make('ai_rewrite')
+                                ->label('Enable AI Rewrite')
+                                ->default(true),
+                            Forms\Components\Toggle::make('fetch_images')
+                                ->label('Enable Pixabay images')
+                                ->default(true),
+                            Forms\Components\Toggle::make('auto_publish')
+                                ->label('Auto-publish articles')
+                                ->default(true),
+                        ])
+                        ->action(function ($records, array $data) {
+                            $queued = 0;
+
+                            foreach ($records as $site) {
+                                $wpUrl = $site->wordpress_url ?: "https://{$site->domain}";
+
+                                if ($data['import_articles'] ?? true) {
+                                    ImportWordPressJob::dispatch(
+                                        site: $site,
+                                        wpUrl: $wpUrl,
+                                        page: 1,
+                                        aiProcess: $data['ai_rewrite'] ?? false,
+                                    );
+                                    $queued++;
+                                }
+                            }
+
+                            Notification::make()
+                                ->title("Migration started for {$queued} sites")
+                                ->body('Articles are being imported in background. Check import logs for progress.')
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
     }
