@@ -4,6 +4,8 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SiteResource\Pages;
 use App\Jobs\ImportWordPressJob;
+use App\Models\Category;
+use App\Models\RssFeed;
 use App\Models\Site;
 use App\Services\WordPressImportService;
 use Filament\Forms;
@@ -261,6 +263,130 @@ class SiteResource extends Resource
                             Notification::make()
                                 ->title("Created {$created} RSS feed campaigns")
                                 ->body("From {$record->wordpress_url} (" . count($feeds) . " feeds discovered)")
+                                ->success()
+                                ->send();
+                        }),
+
+                    Tables\Actions\Action::make('import_campaigns_json')
+                        ->label('Import Campaigns (JSON)')
+                        ->icon('heroicon-o-document-arrow-up')
+                        ->color('info')
+                        ->modalHeading('Import RSS Campaigns from JSON')
+                        ->modalDescription('Upload the JSON file exported by mediachief-export.php from your WordPress site.')
+                        ->form([
+                            Forms\Components\FileUpload::make('json_file')
+                                ->label('Campaign Export JSON')
+                                ->required()
+                                ->acceptedFileTypes(['application/json'])
+                                ->directory('imports/campaigns')
+                                ->helperText('Upload the JSON file from mediachief-export.php'),
+                            Forms\Components\Toggle::make('ai_rewrite')
+                                ->label('Enable AI Rewrite on campaigns')
+                                ->default(false),
+                            Forms\Components\Toggle::make('fetch_images')
+                                ->label('Enable Pixabay images')
+                                ->default(false),
+                            Forms\Components\Toggle::make('auto_publish')
+                                ->label('Auto-publish articles')
+                                ->default(true),
+                        ])
+                        ->action(function (Site $record, array $data) {
+                            $filePath = storage_path('app/public/' . $data['json_file']);
+
+                            if (! file_exists($filePath)) {
+                                Notification::make()
+                                    ->title('File not found')
+                                    ->danger()
+                                    ->send();
+
+                                return;
+                            }
+
+                            $json = file_get_contents($filePath);
+                            $export = json_decode($json, true);
+
+                            if (! $export || ! isset($export['campaigns'])) {
+                                Notification::make()
+                                    ->title('Invalid JSON format')
+                                    ->body('Expected output from mediachief-export.php')
+                                    ->danger()
+                                    ->send();
+
+                                return;
+                            }
+
+                            // Import categories
+                            $categoryMap = [];
+                            foreach ($export['categories'] ?? [] as $cat) {
+                                $slug = Str::slug($cat['slug'] ?: $cat['name']);
+                                $localCat = Category::firstOrCreate(
+                                    ['site_id' => $record->id, 'slug' => $slug],
+                                    [
+                                        'name' => $cat['name'],
+                                        'description' => $cat['description'] ?? null,
+                                        'is_active' => true,
+                                        'sort_order' => 0,
+                                    ]
+                                );
+                                $categoryMap[$cat['id']] = $localCat->id;
+                            }
+
+                            // Import campaigns
+                            $created = 0;
+                            $skipped = 0;
+
+                            foreach ($export['campaigns'] as $campaign) {
+                                $url = $campaign['url'] ?? '';
+                                if (empty($url)) {
+                                    continue;
+                                }
+
+                                $exists = RssFeed::where('site_id', $record->id)
+                                    ->where('url', $url)
+                                    ->exists();
+
+                                if ($exists) {
+                                    $skipped++;
+
+                                    continue;
+                                }
+
+                                $categoryId = null;
+                                $wpCatId = $campaign['category_wp_id'] ?? null;
+                                if ($wpCatId && isset($categoryMap[$wpCatId])) {
+                                    $categoryId = $categoryMap[$wpCatId];
+                                }
+
+                                $fetchInterval = (int) ($campaign['fetch_interval'] ?? 30);
+                                if (str_contains($url, 'news.google.com') && $fetchInterval > 15) {
+                                    $fetchInterval = 15;
+                                }
+
+                                RssFeed::create([
+                                    'site_id' => $record->id,
+                                    'category_id' => $categoryId,
+                                    'name' => $campaign['name'] ?? 'Imported Campaign',
+                                    'url' => $url,
+                                    'source_name' => $campaign['source_name'] ?? parse_url($url, PHP_URL_HOST),
+                                    'fetch_interval' => $fetchInterval,
+                                    'is_active' => $campaign['is_active'] ?? true,
+                                    'auto_publish' => $data['auto_publish'] ?? true,
+                                    'ai_rewrite' => $data['ai_rewrite'] ?? false,
+                                    'ai_language' => $record->language ?? 'en',
+                                    'fetch_images' => $data['fetch_images'] ?? false,
+                                ]);
+
+                                $created++;
+                            }
+
+                            // Clean up uploaded file
+                            @unlink($filePath);
+
+                            $sourceSite = $export['site_name'] ?? $export['site_url'] ?? 'WordPress';
+
+                            Notification::make()
+                                ->title("Imported {$created} campaigns from {$sourceSite}")
+                                ->body("{$skipped} duplicates skipped. " . count($categoryMap) . " categories mapped.")
                                 ->success()
                                 ->send();
                         }),
