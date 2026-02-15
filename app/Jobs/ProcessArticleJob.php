@@ -17,14 +17,18 @@ class ProcessArticleJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries = 2;
+    public int $tries = 3;
 
-    public int $backoff = 30;
+    public array $backoff = [30, 60, 120];
 
     public int $timeout = 180;
 
     public function __construct(
-        public Article $article
+        public Article $article,
+        public bool $forceRewrite = false,
+        public bool $forceImage = false,
+        public ?string $language = null,
+        public ?string $customPrompt = null,
     ) {
         $this->onQueue('ai');
     }
@@ -34,17 +38,17 @@ class ProcessArticleJob implements ShouldQueue
         PixabayImageService $pixabayService,
     ): void {
         $feed = $this->article->rssFeed;
-
-        if (! $feed) {
-            return;
-        }
-
-        $site = $feed->site;
-        $language = $site?->language ?? 'ro';
+        $site = $this->article->site;
+        $language = $this->language ?? $feed?->ai_language ?? $site?->language ?? 'ro';
         $updated = [];
 
-        // Step 1: AI Rewrite (if enabled on feed)
-        if ($feed->ai_rewrite) {
+        // Determine what to do based on feed settings or forced flags
+        $shouldRewrite = $this->forceRewrite || ($feed?->ai_rewrite ?? false);
+        $shouldFetchImage = $this->forceImage || ($feed?->fetch_images ?? false);
+        $shouldPublish = $feed?->auto_publish ?? false;
+
+        // Step 1: AI Rewrite
+        if ($shouldRewrite) {
             Log::info('ProcessArticleJob: rewriting article', [
                 'article_id' => $this->article->id,
                 'title' => $this->article->title,
@@ -54,13 +58,13 @@ class ProcessArticleJob implements ShouldQueue
                 title: $this->article->title,
                 body: $this->article->body,
                 excerpt: $this->article->excerpt ?? '',
-                language: $feed->ai_language ?? $language,
-                customPrompt: $feed->ai_prompt,
+                language: $language,
+                customPrompt: $this->customPrompt ?? $feed?->ai_prompt,
             );
 
             if ($rewritten) {
                 $updated['title'] = $rewritten['title'];
-                $updated['slug'] = Str::slug(Str::limit($rewritten['title'], 200, '')).'-'.Str::random(5);
+                $updated['slug'] = Str::slug(Str::limit($rewritten['title'], 200, '')) . '-' . Str::random(5);
                 $updated['body'] = $rewritten['body'];
 
                 if (! empty($rewritten['excerpt'])) {
@@ -78,8 +82,8 @@ class ProcessArticleJob implements ShouldQueue
             }
         }
 
-        // Step 2: Pixabay Image (if enabled and article has no image)
-        if ($feed->fetch_images && ! $this->article->featured_image) {
+        // Step 2: Pixabay Image (if no image present)
+        if ($shouldFetchImage && ! $this->article->featured_image) {
             $searchTitle = $updated['title'] ?? $this->article->title;
 
             Log::info('ProcessArticleJob: fetching Pixabay image', [
@@ -100,8 +104,8 @@ class ProcessArticleJob implements ShouldQueue
             }
         }
 
-        // Step 3: Auto-publish if configured
-        if ($feed->auto_publish && $this->article->status === 'draft') {
+        // Step 3: Auto-publish if configured (only for feed-based imports)
+        if ($shouldPublish && $this->article->status === 'draft') {
             $updated['status'] = 'published';
             $updated['published_at'] = $this->article->published_at ?? now();
         }

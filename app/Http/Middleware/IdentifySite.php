@@ -6,6 +6,7 @@ use App\Models\Site;
 use App\Services\TenantManager;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 
 class IdentifySite
@@ -18,7 +19,11 @@ class IdentifySite
     {
         $domain = $request->getHost();
 
-        $site = Site::findByDomain($domain);
+        $site = Cache::remember(
+            "site:domain:{$domain}",
+            now()->addHour(),
+            fn () => Site::findByDomain($domain)
+        );
 
         if (! $site) {
             abort(404, 'Site not found.');

@@ -16,6 +16,7 @@ class Site extends Model
         'name',
         'slug',
         'domain',
+        'wordpress_url',
         'logo',
         'favicon',
         'description',

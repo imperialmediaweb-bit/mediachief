@@ -3,9 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SiteResource\Pages;
+use App\Jobs\ImportWordPressJob;
 use App\Models\Site;
+use App\Services\WordPressImportService;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -43,6 +46,12 @@ class SiteResource extends Resource
                             ->unique(ignoreRecord: true)
                             ->maxLength(255)
                             ->placeholder('example.com'),
+                        Forms\Components\TextInput::make('wordpress_url')
+                            ->label('WordPress Source URL')
+                            ->url()
+                            ->maxLength(500)
+                            ->placeholder('https://old-wordpress-site.com')
+                            ->helperText('Original WP site for importing articles and RSS feeds'),
                         Forms\Components\Textarea::make('description')
                             ->maxLength(1000)
                             ->columnSpanFull(),
@@ -62,10 +71,10 @@ class SiteResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('language')
                             ->options([
-                                'ro' => 'Română',
+                                'ro' => 'Romana',
                                 'en' => 'English',
                                 'de' => 'Deutsch',
-                                'fr' => 'Français',
+                                'fr' => 'Francais',
                             ])
                             ->default('ro'),
                         Forms\Components\Select::make('timezone')
@@ -116,6 +125,10 @@ class SiteResource extends Resource
                 Tables\Columns\TextColumn::make('domain')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('wordpress_url')
+                    ->label('WP Source')
+                    ->limit(30)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('language')
                     ->badge(),
                 Tables\Columns\TextColumn::make('theme')
@@ -140,13 +153,121 @@ class SiteResource extends Resource
                 Tables\Filters\TernaryFilter::make('is_active'),
                 Tables\Filters\SelectFilter::make('language')
                     ->options([
-                        'ro' => 'Română',
+                        'ro' => 'Romana',
                         'en' => 'English',
                     ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('wp_import_articles')
+                        ->label('Import WP Articles')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->visible(fn (Site $record) => ! empty($record->wordpress_url))
+                        ->requiresConfirmation()
+                        ->modalHeading('Import WordPress Articles')
+                        ->modalDescription(fn (Site $record) => "Import all articles from {$record->wordpress_url} into {$record->name}?")
+                        ->form([
+                            Forms\Components\Toggle::make('ai_rewrite')
+                                ->label('AI Rewrite articles')
+                                ->default(false)
+                                ->helperText('Rewrite all imported articles with AI'),
+                        ])
+                        ->action(function (Site $record, array $data) {
+                            ImportWordPressJob::dispatch(
+                                site: $record,
+                                wpUrl: $record->wordpress_url,
+                                page: 1,
+                                aiProcess: $data['ai_rewrite'] ?? false,
+                            );
+
+                            Notification::make()
+                                ->title('WordPress import started')
+                                ->body("Importing articles from {$record->wordpress_url}")
+                                ->success()
+                                ->send();
+                        }),
+
+                    Tables\Actions\Action::make('wp_import_feeds')
+                        ->label('Import WP Feeds')
+                        ->icon('heroicon-o-rss')
+                        ->color('warning')
+                        ->visible(fn (Site $record) => ! empty($record->wordpress_url))
+                        ->requiresConfirmation()
+                        ->modalHeading('Auto-Create RSS Feed Campaigns')
+                        ->modalDescription(fn (Site $record) => "Discover and create RSS feed campaigns from {$record->wordpress_url}?")
+                        ->form([
+                            Forms\Components\Toggle::make('ai_rewrite')
+                                ->label('Enable AI Rewrite on feeds')
+                                ->default(false),
+                            Forms\Components\Toggle::make('fetch_images')
+                                ->label('Enable Pixabay images')
+                                ->default(false),
+                            Forms\Components\Toggle::make('auto_publish')
+                                ->label('Auto-publish new articles')
+                                ->default(true),
+                        ])
+                        ->action(function (Site $record, array $data) {
+                            $wpService = app(WordPressImportService::class);
+                            $feeds = $wpService->discoverFeeds($record->wordpress_url);
+
+                            if (empty($feeds)) {
+                                Notification::make()
+                                    ->title('No feeds found')
+                                    ->body("Could not discover RSS feeds from {$record->wordpress_url}")
+                                    ->warning()
+                                    ->send();
+
+                                return;
+                            }
+
+                            $created = 0;
+
+                            foreach ($feeds as $feed) {
+                                $exists = \App\Models\RssFeed::where('site_id', $record->id)
+                                    ->where('url', $feed['url'])
+                                    ->exists();
+
+                                if ($exists) {
+                                    continue;
+                                }
+
+                                $categoryId = null;
+                                if (! empty($feed['wp_category_slug'])) {
+                                    $cat = \App\Models\Category::firstOrCreate(
+                                        ['site_id' => $record->id, 'slug' => $feed['wp_category_slug']],
+                                        ['name' => $feed['wp_category_name'], 'is_active' => true, 'sort_order' => 0]
+                                    );
+                                    $categoryId = $cat->id;
+                                }
+
+                                \App\Models\RssFeed::create([
+                                    'site_id' => $record->id,
+                                    'category_id' => $categoryId,
+                                    'name' => $feed['title'],
+                                    'url' => $feed['url'],
+                                    'source_name' => parse_url($record->wordpress_url, PHP_URL_HOST),
+                                    'fetch_interval' => 30,
+                                    'is_active' => true,
+                                    'auto_publish' => $data['auto_publish'] ?? true,
+                                    'ai_rewrite' => $data['ai_rewrite'] ?? false,
+                                    'ai_language' => $record->language ?? 'ro',
+                                    'fetch_images' => $data['fetch_images'] ?? false,
+                                ]);
+
+                                $created++;
+                            }
+
+                            Notification::make()
+                                ->title("Created {$created} RSS feed campaigns")
+                                ->body("From {$record->wordpress_url} (" . count($feeds) . " feeds discovered)")
+                                ->success()
+                                ->send();
+                        }),
+
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
