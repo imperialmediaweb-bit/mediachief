@@ -13,6 +13,11 @@
         <link rel="icon" href="{{ $currentSite->seo_settings['wp_favicon_url'] }}">
     @endif
 
+    {{-- Load imported WordPress theme CSS if available --}}
+    @if(file_exists(public_path('css/wp-theme/newspaper.css')))
+        <link rel="stylesheet" href="{{ asset('css/wp-theme/newspaper.css') }}">
+    @endif
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @php
