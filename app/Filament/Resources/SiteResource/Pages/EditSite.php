@@ -16,4 +16,18 @@ class EditSite extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    /**
+     * Merge theme settings into existing settings instead of replacing them.
+     * This preserves WP import data (menus, widgets, plugins, etc.)
+     */
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if (isset($data['settings']) && is_array($data['settings'])) {
+            $existing = $this->record->settings ?? [];
+            $data['settings'] = array_replace_recursive($existing, $data['settings']);
+        }
+
+        return $data;
+    }
 }
