@@ -28,9 +28,27 @@
 @ini_set('memory_limit', '512M');
 @set_time_limit(600);
 
+// Prevent output buffering conflicts with WordPress shutdown handlers
+// and plugins like WP Hide & Security Enhancer that use ob callbacks.
+// Clean ALL existing buffers first, then disable implicit flush.
+while (ob_get_level() > 0) {
+    @ob_end_clean();
+}
+@ini_set('output_buffering', '0');
+@ini_set('implicit_flush', '0');
+
+// Start our own clean buffer to capture any stray output from WP/plugins
+ob_start();
+
 // Load WordPress
 define('SHORTINIT', false);
 require_once __DIR__ . '/wp-load.php';
+
+// Discard any output WordPress or plugins generated during load
+ob_end_clean();
+
+// Remove WordPress shutdown output buffer flush to prevent fatal errors
+remove_action('shutdown', 'wp_ob_end_flush_all', 1);
 
 if (php_sapi_name() !== 'cli') {
     header('Content-Type: application/json; charset=utf-8');
