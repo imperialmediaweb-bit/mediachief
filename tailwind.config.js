@@ -12,20 +12,20 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Open Sans', ...defaultTheme.fontFamily.sans],
-                heading: ['Roboto', ...defaultTheme.fontFamily.sans],
+                sans: ['var(--font-body, "Open Sans")', ...defaultTheme.fontFamily.sans],
+                heading: ['var(--font-heading, "Roboto")', ...defaultTheme.fontFamily.sans],
             },
             colors: {
                 brand: {
-                    red: '#e51a2f',
-                    dark: '#0a0a0a',
-                    darker: '#070707',
-                    gray: '#1a1a1a',
-                    'gray-light': '#222222',
-                    'gray-medium': '#333333',
-                    'text-muted': '#999999',
-                    'text-light': '#aaaaaa',
-                    'border': '#2a2a2a',
+                    red: 'var(--brand-primary, #e51a2f)',
+                    dark: 'var(--brand-dark, #0a0a0a)',
+                    darker: 'var(--brand-darker, #070707)',
+                    gray: 'var(--brand-gray, #1a1a1a)',
+                    'gray-light': 'var(--brand-gray-light, #222222)',
+                    'gray-medium': 'var(--brand-gray-medium, #333333)',
+                    'text-muted': 'var(--brand-text-muted, #999999)',
+                    'text-light': 'var(--brand-text-light, #aaaaaa)',
+                    'border': 'var(--brand-border, #2a2a2a)',
                 },
             },
         },

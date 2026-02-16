@@ -101,6 +101,33 @@ class SiteResource extends Resource
                             ->default(true),
                     ])->columns(2),
 
+                Forms\Components\Section::make('Theme Customization')
+                    ->description('Customize colors, fonts, and CSS for this site')
+                    ->schema([
+                        Forms\Components\ColorPicker::make('settings.theme.primary_color')
+                            ->label('Primary Color (accent)')
+                            ->helperText('Main brand color (buttons, links, badges)'),
+                        Forms\Components\ColorPicker::make('settings.theme.secondary_color')
+                            ->label('Secondary Color'),
+                        Forms\Components\ColorPicker::make('settings.theme.nav_bg')
+                            ->label('Navigation Background'),
+                        Forms\Components\ColorPicker::make('settings.theme.nav_text')
+                            ->label('Navigation Text Color'),
+                        Forms\Components\TextInput::make('settings.theme.heading_font')
+                            ->label('Heading Font')
+                            ->placeholder('Roboto')
+                            ->helperText('Google Font name for headings'),
+                        Forms\Components\TextInput::make('settings.theme.body_font')
+                            ->label('Body Font')
+                            ->placeholder('Open Sans')
+                            ->helperText('Google Font name for body text'),
+                        Forms\Components\Textarea::make('settings.theme.custom_css')
+                            ->label('Custom CSS')
+                            ->rows(5)
+                            ->placeholder('/* Custom CSS overrides */')
+                            ->columnSpanFull(),
+                    ])->columns(2)->collapsed(),
+
                 Forms\Components\Section::make('SEO')
                     ->schema([
                         Forms\Components\KeyValue::make('seo_settings')

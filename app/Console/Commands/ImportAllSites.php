@@ -232,9 +232,45 @@ class ImportAllSites extends Command
             $this->line("  [" . ($dryRun ? 'DRY' : 'OK') . "] Logo URL saved: {$settings['logo_url']}");
         }
 
-        // Update description if empty
-        if (! empty($settings['description'] ?? null) && empty($site->description)) {
-            // Description comes from the parent export, not settings
+        // Import theme settings (colors, fonts, custom CSS)
+        $wpTheme = $settings['theme'] ?? [];
+        if (! empty($wpTheme)) {
+            $siteSettings = $site->settings ?? [];
+            $themeSettings = $siteSettings['theme'] ?? [];
+
+            // Import theme colors
+            $colors = $wpTheme['colors'] ?? [];
+            if (! empty($colors['primary_color']) || ! empty($colors['accent_color'])) {
+                $themeSettings['primary_color'] = $colors['primary_color'] ?? $colors['accent_color'] ?? null;
+                $this->line("  [" . ($dryRun ? 'DRY' : 'OK') . "] Theme primary color: " . ($themeSettings['primary_color'] ?? 'none'));
+            }
+            if (! empty($colors['header_background_color'])) {
+                $themeSettings['nav_bg'] = $colors['header_background_color'];
+            }
+
+            // Import custom CSS from WordPress
+            if (! empty($wpTheme['custom_css'])) {
+                $themeSettings['custom_css'] = $wpTheme['custom_css'];
+                $this->line("  [" . ($dryRun ? 'DRY' : 'OK') . "] Custom CSS imported (" . strlen($wpTheme['custom_css']) . " chars)");
+            }
+
+            // Store WP theme info for reference
+            $themeSettings['wp_theme_name'] = $wpTheme['name'] ?? null;
+            $themeSettings['wp_theme_slug'] = $wpTheme['slug'] ?? null;
+
+            $siteSettings['theme'] = $themeSettings;
+            $updates['settings'] = $siteSettings;
+
+            $this->line("  [" . ($dryRun ? 'DRY' : 'OK') . "] WP theme: " . ($wpTheme['name'] ?? 'unknown'));
+        }
+
+        // Import menus
+        $menus = $settings['menus'] ?? [];
+        if (! empty($menus)) {
+            $siteSettings = $updates['settings'] ?? $site->settings ?? [];
+            $siteSettings['menus'] = $menus;
+            $updates['settings'] = $siteSettings;
+            $this->line("  [" . ($dryRun ? 'DRY' : 'OK') . "] " . count($menus) . " navigation menus imported");
         }
 
         if (! $dryRun && ! empty($updates)) {

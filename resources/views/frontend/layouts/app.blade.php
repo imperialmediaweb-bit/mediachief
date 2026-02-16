@@ -13,9 +13,88 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    {{-- Per-site theme: CSS variables from site settings --}}
+    @php
+        $theme = $currentSite->settings['theme'] ?? [];
+        $analytics = $currentSite->analytics ?? [];
+    @endphp
+
+    @if(!empty($theme))
+    <style>
+        :root {
+            @if(!empty($theme['primary_color']))
+            --brand-primary: {{ $theme['primary_color'] }};
+            @endif
+            @if(!empty($theme['secondary_color']))
+            --brand-secondary: {{ $theme['secondary_color'] }};
+            @endif
+            @if(!empty($theme['nav_bg']))
+            --nav-bg: {{ $theme['nav_bg'] }};
+            @endif
+            @if(!empty($theme['nav_text']))
+            --nav-text: {{ $theme['nav_text'] }};
+            @endif
+            @if(!empty($theme['heading_font']))
+            --font-heading: '{{ $theme['heading_font'] }}';
+            @endif
+            @if(!empty($theme['body_font']))
+            --font-body: '{{ $theme['body_font'] }}';
+            @endif
+        }
+    </style>
+    @endif
+
+    @if(!empty($theme['custom_css']))
+    <style>{!! $theme['custom_css'] !!}</style>
+    @endif
+
+    {{-- Load custom Google Fonts if specified --}}
+    @if(!empty($theme['heading_font']) || !empty($theme['body_font']))
+    @php
+        $fonts = collect([$theme['heading_font'] ?? null, $theme['body_font'] ?? null])
+            ->filter()->unique()
+            ->map(fn($f) => str_replace(' ', '+', $f) . ':wght@400;500;600;700;900')
+            ->implode('&family=');
+    @endphp
+    @if($fonts)
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family={{ $fonts }}&display=swap" rel="stylesheet">
+    @endif
+    @endif
+
+    {{-- Google Analytics (GA4 or Universal) --}}
+    @if(!empty($analytics['google_analytics_4']))
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $analytics['google_analytics_4'] }}"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ $analytics['google_analytics_4'] }}');</script>
+    @elseif(!empty($analytics['google_analytics_ua']))
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $analytics['google_analytics_ua'] }}"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ $analytics['google_analytics_ua'] }}');</script>
+    @endif
+
+    {{-- Google Tag Manager --}}
+    @if(!empty($analytics['google_tag_manager']))
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','{{ $analytics['google_tag_manager'] }}');</script>
+    @endif
+
+    {{-- Google Search Console verification --}}
+    @if(!empty($currentSite->seo_settings['google_site_verification']))
+    <meta name="google-site-verification" content="{{ $currentSite->seo_settings['google_site_verification'] }}">
+    @endif
+
+    {{-- Google AdSense --}}
+    @if(!empty($analytics['google_adsense']))
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ $analytics['google_adsense'] }}" crossorigin="anonymous"></script>
+    @endif
+
     @stack('head')
 </head>
 <body class="min-h-screen antialiased">
+
+    {{-- GTM noscript fallback --}}
+    @if(!empty($analytics['google_tag_manager']))
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $analytics['google_tag_manager'] }}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    @endif
 
     {{-- Top bar --}}
     @include('frontend.partials.topbar')

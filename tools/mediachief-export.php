@@ -139,6 +139,103 @@ $plugin_names = array_map(function($p) {
 }, $active_plugins);
 $export['settings']['active_plugins'] = array_values($plugin_names);
 
+// ── Export WordPress Theme Settings ──
+$current_theme = wp_get_theme();
+$theme_slug = get_option('stylesheet');
+$theme_mods = get_theme_mods();
+
+$export['settings']['theme'] = [
+    'name' => $current_theme->get('Name'),
+    'version' => $current_theme->get('Version'),
+    'slug' => $theme_slug,
+    'parent' => $current_theme->parent() ? $current_theme->parent()->get('Name') : null,
+];
+
+// Extract theme colors from customizer
+$theme_colors = [];
+$color_keys = [
+    'header_textcolor', 'background_color', 'accent_color',
+    'primary_color', 'secondary_color', 'link_color',
+    'header_background_color', 'footer_background_color',
+];
+foreach ($color_keys as $key) {
+    if (!empty($theme_mods[$key])) {
+        $val = $theme_mods[$key];
+        // Ensure hex format
+        if (!str_starts_with($val, '#') && ctype_xdigit($val)) {
+            $val = '#' . $val;
+        }
+        $theme_colors[$key] = $val;
+    }
+}
+
+// Also check theme options (popular theme frameworks store colors here)
+$theme_options = get_option($theme_slug . '_options', get_option('theme_options', []));
+if (is_array($theme_options)) {
+    foreach (['primary_color', 'accent_color', 'brand_color', 'link_color'] as $key) {
+        if (!empty($theme_options[$key]) && empty($theme_colors[$key])) {
+            $theme_colors[$key] = $theme_options[$key];
+        }
+    }
+}
+
+$export['settings']['theme']['colors'] = $theme_colors;
+
+// Header image / background
+if (!empty($theme_mods['header_image']) && $theme_mods['header_image'] !== 'remove-header') {
+    $export['settings']['theme']['header_image'] = $theme_mods['header_image'];
+}
+if (!empty($theme_mods['background_image'])) {
+    $export['settings']['theme']['background_image'] = $theme_mods['background_image'];
+}
+
+// Custom CSS (WordPress core + theme)
+$custom_css_post = wp_get_custom_css_post();
+if ($custom_css_post) {
+    $export['settings']['theme']['custom_css'] = $custom_css_post->post_content;
+}
+
+// Menus
+$nav_menus = wp_get_nav_menus();
+$export['settings']['menus'] = [];
+$menu_locations = get_nav_menu_locations();
+
+foreach ($nav_menus as $menu) {
+    $items = wp_get_nav_menu_items($menu->term_id);
+    $menu_data = [
+        'name' => $menu->name,
+        'slug' => $menu->slug,
+        'location' => array_search($menu->term_id, $menu_locations) ?: null,
+        'items' => [],
+    ];
+
+    if ($items) {
+        foreach ($items as $item) {
+            $menu_data['items'][] = [
+                'title' => $item->title,
+                'url' => $item->url,
+                'type' => $item->type,
+                'object' => $item->object,
+                'object_id' => $item->object_id,
+                'parent' => (int)$item->menu_item_parent ?: null,
+                'order' => $item->menu_order,
+                'target' => $item->target,
+                'classes' => array_filter($item->classes),
+            ];
+        }
+    }
+
+    $export['settings']['menus'][] = $menu_data;
+}
+
+// Widgets/sidebars
+$sidebars_widgets = get_option('sidebars_widgets', []);
+$export['settings']['widgets'] = [];
+foreach ($sidebars_widgets as $sidebar => $widgets) {
+    if ($sidebar === 'wp_inactive_widgets' || !is_array($widgets)) continue;
+    $export['settings']['widgets'][$sidebar] = count($widgets);
+}
+
 // ── Export WordPress categories ──
 $wp_categories = get_categories(['hide_empty' => false]);
 foreach ($wp_categories as $cat) {
