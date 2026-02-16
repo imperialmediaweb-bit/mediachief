@@ -111,5 +111,13 @@ else
 fi
 
 echo "Starting Apache..."
+# Verify Apache config before starting
+apache2ctl configtest 2>&1 || {
+    echo "Apache config test failed. Checking MPM modules..."
+    ls -la /etc/apache2/mods-enabled/mpm_* 2>/dev/null
+    echo "Attempting MPM fix..."
+    rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.*
+    apache2ctl configtest 2>&1
+}
 # Start Apache
 exec "$@"
