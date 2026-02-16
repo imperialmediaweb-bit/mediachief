@@ -6,6 +6,47 @@ if [ -n "$PORT" ]; then
     sed -i "s/:80/:$PORT/" /etc/apache2/sites-available/*.conf
 fi
 
+# Create .env file if it doesn't exist (Railway provides env vars, but Laravel needs .env for artisan commands)
+if [ ! -f /var/www/html/.env ]; then
+    echo "Creating .env from environment variables..."
+    cat > /var/www/html/.env <<EOF
+APP_NAME=${APP_NAME:-MediaChief}
+APP_ENV=${APP_ENV:-production}
+APP_KEY=${APP_KEY:-}
+APP_DEBUG=${APP_DEBUG:-false}
+APP_URL=${APP_URL:-http://localhost}
+
+DB_CONNECTION=${DB_CONNECTION:-mysql}
+DB_HOST=${DB_HOST:-127.0.0.1}
+DB_PORT=${DB_PORT:-3306}
+DB_DATABASE=${DB_DATABASE:-mediachief}
+DB_USERNAME=${DB_USERNAME:-root}
+DB_PASSWORD=${DB_PASSWORD:-}
+
+CACHE_STORE=${CACHE_STORE:-database}
+QUEUE_CONNECTION=${QUEUE_CONNECTION:-database}
+SESSION_DRIVER=${SESSION_DRIVER:-database}
+SESSION_LIFETIME=${SESSION_LIFETIME:-120}
+
+LOG_CHANNEL=${LOG_CHANNEL:-stack}
+LOG_STACK=${LOG_STACK:-single}
+LOG_LEVEL=${LOG_LEVEL:-error}
+
+FILESYSTEM_DISK=${FILESYSTEM_DISK:-local}
+
+FILAMENT_PATH=${FILAMENT_PATH:-admin}
+
+OPENAI_API_KEY=${OPENAI_API_KEY:-}
+OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+
+PIXABAY_API_KEY=${PIXABAY_API_KEY:-}
+
+ADMIN_PASSWORD=${ADMIN_PASSWORD:-ChangeMeNow!}
+EOF
+    chown www-data:www-data /var/www/html/.env
+    chmod 640 /var/www/html/.env
+fi
+
 # Generate APP_KEY if not set
 if [ -z "$APP_KEY" ]; then
     echo "WARNING: APP_KEY not set, generating one..."
