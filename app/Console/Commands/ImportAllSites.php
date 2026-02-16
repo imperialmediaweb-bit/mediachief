@@ -40,15 +40,16 @@ class ImportAllSites extends Command
             $dir = $this->ask('Directory with JSON export files (or use --file for a single combined file)');
         }
 
-        $exports = $this->loadExports($dir, $file);
+        // Get list of files to process (without loading content)
+        $exportFiles = $this->getExportFiles($dir, $file);
 
-        if (empty($exports)) {
+        if (empty($exportFiles)) {
             $this->error('No valid export files found.');
 
             return self::FAILURE;
         }
 
-        $this->info("Found " . count($exports) . " site exports to import.");
+        $this->info("Found " . count($exportFiles) . " export files to process.");
         $this->newLine();
 
         if ($dryRun) {
@@ -63,22 +64,47 @@ class ImportAllSites extends Command
             'pages' => 0,
             'sites_ok' => 0,
             'sites_skip' => 0,
+            'sites_failed' => 0,
         ];
 
-        foreach ($exports as $export) {
-            $siteUrl = $export['site_url'] ?? '';
+        // Process ONE file at a time to avoid memory issues (files are 60-97MB each)
+        foreach ($exportFiles as $i => $exportFile) {
+            $num = $i + 1;
+            $total = count($exportFiles);
+            $fileName = basename($exportFile);
+
+            $this->info("━━━ [{$num}/{$total}] Loading {$fileName}... ━━━");
+
+            // Load single file into memory
+            $json = file_get_contents($exportFile);
+            $export = json_decode($json, true);
+
+            // Free the raw JSON string immediately
+            unset($json);
+
+            if (! $export || empty($export['site_url'])) {
+                $this->warn("  Skipping {$fileName}: invalid format or missing site_url");
+                $totals['sites_failed']++;
+                unset($export);
+
+                continue;
+            }
+
+            $siteUrl = $export['site_url'];
             $siteName = $export['site_name'] ?? '';
             $domain = parse_url($siteUrl, PHP_URL_HOST);
 
             if (empty($domain)) {
-                $this->warn("Skipping export with no site_url");
+                $this->warn("  Skipping: could not parse domain from {$siteUrl}");
+                $totals['sites_failed']++;
+                unset($export);
 
                 continue;
             }
 
             $domainClean = preg_replace('/^www\./', '', $domain);
 
-            $this->info("━━━ {$siteName} ({$domain}) ━━━");
+            $this->info("  Site: {$siteName} ({$domain})");
 
             // Find matching MediaChief site
             $site = Site::where('domain', $domain)
@@ -87,7 +113,6 @@ class ImportAllSites extends Command
                 ->first();
 
             if (! $site) {
-                // Auto-create site if it doesn't exist
                 if (! $dryRun) {
                     $site = Site::create([
                         'name' => $siteName ?: ucfirst(explode('.', $domainClean)[0]) . ' Express',
@@ -102,6 +127,7 @@ class ImportAllSites extends Command
                 } else {
                     $this->line("  [DRY] Would create site: {$siteName} ({$domainClean})");
                     $totals['sites_skip']++;
+                    unset($export);
                     $this->newLine();
 
                     continue;
@@ -163,6 +189,13 @@ class ImportAllSites extends Command
             }
 
             $totals['sites_ok']++;
+
+            // Free memory before loading next file
+            unset($export, $categoryMap);
+            gc_collect_cycles();
+
+            $mem = round(memory_get_usage(true) / 1024 / 1024);
+            $this->line("  Memory: {$mem}MB");
             $this->newLine();
         }
 
@@ -170,6 +203,7 @@ class ImportAllSites extends Command
         $this->info("Import complete!");
         $this->info("  Sites processed: {$totals['sites_ok']}");
         $this->info("  Sites skipped:   {$totals['sites_skip']}");
+        $this->info("  Sites failed:    {$totals['sites_failed']}");
         $this->info("  Categories:      {$totals['categories']}");
         $this->info("  Campaigns:       {$totals['campaigns']}");
         $this->info("  Articles:        {$totals['articles']}");
@@ -186,47 +220,27 @@ class ImportAllSites extends Command
     }
 
     /**
-     * Load exports from directory of JSON files or a single combined JSON.
+     * Get list of export file paths without loading them into memory.
      */
-    private function loadExports(?string $dir, ?string $file): array
+    private function getExportFiles(?string $dir, ?string $file): array
     {
-        $exports = [];
-
         if ($file && file_exists($file)) {
-            $json = file_get_contents($file);
-            $data = json_decode($json, true);
-
-            if (is_array($data)) {
-                if (isset($data[0]['site_url'])) {
-                    return $data;
-                }
-                if (isset($data['site_url'])) {
-                    return [$data];
-                }
-            }
-
-            return [];
+            return [$file];
         }
 
         if ($dir && is_dir($dir)) {
             $files = glob(rtrim($dir, '/') . '/*.json');
 
-            foreach ($files as $f) {
-                if (basename($f) === 'all-sites-export.json') {
-                    continue;
-                }
+            // Filter out combined exports and log files
+            return array_values(array_filter($files, function ($f) {
+                $basename = basename($f);
 
-                $json = file_get_contents($f);
-                $data = json_decode($json, true);
-
-                if ($data && isset($data['site_url'])) {
-                    $exports[] = $data;
-                    $this->line("  Loaded: " . basename($f));
-                }
-            }
+                return $basename !== 'all-sites-export.json'
+                    && $basename !== 'migration.log';
+            }));
         }
 
-        return $exports;
+        return [];
     }
 
     /**
