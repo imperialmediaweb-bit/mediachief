@@ -10,6 +10,9 @@ fi
 # Run migrations
 php artisan migrate --force 2>/dev/null || true
 
+# Create admin user if it doesn't exist
+php artisan tinker --execute="App\Models\User::firstOrCreate(['email'=>'admin@mediachief.ro'],['name'=>'Admin','password'=>bcrypt(env('ADMIN_PASSWORD','ChangeMeNow!'))]);" 2>/dev/null || true
+
 # Cache configuration
 php artisan config:cache
 php artisan route:cache
