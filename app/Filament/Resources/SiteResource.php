@@ -4,10 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SiteResource\Pages;
 use App\Jobs\ImportWordPressJob;
+use App\Jobs\ImportWordPressSiteSettingsJob;
 use App\Models\Category;
 use App\Models\RssFeed;
 use App\Models\Site;
 use App\Services\WordPressImportService;
+use App\Services\WordPressSiteSettingsService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -161,6 +163,140 @@ class SiteResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('wp_full_migration')
+                        ->label('Full WordPress Migration')
+                        ->icon('heroicon-o-rocket-launch')
+                        ->color('primary')
+                        ->visible(fn (Site $record) => ! empty($record->wordpress_url))
+                        ->requiresConfirmation()
+                        ->modalHeading('Complete WordPress Migration')
+                        ->modalDescription(fn (Site $record) => "Import EVERYTHING from {$record->wordpress_url}: settings, favicon, analytics, categories, articles, and RSS feeds.")
+                        ->modalIcon('heroicon-o-rocket-launch')
+                        ->form([
+                            Forms\Components\Section::make('What to import')
+                                ->schema([
+                                    Forms\Components\Toggle::make('import_settings')
+                                        ->label('Site Settings (favicon, Google Analytics, Search Console)')
+                                        ->default(true)
+                                        ->helperText('Downloads favicon, extracts GA tracking ID and Search Console verification'),
+                                    Forms\Components\Toggle::make('import_articles')
+                                        ->label('All Articles (via WordPress REST API)')
+                                        ->default(true)
+                                        ->helperText('Imports all published articles with images, categories, tags'),
+                                    Forms\Components\Toggle::make('import_feeds')
+                                        ->label('RSS Feed Campaigns (auto-discover from WP categories)')
+                                        ->default(true)
+                                        ->helperText('Creates RSS feed campaigns for each WordPress category'),
+                                ]),
+                            Forms\Components\Section::make('Processing options')
+                                ->schema([
+                                    Forms\Components\Toggle::make('ai_rewrite')
+                                        ->label('AI Rewrite articles')
+                                        ->default(false),
+                                    Forms\Components\Toggle::make('fetch_images')
+                                        ->label('Pixabay images for articles without images')
+                                        ->default(false),
+                                    Forms\Components\Toggle::make('auto_publish')
+                                        ->label('Auto-publish imported articles')
+                                        ->default(true),
+                                ]),
+                        ])
+                        ->action(function (Site $record, array $data) {
+                            $wpUrl = $record->wordpress_url;
+                            $queued = [];
+
+                            // 1. Import site settings (favicon, GA, Search Console)
+                            if ($data['import_settings'] ?? true) {
+                                ImportWordPressSiteSettingsJob::dispatch(
+                                    site: $record,
+                                    wpUrl: $wpUrl,
+                                );
+                                $queued[] = 'settings (favicon, analytics, SEO)';
+                            }
+
+                            // 2. Import RSS feed campaigns
+                            if ($data['import_feeds'] ?? true) {
+                                $wpService = app(WordPressImportService::class);
+                                $feeds = $wpService->discoverFeeds($wpUrl);
+                                $created = 0;
+
+                                foreach ($feeds as $feed) {
+                                    $exists = RssFeed::where('site_id', $record->id)
+                                        ->where('url', $feed['url'])
+                                        ->exists();
+
+                                    if ($exists) {
+                                        continue;
+                                    }
+
+                                    $categoryId = null;
+                                    if (! empty($feed['wp_category_slug'])) {
+                                        $cat = Category::firstOrCreate(
+                                            ['site_id' => $record->id, 'slug' => $feed['wp_category_slug']],
+                                            ['name' => $feed['wp_category_name'], 'is_active' => true, 'sort_order' => 0]
+                                        );
+                                        $categoryId = $cat->id;
+                                    }
+
+                                    RssFeed::create([
+                                        'site_id' => $record->id,
+                                        'category_id' => $categoryId,
+                                        'name' => $feed['title'],
+                                        'url' => $feed['url'],
+                                        'source_name' => parse_url($wpUrl, PHP_URL_HOST),
+                                        'fetch_interval' => 30,
+                                        'is_active' => true,
+                                        'auto_publish' => $data['auto_publish'] ?? true,
+                                        'ai_rewrite' => $data['ai_rewrite'] ?? false,
+                                        'ai_language' => $record->language ?? 'en',
+                                        'fetch_images' => $data['fetch_images'] ?? false,
+                                    ]);
+                                    $created++;
+                                }
+
+                                $queued[] = "{$created} RSS feeds";
+                            }
+
+                            // 3. Import all articles
+                            if ($data['import_articles'] ?? true) {
+                                ImportWordPressJob::dispatch(
+                                    site: $record,
+                                    wpUrl: $wpUrl,
+                                    page: 1,
+                                    aiProcess: $data['ai_rewrite'] ?? false,
+                                );
+                                $queued[] = 'all articles';
+                            }
+
+                            Notification::make()
+                                ->title('Full WordPress Migration Started!')
+                                ->body('Importing: ' . implode(', ', $queued))
+                                ->success()
+                                ->duration(10000)
+                                ->send();
+                        }),
+
+                    Tables\Actions\Action::make('wp_import_settings')
+                        ->label('Import WP Settings')
+                        ->icon('heroicon-o-cog-6-tooth')
+                        ->color('gray')
+                        ->visible(fn (Site $record) => ! empty($record->wordpress_url))
+                        ->requiresConfirmation()
+                        ->modalHeading('Import WordPress Site Settings')
+                        ->modalDescription(fn (Site $record) => "Extract favicon, Google Analytics, Search Console and SEO settings from {$record->wordpress_url}")
+                        ->action(function (Site $record) {
+                            ImportWordPressSiteSettingsJob::dispatch(
+                                site: $record,
+                                wpUrl: $record->wordpress_url,
+                            );
+
+                            Notification::make()
+                                ->title('Settings import started')
+                                ->body("Extracting favicon, analytics & SEO from {$record->wordpress_url}")
+                                ->success()
+                                ->send();
+                        }),
+
                     Tables\Actions\Action::make('wp_import_articles')
                         ->label('Import WP Articles')
                         ->icon('heroicon-o-arrow-down-tray')
@@ -479,32 +615,97 @@ class SiteResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
 
                     Tables\Actions\BulkAction::make('bulk_migrate')
-                        ->label('Migrate from WordPress')
-                        ->icon('heroicon-o-arrow-path')
-                        ->color('warning')
+                        ->label('Full Migration from WordPress')
+                        ->icon('heroicon-o-rocket-launch')
+                        ->color('primary')
                         ->requiresConfirmation()
-                        ->modalHeading('Bulk WordPress Migration')
-                        ->modalDescription('Import articles and campaigns from WordPress for all selected sites.')
+                        ->modalHeading('Bulk Full WordPress Migration')
+                        ->modalIcon('heroicon-o-rocket-launch')
+                        ->modalDescription('Import EVERYTHING from WordPress for all selected sites: settings, favicon, analytics, articles, feeds.')
                         ->form([
-                            Forms\Components\Toggle::make('import_articles')
-                                ->label('Import articles via WP REST API')
-                                ->default(true),
-                            Forms\Components\Toggle::make('ai_rewrite')
-                                ->label('Enable AI Rewrite')
-                                ->default(true),
-                            Forms\Components\Toggle::make('fetch_images')
-                                ->label('Enable Pixabay images')
-                                ->default(true),
-                            Forms\Components\Toggle::make('auto_publish')
-                                ->label('Auto-publish articles')
-                                ->default(true),
+                            Forms\Components\Section::make('What to import')
+                                ->schema([
+                                    Forms\Components\Toggle::make('import_settings')
+                                        ->label('Site Settings (favicon, Google Analytics, Search Console)')
+                                        ->default(true),
+                                    Forms\Components\Toggle::make('import_articles')
+                                        ->label('All Articles via WP REST API')
+                                        ->default(true),
+                                    Forms\Components\Toggle::make('import_feeds')
+                                        ->label('Auto-discover RSS Feed Campaigns')
+                                        ->default(true),
+                                ]),
+                            Forms\Components\Section::make('Processing options')
+                                ->schema([
+                                    Forms\Components\Toggle::make('ai_rewrite')
+                                        ->label('Enable AI Rewrite')
+                                        ->default(false),
+                                    Forms\Components\Toggle::make('fetch_images')
+                                        ->label('Enable Pixabay images')
+                                        ->default(false),
+                                    Forms\Components\Toggle::make('auto_publish')
+                                        ->label('Auto-publish articles')
+                                        ->default(true),
+                                ]),
                         ])
                         ->action(function ($records, array $data) {
                             $queued = 0;
+                            $settingsQueued = 0;
+                            $feedsCreated = 0;
 
                             foreach ($records as $site) {
                                 $wpUrl = $site->wordpress_url ?: "https://{$site->domain}";
 
+                                // Import site settings
+                                if ($data['import_settings'] ?? true) {
+                                    ImportWordPressSiteSettingsJob::dispatch(
+                                        site: $site,
+                                        wpUrl: $wpUrl,
+                                    );
+                                    $settingsQueued++;
+                                }
+
+                                // Import RSS feeds
+                                if ($data['import_feeds'] ?? true) {
+                                    $wpService = app(WordPressImportService::class);
+                                    $feeds = $wpService->discoverFeeds($wpUrl);
+
+                                    foreach ($feeds as $feed) {
+                                        $exists = RssFeed::where('site_id', $site->id)
+                                            ->where('url', $feed['url'])
+                                            ->exists();
+
+                                        if ($exists) {
+                                            continue;
+                                        }
+
+                                        $categoryId = null;
+                                        if (! empty($feed['wp_category_slug'])) {
+                                            $cat = Category::firstOrCreate(
+                                                ['site_id' => $site->id, 'slug' => $feed['wp_category_slug']],
+                                                ['name' => $feed['wp_category_name'], 'is_active' => true, 'sort_order' => 0]
+                                            );
+                                            $categoryId = $cat->id;
+                                        }
+
+                                        RssFeed::create([
+                                            'site_id' => $site->id,
+                                            'category_id' => $categoryId,
+                                            'name' => $feed['title'],
+                                            'url' => $feed['url'],
+                                            'source_name' => parse_url($wpUrl, PHP_URL_HOST),
+                                            'fetch_interval' => 30,
+                                            'is_active' => true,
+                                            'auto_publish' => $data['auto_publish'] ?? true,
+                                            'ai_rewrite' => $data['ai_rewrite'] ?? false,
+                                            'ai_language' => $site->language ?? 'en',
+                                            'fetch_images' => $data['fetch_images'] ?? false,
+                                        ]);
+                                        $feedsCreated++;
+                                    }
+                                }
+
+                                // Import articles
                                 if ($data['import_articles'] ?? true) {
                                     ImportWordPressJob::dispatch(
                                         site: $site,
@@ -516,10 +717,22 @@ class SiteResource extends Resource
                                 }
                             }
 
+                            $parts = [];
+                            if ($settingsQueued > 0) {
+                                $parts[] = "{$settingsQueued} site settings";
+                            }
+                            if ($feedsCreated > 0) {
+                                $parts[] = "{$feedsCreated} RSS feeds";
+                            }
+                            if ($queued > 0) {
+                                $parts[] = "articles from {$queued} sites";
+                            }
+
                             Notification::make()
-                                ->title("Migration started for {$queued} sites")
-                                ->body('Articles are being imported in background. Check import logs for progress.')
+                                ->title("Full migration started for " . count($records) . " sites")
+                                ->body('Importing: ' . implode(', ', $parts) . '. Check import logs for progress.')
                                 ->success()
+                                ->duration(10000)
                                 ->send();
                         })
                         ->deselectRecordsAfterCompletion(),

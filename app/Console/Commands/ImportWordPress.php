@@ -3,10 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Jobs\ImportWordPressJob;
+use App\Jobs\ImportWordPressSiteSettingsJob;
 use App\Models\Category;
 use App\Models\RssFeed;
 use App\Models\Site;
 use App\Services\WordPressImportService;
+use App\Services\WordPressSiteSettingsService;
 use Illuminate\Console\Command;
 
 class ImportWordPress extends Command
@@ -16,12 +18,13 @@ class ImportWordPress extends Command
         {--wp-url= : WordPress site URL (e.g. https://example.com)}
         {--articles : Import existing articles via WP REST API}
         {--feeds : Auto-discover and create RSS feed campaigns}
-        {--all : Import both articles and create feeds}
+        {--settings : Import site settings (favicon, analytics, SEO)}
+        {--all : Import everything (articles, feeds, settings)}
         {--ai : Enable AI rewriting for imported content}
         {--images : Enable Pixabay image fetching}
         {--auto-publish : Auto-publish imported articles}';
 
-    protected $description = 'Import articles and RSS feed campaigns from a WordPress site';
+    protected $description = 'Full WordPress migration: articles, feeds, favicon, Google Analytics, Search Console';
 
     public function handle(WordPressImportService $wpService): int
     {
@@ -63,19 +66,26 @@ class ImportWordPress extends Command
         $importAll = $this->option('all');
         $importArticles = $importAll || $this->option('articles');
         $importFeeds = $importAll || $this->option('feeds');
+        $importSettings = $importAll || $this->option('settings');
         $aiEnabled = $this->option('ai');
         $imagesEnabled = $this->option('images');
         $autoPublish = $this->option('auto-publish');
 
-        if (! $importArticles && ! $importFeeds) {
+        if (! $importArticles && ! $importFeeds && ! $importSettings) {
             $importAll = true;
             $importArticles = true;
             $importFeeds = true;
+            $importSettings = true;
         }
 
         $this->info("Importing from: {$wpUrl}");
         $this->info("Into site: {$site->name} (#{$site->id})");
         $this->newLine();
+
+        // 0. Import site settings (favicon, GA, Search Console)
+        if ($importSettings) {
+            $this->importSettings($site, $wpUrl);
+        }
 
         // 1. Import RSS feeds (campaigns)
         if ($importFeeds) {
@@ -91,6 +101,39 @@ class ImportWordPress extends Command
         $this->info('Done! Check import logs in admin panel for progress.');
 
         return self::SUCCESS;
+    }
+
+    private function importSettings(Site $site, string $wpUrl): void
+    {
+        $this->info('Importing site settings (favicon, analytics, SEO)...');
+
+        $service = app(WordPressSiteSettingsService::class);
+        $results = $service->importAll($site, $wpUrl);
+
+        if (! empty($results['favicon'])) {
+            $this->line('  [OK] Favicon downloaded');
+        } else {
+            $this->line('  [--] No favicon found');
+        }
+
+        foreach ($results['analytics'] as $key => $value) {
+            $this->line("  [OK] {$key}: {$value}");
+        }
+
+        foreach ($results['seo'] as $key => $value) {
+            $label = str_replace('_', ' ', $key);
+            $this->line("  [OK] {$label} imported");
+        }
+
+        if (! empty($results['site_info']['name'])) {
+            $this->line("  [OK] WP site info: {$results['site_info']['name']}");
+        }
+
+        if (empty($results['favicon']) && empty($results['analytics']) && empty($results['seo'])) {
+            $this->warn('  No settings found to import.');
+        }
+
+        $this->newLine();
     }
 
     private function importFeeds(
