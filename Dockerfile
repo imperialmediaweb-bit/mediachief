@@ -67,7 +67,9 @@ RUN ln -sf /var/www/html/storage/app/public /var/www/html/public/storage
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-EXPOSE 80
+# Railway uses PORT env variable, default to 80
+ENV PORT=80
+EXPOSE ${PORT}
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["apache2-foreground"]
