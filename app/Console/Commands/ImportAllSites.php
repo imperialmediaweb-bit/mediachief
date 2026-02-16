@@ -4,7 +4,9 @@ namespace App\Console\Commands;
 
 use App\Jobs\ImportWordPressJob;
 use App\Jobs\ImportWordPressSiteSettingsJob;
+use App\Models\Article;
 use App\Models\Category;
+use App\Models\Page;
 use App\Models\RssFeed;
 use App\Models\Site;
 use Illuminate\Console\Command;
@@ -16,19 +18,23 @@ class ImportAllSites extends Command
         {--dir= : Directory containing JSON export files from mediachief-export.php}
         {--file= : Single combined JSON file with all site exports}
         {--settings : Also import site settings (favicon, GA, Search Console) via WP API}
-        {--articles : Also import articles via WordPress REST API}
+        {--articles : Import articles directly from export JSON}
+        {--articles-api : Import articles via WordPress REST API (queued)}
+        {--pages : Import pages from export JSON}
+        {--all : Import everything from JSON (articles, pages, settings, campaigns)}
         {--ai : Enable AI rewriting on all campaigns}
         {--images : Enable Pixabay image fetching}
         {--auto-publish : Auto-publish articles}
         {--dry-run : Show what would be imported without making changes}';
 
-    protected $description = 'Bulk import all WordPress sites from export JSON files (campaigns, settings, articles)';
+    protected $description = 'Complete bulk import: all WordPress sites from export JSON (campaigns, articles, pages, settings, theme, GA, GSC - everything)';
 
     public function handle(): int
     {
         $dir = $this->option('dir');
         $file = $this->option('file');
         $dryRun = $this->option('dry-run');
+        $importAll = $this->option('all');
 
         if (! $dir && ! $file) {
             $dir = $this->ask('Directory with JSON export files (or use --file for a single combined file)');
@@ -50,10 +56,14 @@ class ImportAllSites extends Command
             $this->newLine();
         }
 
-        $totalCampaigns = 0;
-        $totalCategories = 0;
-        $sitesProcessed = 0;
-        $sitesSkipped = 0;
+        $totals = [
+            'campaigns' => 0,
+            'categories' => 0,
+            'articles' => 0,
+            'pages' => 0,
+            'sites_ok' => 0,
+            'sites_skip' => 0,
+        ];
 
         foreach ($exports as $export) {
             $siteUrl = $export['site_url'] ?? '';
@@ -66,7 +76,6 @@ class ImportAllSites extends Command
                 continue;
             }
 
-            // Remove www. for matching
             $domainClean = preg_replace('/^www\./', '', $domain);
 
             $this->info("━━━ {$siteName} ({$domain}) ━━━");
@@ -78,46 +87,71 @@ class ImportAllSites extends Command
                 ->first();
 
             if (! $site) {
-                $this->warn("  No matching site found for domain: {$domain}");
-                $this->line("  Create it first with: php artisan sites:bulk-create");
-                $sitesSkipped++;
-                $this->newLine();
+                // Auto-create site if it doesn't exist
+                if (! $dryRun) {
+                    $site = Site::create([
+                        'name' => $siteName ?: ucfirst(explode('.', $domainClean)[0]) . ' Express',
+                        'slug' => Str::slug($domainClean),
+                        'domain' => $domainClean,
+                        'wordpress_url' => $siteUrl,
+                        'language' => $export['settings']['language'] ?? 'en',
+                        'timezone' => $export['settings']['timezone'] ?? 'America/New_York',
+                        'is_active' => true,
+                    ]);
+                    $this->line("  [NEW] Created site: {$site->name} (ID: {$site->id})");
+                } else {
+                    $this->line("  [DRY] Would create site: {$siteName} ({$domainClean})");
+                    $totals['sites_skip']++;
+                    $this->newLine();
 
-                continue;
+                    continue;
+                }
+            } else {
+                $this->line("  Matched to: {$site->name} (ID: {$site->id})");
             }
 
-            $this->line("  Matched to: {$site->name} (ID: {$site->id})");
-
-            // Import settings from export (tracking, favicon URL, etc.)
+            // 1. Import ALL settings (tracking, theme, SEO, menus, widgets)
             if (! empty($export['settings'])) {
                 $this->importSettings($site, $export['settings'], $dryRun);
             }
 
-            // Import categories
+            // 2. Import categories
             $categoryMap = [];
             if (! empty($export['categories'])) {
                 $categoryMap = $this->importCategories($site, $export['categories'], $dryRun);
-                $totalCategories += count($categoryMap);
+                $totals['categories'] += count($categoryMap);
             }
 
-            // Import campaigns
+            // 3. Import campaigns (RSS feeds / WP Automatic)
             if (! empty($export['campaigns'])) {
                 $imported = $this->importCampaigns($site, $export['campaigns'], $categoryMap, $dryRun);
-                $totalCampaigns += $imported;
+                $totals['campaigns'] += $imported;
             }
 
-            // Import site settings via WP API (favicon download, etc.)
+            // 4. Import articles directly from JSON
+            if (($importAll || $this->option('articles')) && ! empty($export['posts'])) {
+                $imported = $this->importArticles($site, $export['posts'], $categoryMap, $dryRun);
+                $totals['articles'] += $imported;
+            }
+
+            // 5. Import pages from JSON
+            if (($importAll || $this->option('pages')) && ! empty($export['pages'])) {
+                $imported = $this->importPages($site, $export['pages'], $dryRun);
+                $totals['pages'] += $imported;
+            }
+
+            // 6. Import site settings via WP API (favicon download, etc.)
             if ($this->option('settings') && ! $dryRun) {
                 $wpUrl = $site->wordpress_url ?: $siteUrl;
                 ImportWordPressSiteSettingsJob::dispatch(
                     site: $site,
                     wpUrl: $wpUrl,
                 );
-                $this->line("  [QUEUED] Site settings import (favicon, GA, SEO)");
+                $this->line("  [QUEUED] Live settings import (favicon download, GA verify)");
             }
 
-            // Import articles via WP API
-            if ($this->option('articles') && ! $dryRun) {
+            // 7. Import articles via REST API (alternative to JSON import)
+            if ($this->option('articles-api') && ! $dryRun) {
                 $wpUrl = $site->wordpress_url ?: $siteUrl;
                 ImportWordPressJob::dispatch(
                     site: $site,
@@ -125,25 +159,27 @@ class ImportAllSites extends Command
                     page: 1,
                     aiProcess: $this->option('ai'),
                 );
-                $this->line("  [QUEUED] Article import from WordPress API");
+                $this->line("  [QUEUED] Article import from WordPress REST API");
             }
 
-            $sitesProcessed++;
+            $totals['sites_ok']++;
             $this->newLine();
         }
 
         $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         $this->info("Import complete!");
-        $this->info("  Sites processed: {$sitesProcessed}");
-        $this->info("  Sites skipped:   {$sitesSkipped}");
-        $this->info("  Categories:      {$totalCategories}");
-        $this->info("  Campaigns:       {$totalCampaigns}");
+        $this->info("  Sites processed: {$totals['sites_ok']}");
+        $this->info("  Sites skipped:   {$totals['sites_skip']}");
+        $this->info("  Categories:      {$totals['categories']}");
+        $this->info("  Campaigns:       {$totals['campaigns']}");
+        $this->info("  Articles:        {$totals['articles']}");
+        $this->info("  Pages:           {$totals['pages']}");
 
         if ($this->option('settings')) {
-            $this->info("  Settings import: queued for {$sitesProcessed} sites");
+            $this->info("  Live settings:   queued for {$totals['sites_ok']} sites");
         }
-        if ($this->option('articles')) {
-            $this->info("  Article import:  queued for {$sitesProcessed} sites");
+        if ($this->option('articles-api')) {
+            $this->info("  API articles:    queued for {$totals['sites_ok']} sites");
         }
 
         return self::SUCCESS;
@@ -161,11 +197,9 @@ class ImportAllSites extends Command
             $data = json_decode($json, true);
 
             if (is_array($data)) {
-                // Combined file: array of exports
                 if (isset($data[0]['site_url'])) {
                     return $data;
                 }
-                // Single export
                 if (isset($data['site_url'])) {
                     return [$data];
                 }
@@ -179,7 +213,7 @@ class ImportAllSites extends Command
 
             foreach ($files as $f) {
                 if (basename($f) === 'all-sites-export.json') {
-                    continue; // Skip combined file, use individual ones
+                    continue;
                 }
 
                 $json = file_get_contents($f);
@@ -196,14 +230,15 @@ class ImportAllSites extends Command
     }
 
     /**
-     * Import settings from the export (tracking IDs, etc.)
+     * Import ALL settings from the export (tracking, theme, SEO, menus, widgets).
      */
     private function importSettings(Site $site, array $settings, bool $dryRun): void
     {
-        $tracking = $settings['tracking'] ?? [];
+        $tag = $dryRun ? 'DRY' : 'OK';
         $updates = [];
 
-        // Import tracking/analytics data
+        // --- Tracking / Analytics ---
+        $tracking = $settings['tracking'] ?? [];
         if (! empty($tracking)) {
             $existing = $site->analytics ?? [];
             $merged = array_merge($existing, $tracking);
@@ -211,66 +246,146 @@ class ImportAllSites extends Command
             if ($merged !== $existing) {
                 $updates['analytics'] = $merged;
                 foreach ($tracking as $key => $value) {
-                    $this->line("  [" . ($dryRun ? 'DRY' : 'OK') . "] Analytics: {$key} = {$value}");
+                    if (is_string($value)) {
+                        $this->line("  [{$tag}] Analytics: {$key} = {$value}");
+                    }
                 }
             }
         }
 
-        // Store favicon URL for later download
-        if (! empty($settings['favicon_url']) && empty($site->favicon)) {
-            $seoSettings = $site->seo_settings ?? [];
+        // --- SEO settings ---
+        $seoSettings = $site->seo_settings ?? [];
+
+        // Favicon URL
+        if (! empty($settings['favicon_url'])) {
             $seoSettings['wp_favicon_url'] = $settings['favicon_url'];
-            $updates['seo_settings'] = $seoSettings;
-            $this->line("  [" . ($dryRun ? 'DRY' : 'OK') . "] Favicon URL saved: {$settings['favicon_url']}");
+            $this->line("  [{$tag}] Favicon: {$settings['favicon_url']}");
         }
 
-        // Store logo URL
-        if (! empty($settings['logo_url']) && empty($site->logo)) {
-            $seoSettings = $updates['seo_settings'] ?? $site->seo_settings ?? [];
+        // Logo URL
+        if (! empty($settings['logo_url'])) {
             $seoSettings['wp_logo_url'] = $settings['logo_url'];
-            $updates['seo_settings'] = $seoSettings;
-            $this->line("  [" . ($dryRun ? 'DRY' : 'OK') . "] Logo URL saved: {$settings['logo_url']}");
+            $this->line("  [{$tag}] Logo: {$settings['logo_url']}");
         }
 
-        // Import theme settings (colors, fonts, custom CSS)
+        // SEO plugin data (Yoast, Rank Math, AIO SEO)
+        $seo = $settings['seo'] ?? [];
+        if (! empty($seo)) {
+            $seoSettings['wp_seo_plugin'] = $seo['plugin'] ?? null;
+            $seoSettings['wp_seo_data'] = $seo;
+            $this->line("  [{$tag}] SEO plugin: " . ($seo['plugin'] ?? 'none'));
+        }
+
+        if (! empty($seoSettings)) {
+            $updates['seo_settings'] = $seoSettings;
+        }
+
+        // --- Site settings (theme, menus, widgets) ---
+        $siteSettings = $site->settings ?? [];
+
+        // Theme
         $wpTheme = $settings['theme'] ?? [];
         if (! empty($wpTheme)) {
-            $siteSettings = $site->settings ?? [];
             $themeSettings = $siteSettings['theme'] ?? [];
 
-            // Import theme colors
+            // Colors
             $colors = $wpTheme['colors'] ?? [];
-            if (! empty($colors['primary_color']) || ! empty($colors['accent_color'])) {
-                $themeSettings['primary_color'] = $colors['primary_color'] ?? $colors['accent_color'] ?? null;
-                $this->line("  [" . ($dryRun ? 'DRY' : 'OK') . "] Theme primary color: " . ($themeSettings['primary_color'] ?? 'none'));
-            }
-            if (! empty($colors['header_background_color'])) {
-                $themeSettings['nav_bg'] = $colors['header_background_color'];
+            if (! empty($colors)) {
+                $themeSettings['colors'] = $colors;
+                if (! empty($colors['primary_color']) || ! empty($colors['accent_color'])) {
+                    $themeSettings['primary_color'] = $colors['primary_color'] ?? $colors['accent_color'] ?? null;
+                }
+                if (! empty($colors['header_background_color'])) {
+                    $themeSettings['nav_bg'] = $colors['header_background_color'];
+                }
             }
 
-            // Import custom CSS from WordPress
+            // Custom CSS
             if (! empty($wpTheme['custom_css'])) {
                 $themeSettings['custom_css'] = $wpTheme['custom_css'];
-                $this->line("  [" . ($dryRun ? 'DRY' : 'OK') . "] Custom CSS imported (" . strlen($wpTheme['custom_css']) . " chars)");
+                $this->line("  [{$tag}] Custom CSS: " . strlen($wpTheme['custom_css']) . " chars");
             }
 
-            // Store WP theme info for reference
+            // Header/background images
+            if (! empty($wpTheme['header_image'])) {
+                $themeSettings['header_image'] = $wpTheme['header_image'];
+            }
+            if (! empty($wpTheme['background_image'])) {
+                $themeSettings['background_image'] = $wpTheme['background_image'];
+            }
+
+            // Theme info
             $themeSettings['wp_theme_name'] = $wpTheme['name'] ?? null;
             $themeSettings['wp_theme_slug'] = $wpTheme['slug'] ?? null;
+            $themeSettings['wp_theme_parent'] = $wpTheme['parent'] ?? null;
+
+            // All theme mods (raw backup)
+            if (! empty($wpTheme['all_mods'])) {
+                $themeSettings['wp_all_mods'] = $wpTheme['all_mods'];
+            }
 
             $siteSettings['theme'] = $themeSettings;
-            $updates['settings'] = $siteSettings;
-
-            $this->line("  [" . ($dryRun ? 'DRY' : 'OK') . "] WP theme: " . ($wpTheme['name'] ?? 'unknown'));
+            $this->line("  [{$tag}] Theme: " . ($wpTheme['name'] ?? 'unknown'));
         }
 
-        // Import menus
+        // Menus
         $menus = $settings['menus'] ?? [];
         if (! empty($menus)) {
-            $siteSettings = $updates['settings'] ?? $site->settings ?? [];
             $siteSettings['menus'] = $menus;
+            $this->line("  [{$tag}] Menus: " . count($menus) . " navigation menus");
+        }
+
+        // Widgets
+        $widgets = $settings['widgets'] ?? [];
+        if (! empty($widgets)) {
+            $siteSettings['widgets'] = $widgets;
+            $totalWidgets = 0;
+            foreach ($widgets as $sidebar => $items) {
+                $totalWidgets += count($items);
+            }
+            $this->line("  [{$tag}] Widgets: {$totalWidgets} across " . count($widgets) . " sidebars");
+        }
+
+        // Active plugins (for reference)
+        $plugins = $settings['active_plugins'] ?? [];
+        if (! empty($plugins)) {
+            $siteSettings['wp_plugins'] = $plugins;
+            $this->line("  [{$tag}] Plugins: " . count($plugins) . " active");
+        }
+
+        // Reading/Writing/Discussion settings
+        foreach (['reading', 'writing', 'discussion'] as $settingGroup) {
+            if (! empty($settings[$settingGroup])) {
+                $siteSettings["wp_{$settingGroup}"] = $settings[$settingGroup];
+            }
+        }
+
+        // General settings
+        if (! empty($settings['blogname'])) {
+            $siteSettings['wp_blogname'] = $settings['blogname'];
+        }
+        if (! empty($settings['blogdescription'])) {
+            $siteSettings['wp_blogdescription'] = $settings['blogdescription'];
+            if (empty($site->description)) {
+                $updates['description'] = $settings['blogdescription'];
+            }
+        }
+        if (! empty($settings['permalink_structure'])) {
+            $siteSettings['wp_permalink'] = $settings['permalink_structure'];
+        }
+
+        if (! empty($siteSettings)) {
             $updates['settings'] = $siteSettings;
-            $this->line("  [" . ($dryRun ? 'DRY' : 'OK') . "] " . count($menus) . " navigation menus imported");
+        }
+
+        // Update language/timezone if empty
+        if (empty($site->language) && ! empty($settings['language'])) {
+            $lang = $settings['language'];
+            // Convert WP locale (en_US) to simple lang code (en)
+            $updates['language'] = strlen($lang) > 2 ? substr($lang, 0, 2) : $lang;
+        }
+        if (empty($site->timezone) && ! empty($settings['timezone'])) {
+            $updates['timezone'] = $settings['timezone'];
         }
 
         if (! $dryRun && ! empty($updates)) {
@@ -288,6 +403,11 @@ class ImportAllSites extends Command
         $existing = 0;
 
         foreach ($wpCategories as $cat) {
+            $name = $cat['name'] ?? '';
+            if (empty($name) || strtolower($name) === 'uncategorized') {
+                continue;
+            }
+
             $slug = Str::slug($cat['slug'] ?: $cat['name']);
 
             $localCat = Category::where('site_id', $site->id)
@@ -391,9 +511,158 @@ class ImportAllSites extends Command
             $created++;
         }
 
-        $source = $campaign['source'] ?? 'mixed';
-        $this->line("  Campaigns: {$created} new, {$skipped} skipped [{$source}]");
+        $sources = array_unique(array_column($campaigns, 'source'));
+        $this->line("  Campaigns: {$created} new, {$skipped} existing [" . implode(', ', $sources) . "]");
 
         return $created;
+    }
+
+    /**
+     * Import articles directly from the export JSON (no API needed).
+     */
+    private function importArticles(Site $site, array $posts, array $categoryMap, bool $dryRun): int
+    {
+        $imported = 0;
+        $skipped = 0;
+        $failed = 0;
+
+        foreach ($posts as $post) {
+            try {
+                $title = $post['title'] ?? '';
+                if (empty($title)) {
+                    continue;
+                }
+
+                // Check duplicate by original_guid or slug
+                $guid = $post['original_guid'] ?? $post['guid'] ?? null;
+                if ($guid) {
+                    $exists = Article::where('site_id', $site->id)
+                        ->where('original_guid', $guid)
+                        ->exists();
+
+                    if ($exists) {
+                        $skipped++;
+
+                        continue;
+                    }
+                }
+
+                $slug = $post['slug'] ?? Str::slug($title);
+                $existsBySlug = Article::where('site_id', $site->id)
+                    ->where('slug', $slug)
+                    ->exists();
+
+                if ($existsBySlug) {
+                    $slug = $slug . '-' . Str::random(5);
+                }
+
+                // Map category
+                $categoryId = null;
+                $cats = $post['categories'] ?? [];
+                if (! empty($cats)) {
+                    $firstCat = is_array($cats[0]) ? $cats[0] : $cats;
+                    $wpCatId = $firstCat['term_id'] ?? $firstCat['id'] ?? null;
+                    if ($wpCatId && isset($categoryMap[$wpCatId])) {
+                        $categoryId = $categoryMap[$wpCatId];
+                    } elseif (! empty($firstCat['slug'])) {
+                        $localCat = Category::where('site_id', $site->id)
+                            ->where('slug', $firstCat['slug'])
+                            ->first();
+                        $categoryId = $localCat?->id;
+                    }
+                }
+
+                // Map status
+                $wpStatus = $post['status'] ?? 'publish';
+                $status = match ($wpStatus) {
+                    'publish' => 'published',
+                    'draft' => 'draft',
+                    'future' => 'scheduled',
+                    default => 'draft',
+                };
+
+                // Tags
+                $tags = $post['tags'] ?? [];
+                if (! empty($tags) && is_array($tags[0] ?? null)) {
+                    // Tags came as objects with name key
+                    $tags = array_column($tags, 'name');
+                }
+
+                if (! $dryRun) {
+                    Article::create([
+                        'site_id' => $site->id,
+                        'category_id' => $categoryId,
+                        'title' => $title,
+                        'slug' => Str::limit($slug, 230, ''),
+                        'excerpt' => $post['excerpt'] ?? null,
+                        'body' => $post['body'] ?? $post['content'] ?? '',
+                        'featured_image' => $post['featured_image'] ?? null,
+                        'featured_image_alt' => $post['featured_image_alt'] ?? null,
+                        'source_url' => $post['source_url'] ?? null,
+                        'source_name' => $post['source_name'] ?? null,
+                        'author' => $post['author'] ?? null,
+                        'status' => $status,
+                        'published_at' => $post['published_at'] ?? null,
+                        'tags' => ! empty($tags) ? $tags : null,
+                        'original_guid' => $guid,
+                    ]);
+                }
+
+                $imported++;
+            } catch (\Throwable $e) {
+                $failed++;
+            }
+        }
+
+        $this->line("  Articles: {$imported} imported, {$skipped} existing, {$failed} failed");
+
+        return $imported;
+    }
+
+    /**
+     * Import pages from the export JSON.
+     */
+    private function importPages(Site $site, array $wpPages, bool $dryRun): int
+    {
+        $imported = 0;
+        $skipped = 0;
+
+        foreach ($wpPages as $page) {
+            $title = $page['title'] ?? '';
+            if (empty($title)) {
+                continue;
+            }
+
+            $slug = $page['slug'] ?? Str::slug($title);
+
+            $exists = Page::where('site_id', $site->id)
+                ->where('slug', $slug)
+                ->exists();
+
+            if ($exists) {
+                $skipped++;
+
+                continue;
+            }
+
+            if (! $dryRun) {
+                Page::create([
+                    'site_id' => $site->id,
+                    'title' => $title,
+                    'slug' => $slug,
+                    'body' => $page['content'] ?? $page['body'] ?? '',
+                    'template' => $page['template'] ?? 'default',
+                    'is_published' => ($page['status'] ?? 'publish') === 'publish',
+                    'show_in_menu' => false,
+                    'sort_order' => 0,
+                ]);
+            }
+
+            $imported++;
+        }
+
+        $this->line("  Pages: {$imported} imported, {$skipped} existing");
+
+        return $imported;
     }
 }
