@@ -27,6 +27,29 @@
 // Increase limits for large sites
 @ini_set('memory_limit', '512M');
 @set_time_limit(600);
+error_reporting(E_ALL);
+@ini_set('display_errors', '0'); // We handle errors ourselves
+@ini_set('log_errors', '1');
+
+// Register a shutdown function BEFORE anything else to catch fatal errors.
+// This writes directly to php://stderr to bypass any output buffers.
+register_shutdown_function(function () {
+    $error = error_get_last();
+    if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        // Clean any remaining output buffers so our message goes to stdout
+        while (ob_get_level() > 0) {
+            @ob_end_clean();
+        }
+        $msg = json_encode([
+            'error' => true,
+            'message' => $error['message'],
+            'file' => $error['file'],
+            'line' => $error['line'],
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        fwrite(STDERR, "FATAL: {$error['message']} in {$error['file']}:{$error['line']}\n");
+        echo $msg;
+    }
+});
 
 // Prevent output buffering conflicts with WordPress shutdown handlers
 // and plugins like WP Hide & Security Enhancer that use ob callbacks.
@@ -298,7 +321,7 @@ $color_keys = [
 foreach ($color_keys as $key) {
     if (!empty($theme_mods[$key])) {
         $val = $theme_mods[$key];
-        if (!str_starts_with($val, '#') && ctype_xdigit($val)) $val = '#' . $val;
+        if (substr($val, 0, 1) !== '#' && ctype_xdigit($val)) $val = '#' . $val;
         $theme_colors[$key] = $val;
     }
 }
@@ -856,4 +879,20 @@ $export['summary'] = [
 ];
 
 // Output
-echo json_encode($export, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+$json = json_encode($export, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+if ($json === false) {
+    // JSON encoding failed - likely due to invalid UTF-8 in post content
+    // Retry with partial encoding to strip bad sequences
+    array_walk_recursive($export, function (&$val) {
+        if (is_string($val)) {
+            $val = mb_convert_encoding($val, 'UTF-8', 'UTF-8');
+        }
+    });
+    $json = json_encode($export, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
+    if ($json === false) {
+        fwrite(STDERR, "JSON encode failed: " . json_last_error_msg() . "\n");
+        echo json_encode(['error' => true, 'message' => 'JSON encoding failed: ' . json_last_error_msg()]);
+        exit(1);
+    }
+}
+echo $json;
