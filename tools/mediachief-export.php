@@ -67,11 +67,21 @@ ob_start();
 define('SHORTINIT', false);
 require_once __DIR__ . '/wp-load.php';
 
-// Discard any output WordPress or plugins generated during load
-ob_end_clean();
+// Discard ALL output buffers - WordPress and plugins may have added extra levels
+while (ob_get_level() > 0) {
+    @ob_end_clean();
+}
 
 // Remove WordPress shutdown output buffer flush to prevent fatal errors
 remove_action('shutdown', 'wp_ob_end_flush_all', 1);
+
+// Also remove any other shutdown hooks that might interfere with output
+remove_action('shutdown', 'fastcgi_finish_request', 999);
+
+// Verify we have a clean output path
+if (ob_get_level() > 0) {
+    @ob_end_clean();
+}
 
 if (php_sapi_name() !== 'cli') {
     header('Content-Type: application/json; charset=utf-8');
@@ -877,6 +887,11 @@ $export['summary'] = [
     'sources_found'              => array_values(array_unique(array_column($export['campaigns'], 'source'))),
     'active_plugins_count'       => count($export['settings']['active_plugins']),
 ];
+
+// Clean any output buffers that plugins may have added during execution
+while (ob_get_level() > 0) {
+    @ob_end_clean();
+}
 
 // Output
 $json = json_encode($export, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
