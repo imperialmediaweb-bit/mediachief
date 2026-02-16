@@ -77,9 +77,9 @@ if [ "$DB_READY" = true ]; then
     echo "Running migrations..."
     timeout 60 php artisan migrate --force 2>&1 || echo "Migration warning (may already be up to date)"
 
-    # Create admin user if it doesn't exist
+    # Create/update admin user
     echo "Ensuring admin user exists..."
-    timeout 15 php artisan tinker --execute="App\Models\User::firstOrCreate(['email'=>'admin@mediachief.ro'],['name'=>'Admin','password'=>bcrypt(env('ADMIN_PASSWORD','ChangeMeNow!'))]);" 2>/dev/null || true
+    timeout 15 php artisan tinker --execute="App\Models\User::updateOrCreate(['email'=>'admin@mediachief.ro'],['name'=>'Admin','password'=>bcrypt(env('ADMIN_PASSWORD','ChangeMeNow!'))]);" 2>/dev/null || true
 
     # Publish Filament assets
     echo "Publishing Filament assets..."
