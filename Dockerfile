@@ -24,8 +24,8 @@ RUN echo "opcache.enable=1\nopcache.memory_consumption=256\nopcache.max_accelera
 # Configure PHP
 RUN echo "memory_limit=256M\nupload_max_filesize=64M\npost_max_size=64M\nmax_execution_time=300" > /usr/local/etc/php/conf.d/custom.ini
 
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite headers
+# Enable Apache mod_rewrite, ensure only one MPM is loaded
+RUN a2dismod mpm_event mpm_worker 2>/dev/null; a2enmod mpm_prefork rewrite headers
 
 # Configure Apache to serve from /public
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
