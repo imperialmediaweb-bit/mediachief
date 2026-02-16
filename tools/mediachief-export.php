@@ -1,35 +1,143 @@
 <?php
 /**
- * MediaChief - WordPress Campaign Exporter
+ * MediaChief - Full WordPress Site Exporter
  *
  * Upload this file to the ROOT of each WordPress site and visit it in browser:
  * https://your-wp-site.com/mediachief-export.php
  *
- * It will output JSON with all RSS feed campaigns from popular plugins:
- * - WP RSS Aggregator (wprss_feed)
- * - WP Automatic (wp_automatic_camps)
- * - Flavor / CyberSEO
- * - Flavor (flavor_feed)
- * - Custom RSS feeds from wp_options
+ * Or run from CLI:
+ * php /path/to/wordpress/mediachief-export.php > export.json
  *
- * After downloading the JSON, import it with:
+ * Exports EVERYTHING:
+ * - Site settings (name, description, favicon, logo)
+ * - Google Analytics tracking IDs (GA4, UA, GTM)
+ * - Google Search Console verification
+ * - All categories with hierarchy
+ * - RSS campaigns from: WP Automatic, WP RSS Aggregator, Flavor, CyberSEO
+ * - Google News feeds
+ * - Active plugins list
+ * - Article count and stats
+ *
+ * Import with:
  * php artisan wp:import-campaigns --site=1 --file=export.json
+ * php artisan wp:import-all --dir=exports/
  */
 
 // Load WordPress
 define('SHORTINIT', false);
 require_once __DIR__ . '/wp-load.php';
 
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
+if (php_sapi_name() !== 'cli') {
+    header('Content-Type: application/json; charset=utf-8');
+    header('Access-Control-Allow-Origin: *');
+}
 
 $export = [
     'site_url' => get_site_url(),
     'site_name' => get_bloginfo('name'),
+    'site_description' => get_bloginfo('description'),
     'exported_at' => date('Y-m-d H:i:s'),
+    'settings' => [],
     'campaigns' => [],
     'categories' => [],
 ];
+
+// ── Export Site Settings ──
+$favicon_id = get_option('site_icon', 0);
+$favicon_url = $favicon_id ? wp_get_attachment_url($favicon_id) : null;
+$custom_logo_id = get_theme_mod('custom_logo');
+$logo_url = $custom_logo_id ? wp_get_attachment_url($custom_logo_id) : null;
+
+$export['settings'] = [
+    'favicon_url' => $favicon_url,
+    'logo_url' => $logo_url,
+    'language' => get_locale(),
+    'timezone' => get_option('timezone_string', ''),
+    'gmt_offset' => get_option('gmt_offset', 0),
+    'posts_per_page' => get_option('posts_per_page', 10),
+    'permalink_structure' => get_option('permalink_structure', ''),
+    'total_posts' => wp_count_posts()->publish,
+    'total_pages' => wp_count_posts('page')->publish,
+];
+
+// ── Export Google Analytics & Tracking ──
+$tracking = [];
+
+// SiteKit by Google
+$sitekit_analytics = get_option('googlesitekit_analytics_settings', []);
+$sitekit_analytics4 = get_option('googlesitekit_analytics-4_settings', []);
+if (!empty($sitekit_analytics['propertyID'])) {
+    $tracking['google_analytics_ua'] = $sitekit_analytics['propertyID'];
+}
+if (!empty($sitekit_analytics4['propertyID'])) {
+    $tracking['google_analytics_4_property'] = $sitekit_analytics4['propertyID'];
+}
+if (!empty($sitekit_analytics4['measurementID'])) {
+    $tracking['google_analytics_4'] = $sitekit_analytics4['measurementID'];
+}
+
+// SiteKit Search Console
+$sitekit_sc = get_option('googlesitekit_search-console_settings', []);
+if (!empty($sitekit_sc['propertyID'])) {
+    $tracking['search_console_property'] = $sitekit_sc['propertyID'];
+}
+
+// MonsterInsights
+$mi_ua = get_option('monsterinsights_ua', '');
+if (!empty($mi_ua)) {
+    $tracking['google_analytics_ua'] = $mi_ua;
+}
+$mi_v4 = get_option('monsterinsights_v4_id', '');
+if (!empty($mi_v4)) {
+    $tracking['google_analytics_4'] = $mi_v4;
+}
+
+// GA Google Analytics plugin
+$ga_options = get_option('gap_options', []);
+if (!empty($ga_options['gap_id'])) {
+    $tracking['google_analytics_ua'] = $ga_options['gap_id'];
+}
+
+// Generic - search options table for GA/GTM IDs
+global $wpdb;
+$ga_options_search = $wpdb->get_results("
+    SELECT option_name, option_value FROM {$wpdb->options}
+    WHERE (option_value LIKE 'G-%' OR option_value LIKE 'UA-%' OR option_value LIKE 'GTM-%')
+    AND option_value REGEXP '^(G-[A-Z0-9]+|UA-[0-9]+-[0-9]+|GTM-[A-Z0-9]+)$'
+    LIMIT 20
+", ARRAY_A);
+
+foreach ($ga_options_search as $opt) {
+    $val = trim($opt['option_value']);
+    if (preg_match('/^G-[A-Z0-9]+$/', $val) && empty($tracking['google_analytics_4'])) {
+        $tracking['google_analytics_4'] = $val;
+    } elseif (preg_match('/^UA-\d+-\d+$/', $val) && empty($tracking['google_analytics_ua'])) {
+        $tracking['google_analytics_ua'] = $val;
+    } elseif (preg_match('/^GTM-[A-Z0-9]+$/', $val) && empty($tracking['google_tag_manager'])) {
+        $tracking['google_tag_manager'] = $val;
+    }
+}
+
+// Google AdSense
+$adsense = get_option('googlesitekit_adsense_settings', []);
+if (!empty($adsense['clientID'])) {
+    $tracking['google_adsense'] = $adsense['clientID'];
+}
+
+// Google Site Verification
+$verification = get_option('googlesitekit_verification_meta', '');
+if (!empty($verification)) {
+    $tracking['google_site_verification'] = $verification;
+}
+
+$export['settings']['tracking'] = $tracking;
+
+// ── Active plugins list ──
+$active_plugins = get_option('active_plugins', []);
+$plugin_names = array_map(function($p) {
+    return explode('/', $p)[0];
+}, $active_plugins);
+$export['settings']['active_plugins'] = array_values($plugin_names);
 
 // ── Export WordPress categories ──
 $wp_categories = get_categories(['hide_empty' => false]);
