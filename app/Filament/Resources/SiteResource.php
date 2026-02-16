@@ -133,7 +133,18 @@ class SiteResource extends Resource
                         Forms\Components\KeyValue::make('seo_settings')
                             ->keyLabel('Meta Key')
                             ->valueLabel('Meta Value')
-                            ->addActionLabel('Add Meta Tag'),
+                            ->addActionLabel('Add Meta Tag')
+                            ->afterStateHydrated(function (Forms\Components\KeyValue $component, $state) {
+                                if (is_array($state)) {
+                                    $component->state(array_filter($state, fn ($v) => is_string($v) || is_numeric($v) || is_null($v)));
+                                }
+                            })
+                            ->dehydrateStateUsing(function ($state, $record) {
+                                $existing = $record?->seo_settings ?? [];
+                                $flat = is_array($state) ? $state : [];
+
+                                return array_merge($existing, $flat);
+                            }),
                     ])->collapsed(),
 
                 Forms\Components\Section::make('Analytics')
@@ -141,7 +152,18 @@ class SiteResource extends Resource
                         Forms\Components\KeyValue::make('analytics')
                             ->keyLabel('Service')
                             ->valueLabel('Tracking ID')
-                            ->addActionLabel('Add Tracking'),
+                            ->addActionLabel('Add Tracking')
+                            ->afterStateHydrated(function (Forms\Components\KeyValue $component, $state) {
+                                if (is_array($state)) {
+                                    $component->state(array_filter($state, fn ($v) => is_string($v) || is_numeric($v) || is_null($v)));
+                                }
+                            })
+                            ->dehydrateStateUsing(function ($state, $record) {
+                                $existing = $record?->analytics ?? [];
+                                $flat = is_array($state) ? $state : [];
+
+                                return array_merge($existing, $flat);
+                            }),
                     ])->collapsed(),
             ]);
     }

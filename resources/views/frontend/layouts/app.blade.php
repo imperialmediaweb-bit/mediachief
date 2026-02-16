@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ $currentSite->language ?? 'ro' }}">
+<html lang="{{ $currentSite->language ?? 'en' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,11 +9,12 @@
 
     @if($currentSite->favicon ?? false)
         <link rel="icon" href="{{ asset('storage/' . $currentSite->favicon) }}">
+    @elseif(!empty($currentSite->seo_settings['wp_favicon_url']))
+        <link rel="icon" href="{{ $currentSite->seo_settings['wp_favicon_url'] }}">
     @endif
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Per-site theme: CSS variables from site settings --}}
     @php
         $theme = $currentSite->settings['theme'] ?? [];
         $analytics = $currentSite->analytics ?? [];
@@ -48,7 +49,6 @@
     <style>{!! $theme['custom_css'] !!}</style>
     @endif
 
-    {{-- Load custom Google Fonts if specified --}}
     @if(!empty($theme['heading_font']) || !empty($theme['body_font']))
     @php
         $fonts = collect([$theme['heading_font'] ?? null, $theme['body_font'] ?? null])
@@ -63,7 +63,6 @@
     @endif
     @endif
 
-    {{-- Google Analytics (GA4 or Universal) --}}
     @if(!empty($analytics['google_analytics_4']))
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ $analytics['google_analytics_4'] }}"></script>
     <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ $analytics['google_analytics_4'] }}');</script>
@@ -72,45 +71,34 @@
     <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ $analytics['google_analytics_ua'] }}');</script>
     @endif
 
-    {{-- Google Tag Manager --}}
     @if(!empty($analytics['google_tag_manager']))
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','{{ $analytics['google_tag_manager'] }}');</script>
     @endif
 
-    {{-- Google Search Console verification --}}
     @if(!empty($currentSite->seo_settings['google_site_verification']))
     <meta name="google-site-verification" content="{{ $currentSite->seo_settings['google_site_verification'] }}">
     @endif
 
-    {{-- Google AdSense --}}
     @if(!empty($analytics['google_adsense']))
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ $analytics['google_adsense'] }}" crossorigin="anonymous"></script>
     @endif
 
     @stack('head')
 </head>
-<body class="min-h-screen antialiased">
+<body class="min-h-screen bg-[#f9f9f9] font-sans antialiased">
 
-    {{-- GTM noscript fallback --}}
     @if(!empty($analytics['google_tag_manager']))
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $analytics['google_tag_manager'] }}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     @endif
 
-    {{-- Top bar --}}
     @include('frontend.partials.topbar')
-
-    {{-- Header --}}
     @include('frontend.partials.header')
-
-    {{-- Trending bar --}}
     @include('frontend.partials.trending')
 
-    {{-- Main content --}}
     <main>
         @yield('content')
     </main>
 
-    {{-- Footer --}}
     @include('frontend.partials.footer')
 
     @stack('scripts')

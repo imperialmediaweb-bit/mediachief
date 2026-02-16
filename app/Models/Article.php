@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\TenantManager;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -77,6 +78,23 @@ class Article extends Model
     public function isPublished(): bool
     {
         return $this->status === 'published' && $this->published_at?->lte(now());
+    }
+
+    /**
+     * Scope route model binding to the current site to prevent cross-site slug collisions.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $field = $field ?: $this->getRouteKeyName();
+        $tenant = app(TenantManager::class);
+
+        $query = $this->where($field, $value);
+
+        if ($tenant->check()) {
+            $query->where('site_id', $tenant->id());
+        }
+
+        return $query->first();
     }
 
     /**

@@ -116,6 +116,10 @@ else
     php artisan storage:link 2>/dev/null || true
 fi
 
+# Fix storage permissions (artisan commands above may have created files as root)
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
 echo "Starting Apache..."
 # Verify Apache config before starting
 apache2ctl configtest 2>&1 || {

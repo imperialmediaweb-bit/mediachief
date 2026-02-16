@@ -6,7 +6,9 @@
 
 @layer base {
     body {
-        @apply bg-white text-gray-800 font-sans;
+        @apply bg-[#f9f9f9] text-[#444] font-sans;
+        font-size: 14px;
+        line-height: 1.6;
     }
 
     a {
@@ -15,37 +17,58 @@
 }
 
 @layer components {
-    /* Category badge - red pill */
+    /* ═══ NEWSPAPER THEME - BLOCK TITLE ═══
+       Red bar on left side of title, gray border bottom */
+    .td-block-title {
+        @apply relative mb-4 border-b-[2px] border-gray-200 pb-2 text-[16px] font-bold font-heading uppercase tracking-wide text-[#111];
+    }
+    .td-block-title span {
+        @apply relative inline-block pb-[9px];
+        margin-bottom: -2px;
+        border-bottom: 3px solid var(--brand-primary, #e51a2f);
+    }
+
+    /* ═══ CATEGORY BADGE ═══ */
+    .td-cat-badge {
+        @apply inline-block bg-brand-red px-[6px] py-[2px] text-[10px] font-bold uppercase tracking-wider text-white leading-normal;
+    }
+
+    /* Legacy support */
     .cat-badge {
-        @apply inline-block bg-brand-red px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white;
+        @apply inline-block bg-brand-red px-[6px] py-[2px] text-[10px] font-bold uppercase tracking-wider text-white leading-normal;
     }
 
-    /* Article card hover effect */
-    .article-card {
-        @apply transition-all duration-300;
-    }
-    .article-card:hover .article-card-title {
-        @apply text-brand-red;
-    }
-    .article-card:hover .article-card-img {
-        @apply scale-105;
+    /* ═══ FEATURED CARD (image overlay style) ═══ */
+    .td-featured-card {
+        @apply relative block;
     }
 
-    /* Trending bar */
-    .trending-bar {
-        @apply bg-gray-100 border-b border-gray-200;
+    /* ═══ FOOTER TITLE ═══ */
+    .td-footer-title {
+        @apply mb-3 border-b-[2px] border-[#444] pb-2 text-[13px] font-bold uppercase tracking-wide text-white;
     }
 
-    /* Section header - red bar style like Washington Express */
-    .section-header {
-        @apply relative mb-5 border-b-[3px] border-brand-red pb-2 text-lg font-bold font-heading uppercase tracking-wide text-gray-900;
-    }
-
-    /* Pagination */
+    /* ═══ PAGINATION ═══ */
     .pagination-link {
-        @apply inline-flex items-center justify-center w-10 h-10 text-sm font-medium border border-gray-300 text-gray-700 hover:bg-brand-red hover:text-white hover:border-brand-red transition-colors;
+        @apply inline-flex items-center justify-center w-9 h-9 text-[12px] font-medium border border-gray-300 text-gray-600 hover:bg-brand-red hover:text-white hover:border-brand-red transition-colors;
     }
     .pagination-link.active {
         @apply bg-brand-red text-white border-brand-red;
+    }
+
+    /* ═══ ARTICLE CONTENT ═══ */
+    .td-article-content {
+        word-wrap: break-word;
+    }
+    .td-article-content img {
+        @apply my-4;
+    }
+    .td-article-content p {
+        @apply mb-4;
+    }
+
+    /* ═══ SECTION HEADER (legacy) ═══ */
+    .section-header {
+        @apply relative mb-4 border-b-[2px] border-gray-200 pb-2 text-[16px] font-bold font-heading uppercase tracking-wide text-[#111];
     }
 }
