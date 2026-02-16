@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\TenantManager;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -48,5 +49,19 @@ class Category extends Model
     public function rssFeeds(): HasMany
     {
         return $this->hasMany(RssFeed::class);
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $field = $field ?: $this->getRouteKeyName();
+        $tenant = app(TenantManager::class);
+
+        $query = $this->where($field, $value);
+
+        if ($tenant->check()) {
+            $query->where('site_id', $tenant->id());
+        }
+
+        return $query->first();
     }
 }
