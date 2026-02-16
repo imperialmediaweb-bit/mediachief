@@ -81,6 +81,10 @@ if [ "$DB_READY" = true ]; then
     echo "Ensuring admin user exists..."
     timeout 15 php artisan tinker --execute="App\Models\User::firstOrCreate(['email'=>'admin@mediachief.ro'],['name'=>'Admin','password'=>bcrypt(env('ADMIN_PASSWORD','ChangeMeNow!'))]);" 2>/dev/null || true
 
+    # Publish Filament assets
+    echo "Publishing Filament assets..."
+    php artisan filament:assets 2>&1 || true
+
     # Cache configuration
     echo "Caching configuration..."
     timeout 15 php artisan config:cache 2>/dev/null || true
@@ -103,6 +107,8 @@ else
     echo "  DB_HOST=${DB_HOST}"
     echo "  DB_PORT=${DB_PORT}"
     echo "  DB_DATABASE=${DB_DATABASE}"
+    # Publish Filament assets (doesn't need DB)
+    php artisan filament:assets 2>&1 || true
     # Still cache what we can
     timeout 15 php artisan config:cache 2>/dev/null || true
     timeout 15 php artisan route:cache 2>/dev/null || true
