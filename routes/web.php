@@ -5,6 +5,9 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
 
+// Health check (no middleware - used by Railway)
+Route::get('/up', fn () => response('OK', 200));
+
 // Frontend routes - scoped by site domain
 Route::middleware(['identify.site'])->group(function () {
     Route::get('/', [ArticleController::class, 'index'])->name('home');
