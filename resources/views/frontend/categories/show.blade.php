@@ -3,88 +3,97 @@
 @section('title', $category->name . ' - ' . $currentSite->name)
 
 @section('content')
-<div class="bg-[#f9f9f9] py-6">
-    <div class="mx-auto max-w-[1100px] px-4">
-        <div class="grid gap-8 lg:grid-cols-[2fr_1fr]">
-            <div>
-                <div class="bg-white p-5">
-                    {{-- Breadcrumb --}}
-                    <nav class="mb-3 text-[11px] text-gray-400">
-                        <a href="{{ route('home') }}" class="hover:text-brand-red">Home</a>
-                        <span class="mx-1">&raquo;</span>
-                        <span class="text-[#111]">{{ $category->name }}</span>
-                    </nav>
+<div class="mc-container" style="padding-top:20px;padding-bottom:20px">
+    <div class="mc-row">
+        <div class="mc-span8">
+            <div class="mc-block">
+                <div class="mc-breadcrumb">
+                    <a href="{{ route('home') }}">Home</a> &raquo;
+                    <span style="color:#111">{{ $category->name }}</span>
+                </div>
 
-                    <h1 class="td-block-title"><span>{{ $category->name }}</span></h1>
-                    @if($category->description)
-                        <p class="mb-4 text-[13px] text-gray-500">{{ $category->description }}</p>
-                    @endif
+                <h1 class="mc-block-title"><span>{{ $category->name }}</span></h1>
+                @if($category->description)
+                    <p style="font-size:13px;color:#666;margin-bottom:15px">{{ $category->description }}</p>
+                @endif
 
-                    {{-- Top featured articles on first page --}}
-                    @if($articles->onFirstPage() && $articles->count() >= 3)
-                        <div class="mb-6 grid gap-[5px] sm:grid-cols-2">
-                            @foreach($articles->take(2) as $topArticle)
-                                <a href="{{ route('article.show', $topArticle) }}" class="td-featured-card group relative block overflow-hidden" style="min-height: 200px;">
-                                    @if($topArticle->image_url)
-                                        <img src="{{ $topArticle->image_url }}" alt="{{ $topArticle->title }}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
-                                    @else
-                                        <div class="h-full w-full bg-gray-200"></div>
-                                    @endif
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-                                    <div class="absolute bottom-0 left-0 p-4">
-                                        <span class="td-cat-badge mb-1">{{ $category->name }}</span>
-                                        <h2 class="text-[15px] font-bold leading-[1.3] text-white">{{ Str::limit($topArticle->title, 70) }}</h2>
-                                    </div>
-                                </a>
-                            @endforeach
+                {{-- Featured cards on first page --}}
+                @if($articles->onFirstPage() && $articles->count() >= 3)
+                <div class="mc-cat-grid">
+                    @foreach($articles->take(2) as $topArticle)
+                    <div class="mc-cat-grid-item">
+                        <a href="{{ route('article.show', $topArticle) }}">
+                            @if($topArticle->image_url)
+                            <img src="{{ $topArticle->image_url }}" alt="{{ $topArticle->title }}">
+                            @endif
+                        </a>
+                        <div class="mc-big-grid-meta mc-small" style="position:absolute;bottom:0;left:0;right:0;padding:12px 15px;background:linear-gradient(transparent,rgba(0,0,0,.85))">
+                            <span class="mc-cat">{{ $category->name }}</span>
+                            <h3 style="font-family:'Roboto',sans-serif;font-size:15px;font-weight:500;line-height:1.3;margin:0"><a href="{{ route('article.show', $topArticle) }}" style="color:#fff;text-decoration:none">{{ Str::limit($topArticle->title, 70) }}</a></h3>
                         </div>
-                    @endif
-
-                    {{-- Article list --}}
-                    <div class="divide-y divide-gray-100">
-                        @php $skipCount = ($articles->onFirstPage() && $articles->count() >= 3) ? 2 : 0; @endphp
-                        @forelse($articles->skip($skipCount) as $article)
-                            <article class="flex gap-4 py-4 first:pt-0">
-                                @if($article->image_url)
-                                    <a href="{{ route('article.show', $article) }}" class="shrink-0">
-                                        <img src="{{ $article->image_url }}" alt="{{ $article->title }}" class="h-[100px] w-[150px] object-cover md:h-[120px] md:w-[200px]">
-                                    </a>
-                                @endif
-                                <div class="min-w-0 flex-1">
-                                    <h3 class="text-[15px] font-bold leading-[1.3] text-[#111] md:text-[17px]">
-                                        <a href="{{ route('article.show', $article) }}" class="hover:text-brand-red">{{ $article->title }}</a>
-                                    </h3>
-                                    @if($article->excerpt)
-                                        <p class="mt-1 hidden text-[13px] leading-relaxed text-gray-500 md:block">{{ Str::limit($article->excerpt, 160) }}</p>
-                                    @endif
-                                    <div class="mt-2 flex items-center gap-2 text-[11px] text-gray-400">
-                                        @if($article->author)<span>{{ $article->author }}</span><span>-</span>@endif
-                                        <span>{{ $article->published_at?->format('F d, Y') }}</span>
-                                    </div>
-                                </div>
-                            </article>
-                        @empty
-                            <div class="py-12 text-center text-[13px] text-gray-400">
-                                <p>No articles in this category yet.</p>
-                            </div>
-                        @endforelse
                     </div>
+                    @endforeach
+                </div>
+                @endif
 
-                    @if($articles->hasPages())
-                        <div class="mt-6 flex items-center justify-center gap-2">
-                            {{ $articles->links('frontend.partials.pagination') }}
+                {{-- Article list --}}
+                @php $skipCount = ($articles->onFirstPage() && $articles->count() >= 3) ? 2 : 0; @endphp
+                @forelse($articles->skip($skipCount) as $article)
+                <div class="mc-list" style="gap:15px;padding:15px 0">
+                    @if($article->image_url)
+                    <a href="{{ route('article.show', $article) }}" class="mc-list-thumb" style="width:200px;height:130px">
+                        <img src="{{ $article->image_url }}" alt="{{ $article->title }}">
+                    </a>
+                    @endif
+                    <div class="mc-list-info">
+                        <h3 class="mc-module-title" style="font-size:16px"><a href="{{ route('article.show', $article) }}">{{ $article->title }}</a></h3>
+                        @if($article->excerpt)
+                        <div class="mc-excerpt">{{ Str::limit($article->excerpt, 160) }}</div>
+                        @endif
+                        <div class="mc-module-meta" style="margin-top:6px">
+                            @if($article->author)<span class="mc-author">{{ $article->author }}</span> - @endif
+                            <span>{{ $article->published_at?->format('F d, Y') }}</span>
                         </div>
+                    </div>
+                </div>
+                @empty
+                <div style="padding:40px;text-align:center;font-size:13px;color:#999">
+                    No articles in this category yet.
+                </div>
+                @endforelse
+
+                @if($articles->hasPages())
+                <div class="mc-pagination">
+                    @if($articles->onFirstPage())
+                        <span style="opacity:.4">&laquo;</span>
+                    @else
+                        <a href="{{ $articles->previousPageUrl() }}">&laquo;</a>
+                    @endif
+
+                    @foreach($articles->getUrlRange(1, $articles->lastPage()) as $page => $url)
+                        @if($page == $articles->currentPage())
+                            <span class="current">{{ $page }}</span>
+                        @else
+                            <a href="{{ $url }}">{{ $page }}</a>
+                        @endif
+                    @endforeach
+
+                    @if($articles->hasMorePages())
+                        <a href="{{ $articles->nextPageUrl() }}">&raquo;</a>
+                    @else
+                        <span style="opacity:.4">&raquo;</span>
                     @endif
                 </div>
-            </div>
-
-            <div>
-                @if(file_exists(storage_path('app/wp-theme/sidebar.html')))
-                    {!! file_get_contents(storage_path('app/wp-theme/sidebar.html')) !!}
-                @else
-                    @include('frontend.partials.sidebar')
                 @endif
             </div>
+        </div>
+
+        <div class="mc-span4">
+            @if(file_exists(storage_path('app/wp-theme/sidebar.html')))
+                {!! file_get_contents(storage_path('app/wp-theme/sidebar.html')) !!}
+            @else
+                @include('frontend.partials.sidebar')
+            @endif
         </div>
     </div>
 </div>
