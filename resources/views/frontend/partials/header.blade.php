@@ -25,36 +25,36 @@
                     @else
                         <span class="td-header-logo">{{ $currentSite->name }}</span>
                     @endif
-                    <div class="td-header-tagline mt-1">Informed, Involved, Inspired Together.</div>
+                    <div class="td-header-tagline mt-1">"Informed, Involved, Inspired Together."</div>
                 </a>
 
                 {{-- Pricing Plans (right) --}}
-                <a href="#" class="hidden items-center border-2 border-black px-5 py-2.5 text-[12px] font-bold uppercase tracking-wider text-black transition-colors hover:bg-black hover:text-white md:flex" style="font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;">
+                <a href="#" class="td-header-pricing hidden md:flex">
                     Pricing Plans
                 </a>
             </div>
         </div>
     </div>
 
-    {{-- Dark Navigation Bar --}}
+    {{-- Navigation Bar (white bg, black borders, centered nav) --}}
     <nav class="td-nav-bar">
         <div class="mx-auto max-w-[1200px] px-4">
-            <div class="flex h-[46px] items-center justify-between">
+            <div class="flex h-[48px] items-center justify-between">
                 {{-- Mobile menu button --}}
-                <button type="button" class="text-white md:hidden" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" aria-label="Menu">
+                <button type="button" class="text-black md:hidden" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" aria-label="Menu">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
 
-                {{-- Desktop nav --}}
-                <div class="hidden h-full items-center md:flex">
+                {{-- Desktop nav (centered) --}}
+                <div class="hidden h-full flex-1 items-center justify-center md:flex">
                     @foreach($categories as $cat)
                         <a href="{{ route('category.show', $cat) }}" class="td-nav-link">{{ $cat->name }}</a>
                     @endforeach
                 </div>
 
                 {{-- Search --}}
-                <button type="button" class="flex h-[46px] items-center px-3 text-white hover:text-gray-300" onclick="document.getElementById('search-overlay').classList.toggle('hidden')" aria-label="Search">
-                    <svg class="h-[16px] w-[16px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <button type="button" class="flex h-[48px] items-center px-3 text-black hover:text-[var(--brand-primary,#E04040)]" onclick="document.getElementById('search-overlay').classList.toggle('hidden')" aria-label="Search">
+                    <svg class="h-[24px] w-[24px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </button>
             </div>
         </div>
