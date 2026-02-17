@@ -47,7 +47,7 @@
         $headExtra .= '<meta name="google-site-verification" content="' . e($currentSite->seo_settings['google_site_verification']) . "\">\n";
     }
 
-    // Include compiled Vite CSS for mc-* classes in WP shell mode too
+    // Include compiled Vite CSS for content area styling in WP shell mode too
     $headExtra .= app(\Illuminate\Foundation\Vite::class)(['resources/css/app.css']) . "\n";
 
     // OG meta from child views
@@ -70,7 +70,7 @@
 {!! $shellAfter !!}
 
 @else
-{{-- ═══ Native Mode: Clean professional news design ═══ --}}
+{{-- ═══ Native Mode: Newspaper-style professional news design ═══ --}}
 <!DOCTYPE html>
 <html lang="{{ $currentSite->language ?? 'en' }}">
 <head>
@@ -158,7 +158,7 @@
 
     @stack('head')
 </head>
-<body class="min-h-screen bg-[#f4f4f4] font-sans antialiased">
+<body class="min-h-screen bg-white font-sans text-gray-800 antialiased">
 
     @if(!empty($analytics['google_tag_manager']))
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $analytics['google_tag_manager'] }}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
