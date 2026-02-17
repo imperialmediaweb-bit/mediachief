@@ -132,7 +132,35 @@
     .mc-related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
     @media(max-width:767px){.mc-related-grid{grid-template-columns:1fr}}
 
-    /* Category grid */
+    /* Article card grid (td_flex_block_1 style) */
+    .mc-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .mc-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    @media(max-width:991px){.mc-grid-3{grid-template-columns:repeat(2,1fr)}.mc-grid-4{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:567px){.mc-grid-3{grid-template-columns:1fr}.mc-grid-4{grid-template-columns:repeat(2,1fr)}}
+
+    /* Article card */
+    .mc-card{overflow:hidden}
+    .mc-card-thumb{display:block;overflow:hidden;aspect-ratio:16/10;background:#f0f0f0}
+    .mc-card-thumb img{width:100%;height:100%;object-fit:cover;transition:opacity .3s}
+    .mc-card-thumb:hover img{opacity:.88}
+    .mc-card-placeholder{width:100%;height:100%;background:#e8e8e8}
+    .mc-card-info{padding:10px 0 0}
+
+    /* Triple-column category row */
+    .mc-triple-row{display:flex;gap:0;margin-bottom:26px;border-top:2px solid #222}
+    .mc-triple-col{flex:1;min-width:0;padding:0 15px;border-right:1px solid #eee}
+    .mc-triple-col:first-child{padding-left:0}
+    .mc-triple-col:last-child{border-right:none;padding-right:0}
+    .mc-triple-col .mc-block-title{border-bottom:none;margin-bottom:14px;padding-top:14px}
+    .mc-triple-col .mc-block-title span{border-bottom:none;padding-bottom:0;margin-bottom:0}
+    @media(max-width:767px){.mc-triple-row{flex-direction:column;border-top:none}.mc-triple-col{padding:0;border-right:none;border-bottom:1px solid #eee;margin-bottom:20px;padding-bottom:20px}}
+
+    /* Wide block (featured left + list right) */
+    .mc-wide-block{display:flex;gap:20px;flex-wrap:wrap}
+    .mc-wide-left{flex:1;min-width:250px}
+    .mc-wide-right{flex:1;min-width:200px}
+
+    /* Category grid (category page) */
     .mc-cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;margin-bottom:20px}
     .mc-cat-grid-item{position:relative;min-height:180px;overflow:hidden}
     .mc-cat-grid-item img{width:100%;height:100%;object-fit:cover}

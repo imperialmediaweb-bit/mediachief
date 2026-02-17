@@ -38,22 +38,22 @@ class ArticleController extends Controller
 
         $usedIds = array_merge($featuredIds, $popular->pluck('id')->toArray());
 
-        // Load all active categories with recent articles for category sections
+        // Load all active parent categories ordered by sort_order
         $categories = Category::where('site_id', $siteId)
             ->where('is_active', true)
             ->whereNull('parent_id')
             ->orderBy('sort_order')
-            ->limit(10)
+            ->limit(15)
             ->get();
 
-        // For each category, load recent articles
+        // For each category, load recent articles (6 per section for grid layouts)
         $categorySections = [];
         foreach ($categories as $category) {
             $catArticles = Article::forSite($siteId)
                 ->published()
                 ->where('category_id', $category->id)
                 ->orderByDesc('published_at')
-                ->limit(5)
+                ->limit(6)
                 ->get();
 
             if ($catArticles->isNotEmpty()) {
