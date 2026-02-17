@@ -26,54 +26,51 @@
         ->get();
 @endphp
 
-{{-- Bottom navigation bar - Newspaper style --}}
-<div class="bg-[#222222]">
-    <div class="mx-auto max-w-[1100px] px-4">
-        <div class="flex h-[40px] items-center gap-0 overflow-x-auto">
-            <a href="{{ route('home') }}" class="flex h-full shrink-0 items-center bg-brand-red px-3 text-[11px] font-bold uppercase tracking-wide text-white">Home</a>
+{{-- Bottom navigation bar --}}
+<div style="background: #222;">
+    <div class="td-container">
+        <div style="display: flex; align-items: center; height: 40px; overflow-x: auto; gap: 0; font-family: 'Open Sans', sans-serif;">
+            <a href="{{ route('home') }}" style="display: flex; align-items: center; height: 100%; padding: 0 12px; background: var(--td_theme_color, #4db2ec); color: #fff; font-size: 11px; font-weight: 700; text-transform: uppercase; text-decoration: none; white-space: nowrap;">Home</a>
             @foreach($footerCategories as $cat)
-                <a href="{{ route('category.show', $cat) }}" class="flex h-full shrink-0 items-center px-3 text-[11px] font-semibold uppercase tracking-wide text-gray-400 hover:text-white">{{ $cat->name }}</a>
+                <a href="{{ route('category.show', $cat) }}" style="display: flex; align-items: center; height: 100%; padding: 0 12px; color: #999; font-size: 11px; font-weight: 600; text-transform: uppercase; text-decoration: none; white-space: nowrap;">{{ $cat->name }}</a>
             @endforeach
         </div>
     </div>
 </div>
 
-<footer class="bg-[#222222] border-t border-[#333]">
-    <div class="mx-auto max-w-[1100px] px-4 py-8">
-        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+{{-- Footer widget area --}}
+<footer style="background: #222; border-top: 1px solid #333; font-family: 'Open Sans', sans-serif;">
+    <div class="td-container" style="padding-top: 30px; padding-bottom: 30px;">
+        <div class="td-pb-row">
             {{-- About --}}
-            <div>
-                <h4 class="td-footer-title">About Us</h4>
-                @if($currentSite->logo ?? false)
-                    <img src="{{ asset('storage/' . $currentSite->logo) }}" alt="{{ $currentSite->name }}" class="mb-3 h-7">
-                @else
-                    <span class="mb-3 inline-block font-heading text-base font-black uppercase text-white">{{ $currentSite->name }}</span>
-                @endif
-                <p class="text-[13px] leading-relaxed text-gray-400">
-                    {{ $currentSite->description ?? 'Your trusted source for local and national news.' }}
-                </p>
-                <div class="mt-3 flex items-center gap-1">
-                    <a href="#" class="flex h-7 w-7 items-center justify-center bg-[#333] text-gray-400 hover:bg-brand-red hover:text-white"><svg class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
-                    <a href="#" class="flex h-7 w-7 items-center justify-center bg-[#333] text-gray-400 hover:bg-brand-red hover:text-white"><svg class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+            <div class="td-pb-span3">
+                <div class="widget" style="margin-bottom: 30px;">
+                    <div class="block-title" style="border-bottom-color: #444;"><span style="background: #444; color: #fff;">About Us</span></div>
+                    @if($currentSite->logo ?? false)
+                        <img src="{{ asset('storage/' . $currentSite->logo) }}" alt="{{ $currentSite->name }}" style="max-height: 28px; margin-bottom: 12px;">
+                    @else
+                        <span style="display: inline-block; font-family: 'Roboto', sans-serif; font-size: 16px; font-weight: 900; text-transform: uppercase; color: #fff; margin-bottom: 12px;">{{ $currentSite->name }}</span>
+                    @endif
+                    <p style="font-size: 13px; line-height: 1.6; color: #999; margin: 0;">{{ $currentSite->description ?? 'Your trusted source for local and national news.' }}</p>
+                    <div style="margin-top: 12px; display: flex; gap: 4px;">
+                        <a href="#" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #333; color: #999;"><svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+                        <a href="#" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #333; color: #999;"><svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+                    </div>
                 </div>
             </div>
 
             {{-- Latest Articles --}}
-            <div>
-                <h4 class="td-footer-title">Latest Articles</h4>
-                <div class="space-y-3">
+            <div class="td-pb-span3">
+                <div class="widget">
+                    <div class="block-title" style="border-bottom-color: #444;"><span style="background: #444; color: #fff;">Latest Articles</span></div>
                     @foreach($latestArticles as $la)
-                        <div class="flex gap-3">
+                        <div style="padding-bottom: 12px; display: flex; gap: 12px;">
                             @if($la->image_url)
-                                <a href="{{ route('article.show', $la) }}" class="shrink-0">
-                                    <img src="{{ $la->image_url }}" alt="{{ $la->title }}" class="h-[50px] w-[75px] object-cover">
-                                </a>
+                                <a href="{{ route('article.show', $la) }}" style="flex-shrink: 0;"><img src="{{ $la->image_url }}" alt="{{ $la->title }}" style="width: 75px; height: 50px; object-fit: cover;"></a>
                             @endif
-                            <div class="min-w-0">
-                                <h5 class="text-[13px] font-bold leading-tight text-gray-300">
-                                    <a href="{{ route('article.show', $la) }}" class="hover:text-brand-red">{{ Str::limit($la->title, 50) }}</a>
-                                </h5>
-                                <span class="mt-1 block text-[11px] text-gray-500">{{ $la->published_at?->format('M d, Y') }}</span>
+                            <div style="min-width: 0;">
+                                <h5 style="font-family: 'Roboto', sans-serif; font-size: 13px; font-weight: 700; line-height: 1.3; margin: 0; color: #ccc;"><a href="{{ route('article.show', $la) }}" style="color: #ccc; text-decoration: none;">{{ Str::limit($la->title, 50) }}</a></h5>
+                                <span style="display: block; font-size: 11px; color: #777; margin-top: 4px;">{{ $la->published_at?->format('M d, Y') }}</span>
                             </div>
                         </div>
                     @endforeach
@@ -81,21 +78,17 @@
             </div>
 
             {{-- Most Popular --}}
-            <div>
-                <h4 class="td-footer-title">Most Popular</h4>
-                <div class="space-y-3">
+            <div class="td-pb-span3">
+                <div class="widget">
+                    <div class="block-title" style="border-bottom-color: #444;"><span style="background: #444; color: #fff;">Most Popular</span></div>
                     @foreach($popularFooter as $pf)
-                        <div class="flex gap-3">
+                        <div style="padding-bottom: 12px; display: flex; gap: 12px;">
                             @if($pf->image_url)
-                                <a href="{{ route('article.show', $pf) }}" class="shrink-0">
-                                    <img src="{{ $pf->image_url }}" alt="{{ $pf->title }}" class="h-[50px] w-[75px] object-cover">
-                                </a>
+                                <a href="{{ route('article.show', $pf) }}" style="flex-shrink: 0;"><img src="{{ $pf->image_url }}" alt="{{ $pf->title }}" style="width: 75px; height: 50px; object-fit: cover;"></a>
                             @endif
-                            <div class="min-w-0">
-                                <h5 class="text-[13px] font-bold leading-tight text-gray-300">
-                                    <a href="{{ route('article.show', $pf) }}" class="hover:text-brand-red">{{ Str::limit($pf->title, 50) }}</a>
-                                </h5>
-                                <span class="mt-1 block text-[11px] text-gray-500">{{ $pf->published_at?->format('M d, Y') }}</span>
+                            <div style="min-width: 0;">
+                                <h5 style="font-family: 'Roboto', sans-serif; font-size: 13px; font-weight: 700; line-height: 1.3; margin: 0; color: #ccc;"><a href="{{ route('article.show', $pf) }}" style="color: #ccc; text-decoration: none;">{{ Str::limit($pf->title, 50) }}</a></h5>
+                                <span style="display: block; font-size: 11px; color: #777; margin-top: 4px;">{{ $pf->published_at?->format('M d, Y') }}</span>
                             </div>
                         </div>
                     @endforeach
@@ -103,31 +96,31 @@
             </div>
 
             {{-- Pages / Categories --}}
-            <div>
-                <h4 class="td-footer-title">Pages</h4>
-                <ul class="space-y-1.5">
-                    @foreach($footerPages as $fp)
-                        <li>
-                            <a href="{{ route('page.show', $fp) }}" class="text-[13px] text-gray-400 hover:text-brand-red">{{ $fp->title }}</a>
-                        </li>
-                    @endforeach
-                </ul>
-                <h4 class="td-footer-title mt-5">Categories</h4>
-                <div class="flex flex-wrap gap-1">
-                    @foreach($footerCategories as $fc)
-                        <a href="{{ route('category.show', $fc) }}" class="bg-[#333] px-2 py-1 text-[11px] text-gray-400 hover:bg-brand-red hover:text-white">{{ $fc->name }}</a>
-                    @endforeach
+            <div class="td-pb-span3">
+                <div class="widget">
+                    <div class="block-title" style="border-bottom-color: #444;"><span style="background: #444; color: #fff;">Pages</span></div>
+                    <ul style="list-style: none; margin: 0; padding: 0;">
+                        @foreach($footerPages as $fp)
+                            <li style="margin: 0; line-height: 28px;"><a href="{{ route('page.show', $fp) }}" style="color: #999; font-size: 13px; text-decoration: none;">{{ $fp->title }}</a></li>
+                        @endforeach
+                    </ul>
+                    <div class="block-title" style="border-bottom-color: #444; margin-top: 20px;"><span style="background: #444; color: #fff;">Categories</span></div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                        @foreach($footerCategories as $fc)
+                            <a href="{{ route('category.show', $fc) }}" style="background: #333; padding: 4px 8px; font-size: 11px; color: #999; text-decoration: none;">{{ $fc->name }}</a>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- Copyright --}}
-    <div class="border-t border-[#333]">
-        <div class="mx-auto max-w-[1100px] px-4 py-3">
-            <div class="flex flex-col items-center justify-between gap-2 text-[11px] text-gray-500 sm:flex-row">
-                <span>&copy; {{ date('Y') }} {{ $currentSite->name }}. All Rights Reserved.</span>
-                <span>Part of Media Capital Trust Network</span>
+    {{-- Sub Footer / Copyright --}}
+    <div class="td-sub-footer-container">
+        <div class="td-container">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0; flex-wrap: wrap; gap: 8px;">
+                <span class="td-sub-footer-copy">&copy; {{ date('Y') }} {{ $currentSite->name }}. All Rights Reserved.</span>
+                <span style="font-size: 12px; color: #777;">Part of Media Capital Trust Network</span>
             </div>
         </div>
     </div>
