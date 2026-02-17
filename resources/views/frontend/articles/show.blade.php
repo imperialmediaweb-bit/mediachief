@@ -32,30 +32,31 @@
 
 @section('content')
 <div class="bg-white">
-    <div class="mx-auto max-w-7xl px-4 py-6">
+    <div class="mx-auto max-w-[1200px] px-4 py-6">
         <div class="grid gap-8 lg:grid-cols-3">
             {{-- Main Content --}}
             <div class="lg:col-span-2">
                 {{-- Breadcrumb --}}
-                <div class="mb-3 text-xs" style="font-family: 'Work Sans', sans-serif; color: #999;">
-                    <a href="{{ route('home') }}" class="hover:text-brand-red">Home</a>
+                <div class="mb-3 text-[12px]" style="font-family: 'Work Sans', sans-serif; color: #999;">
+                    <a href="{{ route('home') }}" class="hover:text-[var(--brand-primary,#E04040)]">Home</a>
                     @if($article->category)
-                        &raquo; <a href="{{ route('category.show', $article->category) }}" class="hover:text-brand-red">{{ $article->category->name }}</a>
+                        &raquo; <a href="{{ route('category.show', $article->category) }}" class="hover:text-[var(--brand-primary,#E04040)]">{{ $article->category->name }}</a>
                     @endif
                 </div>
 
+                {{-- Category Badge --}}
+                @if($article->category)
+                    <a href="{{ route('category.show', $article->category) }}" class="td-cat-badge">{{ $article->category->name }}</a>
+                @endif
+
                 {{-- Title --}}
-                <h1 class="mb-3 font-heading text-3xl font-bold md:text-4xl" style="color: #000; line-height: 1.15;">{{ $article->title }}</h1>
+                <h1 class="mt-3 text-[28px] font-bold leading-[1.15] md:text-[36px]" style="font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif; color: #000;">{{ $article->title }}</h1>
 
                 {{-- Meta --}}
-                <div class="mb-5 flex flex-wrap items-center gap-3 text-sm" style="font-family: 'Work Sans', sans-serif; color: #999;">
-                    @if($article->category)
-                        <a href="{{ route('category.show', $article->category) }}" style="color: var(--brand-primary, #E04040); font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px;">{{ $article->category->name }}</a>
-                        <span class="text-gray-300">|</span>
-                    @endif
-                    <time datetime="{{ $article->published_at?->toISOString() }}">{{ $article->published_at?->format('F j, Y') }}</time>
+                <div class="mt-3 mb-5 flex flex-wrap items-center gap-3" style="font-family: 'Work Sans', sans-serif;">
+                    <time datetime="{{ $article->published_at?->toISOString() }}" class="text-[12px] text-gray-400">{{ $article->published_at?->format('F j, Y') }}</time>
                     <span class="text-gray-300">|</span>
-                    <span>{{ number_format($article->views_count) }} views</span>
+                    <span class="text-[12px] text-gray-400">{{ number_format($article->views_count) }} views</span>
                 </div>
 
                 {{-- Featured Image --}}
@@ -69,26 +70,51 @@
                 <div class="mc-post-content">
                     {!! $article->body !!}
                 </div>
+
+                {{-- Source --}}
+                @if($article->source_url)
+                <div class="mt-6 border-t border-gray-200 pt-4">
+                    <span class="text-[12px] text-gray-400" style="font-family: 'Work Sans', sans-serif;">Source:
+                        <a href="{{ $article->source_url }}" target="_blank" rel="noopener" class="text-[var(--brand-primary,#E04040)] hover:underline">{{ parse_url($article->source_url, PHP_URL_HOST) }}</a>
+                    </span>
+                </div>
+                @endif
+
+                {{-- Related Articles --}}
+                @if($related->isNotEmpty())
+                <div class="mt-8 border-t border-gray-200 pt-6">
+                    <div class="td-section-red text-[18px]">Related Articles</div>
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+                        @foreach($related as $rel)
+                        <div>
+                            <div class="td-module-image">
+                                <a href="{{ route('article.show', $rel) }}">
+                                    @if($rel->featured_image)
+                                        <img src="{{ $rel->featured_image }}" alt="{{ $rel->title }}" class="aspect-[16/10] w-full object-cover" loading="lazy">
+                                    @else
+                                        <div class="aspect-[16/10] w-full bg-gray-200"></div>
+                                    @endif
+                                </a>
+                            </div>
+                            <div class="td-module-meta mt-2">
+                                @if($rel->category)
+                                    <a href="{{ route('category.show', $rel->category) }}" class="td-cat-badge">{{ $rel->category->name }}</a>
+                                @endif
+                                <h3 class="td-title mt-1 text-[14px]">
+                                    <a href="{{ route('article.show', $rel) }}">{{ $rel->title }}</a>
+                                </h3>
+                                <span class="td-date mt-1 block">{{ $rel->published_at?->format('F j, Y') }}</span>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
             </div>
 
             {{-- Sidebar --}}
             <aside>
                 @include('frontend.partials.sidebar')
-
-                {{-- Related Articles --}}
-                @if($related->isNotEmpty())
-                <div class="mt-6">
-                    <div class="section-header">
-                        <svg class="section-icon h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
-                        <h3>Related Articles</h3>
-                    </div>
-                    @foreach($related as $rel)
-                    <div class="td-article-list-item">
-                        <a href="{{ route('article.show', $rel) }}">{{ $rel->title }}</a>
-                    </div>
-                    @endforeach
-                </div>
-                @endif
             </aside>
         </div>
     </div>

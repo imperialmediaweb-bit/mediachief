@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Text:wght@400;500;600;700;800;900&family=Work+Sans:wght@400;500;600;700&family=Roboto+Slab:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Text:wght@400;500;600;700;800;900&family=Work+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto+Slab:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -63,72 +63,106 @@
 
 /* ═══ Reusable Components ═══ */
 @layer components {
-    .cat-badge {
-        @apply inline-block bg-brand-red px-2 py-[2px] text-[10px] font-bold uppercase tracking-wider text-white leading-normal;
+    /* Red background section header (LOCAL NEWS, POPULAR, etc.) */
+    .td-section-red {
+        background-color: var(--brand-primary, #E04040);
+        color: #fff;
+        font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+        font-size: 24px;
+        font-weight: 700;
+        font-style: italic;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 6px 20px;
+        margin-bottom: 20px;
+        text-align: center;
     }
 
-    .section-header {
-        @apply relative mb-4 border-b border-gray-300 pb-2 flex items-center gap-2;
+    /* Decorative section header with striped lines (US NEWS, LATEST POSTS) */
+    .td-section-decorated {
+        position: relative;
+        text-align: center;
+        padding: 30px 0;
+        margin-bottom: 25px;
+        background: repeating-linear-gradient(180deg, #000 0, #000 1px, #fff 1px, #fff 12px);
     }
-    .section-header h3,
-    .section-header-title {
+    .td-section-decorated .td-section-title {
+        display: inline-block;
+        background-color: #fff;
+        border: 1px solid #000;
+        border-bottom-width: 4px;
+        padding: 5px 35px 3px;
+        position: relative;
+        font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+        font-size: 32px;
+        font-weight: 700;
+        font-style: italic;
+        text-transform: uppercase;
+        color: var(--brand-primary, #E04040);
+        letter-spacing: 1px;
+    }
+
+    /* Arrow section header for category columns (› Celebrity, › Local News) */
+    .td-section-arrow {
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #eee;
+    }
+    .td-section-arrow h3,
+    .td-section-arrow h2 {
         font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
         font-size: 21px;
         font-weight: 700;
-        line-height: 1.1;
-        color: var(--brand-base, #000);
+        color: #000;
+        display: flex;
+        align-items: center;
+        gap: 4px;
     }
-    .section-header .section-icon {
-        color: var(--brand-base, #000);
-        font-size: 16px;
-        transition: color 0.2s ease;
-    }
-    .section-header:hover .section-icon {
-        color: var(--brand-primary, #E04040);
-    }
-
-    .article-card {
-        @apply transition-all;
-    }
-    .article-card:hover img {
-        transform: scale(1.05);
+    .td-section-arrow h3::before,
+    .td-section-arrow h2::before {
+        content: "›";
+        font-size: 24px;
+        font-weight: 400;
     }
 
-    .pagination-link {
-        @apply inline-flex items-center justify-center w-9 h-9 text-xs font-medium border border-gray-300 text-gray-600 hover:bg-brand-red hover:text-white hover:border-brand-red transition-colors;
-    }
-    .pagination-link.active {
-        @apply bg-brand-red text-white border-brand-red;
+    /* Category badge (red bg, white text) */
+    .td-cat-badge {
+        display: inline-block;
+        background-color: var(--brand-primary, #E04040);
+        color: #fff;
+        font-family: 'Work Sans', sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 3px 8px;
+        line-height: 1.2;
     }
 
-    /* Category article list items (text-only) */
+    /* Article list items (text-only links) */
     .td-article-list-item {
-        padding: 4px 0;
-        margin-bottom: 4px;
+        padding: 8px 0;
         border-bottom: 1px solid #eaeaea;
     }
     .td-article-list-item:last-child {
-        margin-bottom: 0;
-        padding-bottom: 0;
         border-bottom: none;
     }
     .td-article-list-item a {
         font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
-        font-size: 15px;
+        font-size: 16px;
         font-weight: 500;
-        line-height: 1.2;
-        color: var(--brand-base, #000);
+        line-height: 1.3;
+        color: #000;
         transition: color 0.2s ease;
     }
     .td-article-list-item a:hover {
         color: var(--brand-primary, #E04040);
     }
 
-    /* Featured module with image */
+    /* Article card with image */
     .td-module-image {
         position: relative;
         overflow: hidden;
-        margin-bottom: 10px;
     }
     .td-module-image img {
         width: 100%;
@@ -138,24 +172,23 @@
     .td-module-image:hover img {
         transform: scale(1.03);
     }
-    .td-module-meta {
-        padding: 0;
-    }
-    .td-module-meta .td-post-category {
+
+    /* Article meta info */
+    .td-module-meta .td-cat-link {
         font-family: 'Work Sans', sans-serif;
-        font-size: 13px;
+        font-size: 11px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         color: var(--brand-primary, #E04040);
     }
-    .td-module-meta .entry-title {
+    .td-module-meta .td-title {
         font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
         font-weight: 700;
-        line-height: 1.15;
-        color: var(--brand-base, #000);
+        line-height: 1.2;
+        color: #000;
     }
-    .td-module-meta .entry-title a:hover {
+    .td-module-meta .td-title a:hover {
         color: var(--brand-primary, #E04040);
     }
     .td-module-meta .td-excerpt {
@@ -163,12 +196,27 @@
         font-size: 14px;
         line-height: 1.6;
         color: #444;
-        margin-top: 8px;
     }
-    .td-module-meta .td-post-date {
+    .td-module-meta .td-date {
         font-family: 'Work Sans', sans-serif;
         font-size: 12px;
         color: #999;
+    }
+
+    /* Popular article card (4-col row) */
+    .td-popular-card .td-module-image {
+        margin-bottom: 10px;
+    }
+    .td-popular-card .td-title {
+        font-size: 15px;
+    }
+
+    /* Pagination */
+    .pagination-link {
+        @apply inline-flex items-center justify-center w-9 h-9 text-xs font-medium border border-gray-300 text-gray-600 hover:bg-brand-red hover:text-white hover:border-brand-red transition-colors;
+    }
+    .pagination-link.active {
+        @apply bg-brand-red text-white border-brand-red;
     }
 }
 
@@ -212,48 +260,25 @@
     transition: opacity 0.5s ease;
 }
 
-/* ═══ Hamburger Menu Overlay ═══ */
-.td-menu-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 9999;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+/* ═══ Navigation Bar ═══ */
+.td-nav-bar {
+    background: #000;
 }
-.td-menu-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-.td-menu-panel {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 320px;
-    max-width: 85vw;
-    height: 100%;
-    background: #222;
-    overflow-y: auto;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-}
-.td-menu-overlay.active .td-menu-panel {
-    transform: translateX(0);
-}
-.td-menu-panel a {
-    display: block;
-    padding: 12px 20px;
-    color: #ccc;
-    font-family: 'Work Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    border-bottom: 1px solid #333;
-    transition: color 0.2s ease, background 0.2s ease;
-}
-.td-menu-panel a:hover {
+.td-nav-link {
+    font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     color: #fff;
-    background: #333;
+    padding: 0 14px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    transition: background 0.2s ease;
+}
+.td-nav-link:hover {
+    background: var(--brand-primary, #E04040);
 }
 
 /* ═══ Header Logo ═══ */
@@ -261,6 +286,74 @@
     font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
     font-weight: 900;
     text-transform: uppercase;
-    color: var(--brand-base, #000);
-    letter-spacing: -0.5px;
+    color: #000;
+    letter-spacing: 2px;
+    font-size: 48px;
+    line-height: 1;
+}
+
+/* ═══ Newsletter Banner ═══ */
+.td-newsletter-banner {
+    border-top: 3px solid #000;
+    border-bottom: 3px solid #000;
+    padding: 25px 0;
+    margin: 30px 0;
+    text-align: center;
+}
+.td-newsletter-banner .td-nl-logo {
+    font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+    font-weight: 900;
+    font-size: 32px;
+    text-transform: uppercase;
+    color: #000;
+    letter-spacing: 2px;
+}
+.td-newsletter-banner .td-nl-text {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 14px;
+    color: #666;
+    margin-top: 8px;
+}
+
+/* ═══ Footer ═══ */
+.td-footer {
+    background: #000;
+    color: #aaa;
+    font-family: 'Work Sans', sans-serif;
+}
+.td-footer-logo {
+    font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #fff;
+    letter-spacing: 2px;
+    font-size: 28px;
+}
+.td-footer-nav {
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+}
+.td-footer-nav a {
+    font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #fff;
+    padding: 0 12px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.2s ease;
+}
+.td-footer-nav a:hover {
+    color: var(--brand-primary, #E04040);
+}
+.td-footer h4 {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 15px;
 }
