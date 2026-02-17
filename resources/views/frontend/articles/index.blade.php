@@ -7,62 +7,40 @@
     <div class="mx-auto max-w-[1200px] px-4">
         @php $catSections = collect($categorySections); @endphp
 
-        {{-- ═══ AD BANNER ═══ --}}
-        <div class="td-ad-banner">
-            <a href="#">Promote your business. Contact us!</a>
+        {{-- ═══ AD BANNER (light gray bg row) ═══ --}}
+        <div class="td-ad-row">
+            <div class="td-ad-banner">
+                <a href="#">Promote your business. Contact us!</a>
+            </div>
         </div>
 
-        {{-- ═══ SECTION 1: LOCAL NEWS (Featured grid - 1 big + 2 small) ═══ --}}
+        {{-- ═══ SECTION 1: LOCAL NEWS (3 equal columns) ═══ --}}
         @if($featured->isNotEmpty())
         <div class="py-4">
             <div class="td-section-red">{{ $catSections->first()['category']->name ?? 'Local News' }}</div>
-            <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
-                @php $main = $featured->first(); @endphp
-                <div class="md:col-span-2">
+            <div class="td-hero-grid">
+                @foreach($featured->take(3) as $feat)
+                <div class="td-hero-card">
                     <div class="td-module-image">
-                        <a href="{{ route('article.show', $main) }}">
-                            @if($main->featured_image)
-                                <img src="{{ $main->featured_image }}" alt="{{ $main->title }}" class="aspect-[16/10] w-full object-cover" loading="lazy">
+                        <a href="{{ route('article.show', $feat) }}">
+                            @if($feat->featured_image)
+                                <img src="{{ $feat->featured_image }}" alt="{{ $feat->title }}" class="td-hero-img" loading="lazy">
                             @else
-                                <div class="aspect-[16/10] w-full bg-gray-200"></div>
+                                <div class="td-hero-img bg-gray-200"></div>
                             @endif
                         </a>
                     </div>
-                    <div class="td-module-meta mt-3">
-                        @if($main->category)
-                            <a href="{{ route('category.show', $main->category) }}" class="td-cat-badge">{{ $main->category->name }}</a>
+                    <div class="td-hero-meta">
+                        <h3 class="td-hero-title">
+                            <a href="{{ route('article.show', $feat) }}">{{ $feat->title }}</a>
+                        </h3>
+                        @if($feat->category)
+                            <a href="{{ route('category.show', $feat->category) }}" class="td-cat-badge">{{ $feat->category->name }}</a>
                         @endif
-                        <h2 class="td-title mt-2 text-[22px] md:text-[26px]">
-                            <a href="{{ route('article.show', $main) }}">{{ $main->title }}</a>
-                        </h2>
-                        <p class="td-excerpt mt-2">{{ Str::limit(strip_tags($main->body), 160) }}</p>
-                        <span class="td-date mt-2 block">{{ $main->published_at?->format('F j, Y') }}</span>
+                        <p class="td-hero-excerpt">{{ Str::limit(strip_tags($feat->body), 120) }}</p>
                     </div>
                 </div>
-                <div class="space-y-5">
-                    @foreach($featured->skip(1)->take(2) as $feat)
-                    <div>
-                        <div class="td-module-image">
-                            <a href="{{ route('article.show', $feat) }}">
-                                @if($feat->featured_image)
-                                    <img src="{{ $feat->featured_image }}" alt="{{ $feat->title }}" class="aspect-[16/10] w-full object-cover" loading="lazy">
-                                @else
-                                    <div class="aspect-[16/10] w-full bg-gray-200"></div>
-                                @endif
-                            </a>
-                        </div>
-                        <div class="td-module-meta mt-2">
-                            @if($feat->category)
-                                <a href="{{ route('category.show', $feat->category) }}" class="td-cat-badge">{{ $feat->category->name }}</a>
-                            @endif
-                            <h3 class="td-title mt-1">
-                                <a href="{{ route('article.show', $feat) }}">{{ $feat->title }}</a>
-                            </h3>
-                            <span class="td-date mt-1 block">{{ $feat->published_at?->format('F j, Y') }}</span>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
+                @endforeach
             </div>
         </div>
         @endif
@@ -71,23 +49,25 @@
         @if($popular->isNotEmpty())
         <div class="border-t border-gray-200 py-4">
             <div class="td-section-red">Popular</div>
-            <div class="grid grid-cols-2 gap-5 md:grid-cols-4">
+            <div class="td-popular-grid">
                 @foreach($popular as $pop)
                 <div class="td-popular-card">
                     <div class="td-module-image">
                         <a href="{{ route('article.show', $pop) }}">
                             @if($pop->featured_image)
-                                <img src="{{ $pop->featured_image }}" alt="{{ $pop->title }}" class="aspect-[3/2] w-full object-cover" loading="lazy">
+                                <img src="{{ $pop->featured_image }}" alt="{{ $pop->title }}" class="td-popular-img" loading="lazy">
                             @else
-                                <div class="aspect-[3/2] w-full bg-gray-200"></div>
+                                <div class="td-popular-img bg-gray-200"></div>
                             @endif
                         </a>
                     </div>
-                    <div class="td-module-meta mt-2">
-                        <h3 class="td-title text-[14px]">
-                            <a href="{{ route('article.show', $pop) }}">{{ Str::limit($pop->title, 60) }}</a>
+                    <div class="td-popular-meta">
+                        <h3 class="td-popular-title">
+                            <a href="{{ route('article.show', $pop) }}">{{ $pop->title }}</a>
                         </h3>
-                        <span class="td-date mt-1 block">{{ $pop->published_at?->format('F j, Y') }}</span>
+                        @if($pop->category)
+                            <a href="{{ route('category.show', $pop->category) }}" class="td-cat-badge">{{ $pop->category->name }}</a>
+                        @endif
                     </div>
                 </div>
                 @endforeach
@@ -138,8 +118,10 @@
         @endif
 
         {{-- ═══ AD BANNER ═══ --}}
-        <div class="td-ad-banner">
-            <a href="#">Promote your business. Contact us!</a>
+        <div class="td-ad-row">
+            <div class="td-ad-banner">
+                <a href="#">Promote your business. Contact us!</a>
+            </div>
         </div>
 
         {{-- ═══ SECTION 4: Three Category Columns with DECORATED striped-line headers + thumbnails ═══ --}}
