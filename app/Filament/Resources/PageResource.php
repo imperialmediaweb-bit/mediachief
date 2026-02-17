@@ -42,9 +42,11 @@ class PageResource extends Resource
                         Forms\Components\TextInput::make('slug')
                             ->required()
                             ->maxLength(255),
-                        Forms\Components\RichEditor::make('body')
+                        Forms\Components\Textarea::make('body')
                             ->required()
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->rows(20)
+                            ->autosize(),
                     ])->columns(2),
 
                 Forms\Components\Section::make('Settings')
