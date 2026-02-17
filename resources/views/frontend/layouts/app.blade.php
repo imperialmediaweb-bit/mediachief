@@ -158,15 +158,13 @@
 
     @stack('head')
 </head>
-<body class="min-h-screen bg-white font-sans text-gray-800 antialiased">
+<body class="min-h-screen bg-white font-sans text-black antialiased">
 
     @if(!empty($analytics['google_tag_manager']))
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $analytics['google_tag_manager'] }}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     @endif
 
-    @include('frontend.partials.topbar')
     @include('frontend.partials.header')
-    @include('frontend.partials.trending')
 
     <main>
         @yield('content')
