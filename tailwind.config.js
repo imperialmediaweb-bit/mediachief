@@ -31,4 +31,7 @@ export default {
         },
     },
     plugins: [typography],
+    corePlugins: {
+        preflight: false,
+    },
 };

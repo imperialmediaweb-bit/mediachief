@@ -4,11 +4,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Minimal base reset - preflight disabled to avoid conflicts with imported WP CSS */
 @layer base {
-    body {
-        @apply bg-[#f9f9f9] text-[#444] font-sans;
-        font-size: 14px;
-        line-height: 1.6;
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
+
+    img, video {
+        max-width: 100%;
+        height: auto;
     }
 
     a {
