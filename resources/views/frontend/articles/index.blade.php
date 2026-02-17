@@ -3,209 +3,170 @@
 @section('title', $currentSite->name)
 
 @section('content')
+<div class="bg-white">
+    <div class="mx-auto max-w-7xl px-4 py-8">
 
-@php
-    $sections = collect($categorySections ?? []);
-    // Group categories into chunks of 3 for the 3-column layout
-    $sectionChunks = $sections->chunk(3);
-@endphp
+        {{-- Main 3-Column Grid (matching Alabama Express / Newspaper theme layout) --}}
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-12">
 
-{{-- ═══ FEATURED SECTION (3 Overlay Cards) ═══ --}}
-@if(isset($featured) && $featured->isNotEmpty())
-<section class="bg-white">
-    <div class="mx-auto max-w-7xl px-4 pt-4">
-        @if($featured->first()->category)
-        <h2 class="section-header">{{ $featured->first()->category->name }}</h2>
-        @else
-        <h2 class="section-header">Featured</h2>
-        @endif
-        <div class="grid gap-4 pb-6 md:grid-cols-3">
-            @foreach($featured as $feat)
-            <div class="article-card group relative overflow-hidden">
-                <a href="{{ route('article.show', $feat) }}" class="block">
-                    <div class="relative aspect-[4/3] overflow-hidden">
-                        @if($feat->image_url)
-                        <img src="{{ $feat->image_url }}" alt="{{ $feat->title }}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
-                        @else
-                        <div class="h-full w-full bg-gray-200"></div>
-                        @endif
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                        <div class="absolute bottom-0 left-0 p-4">
-                            @if($feat->category)
-                            <span class="cat-badge mb-2">{{ $feat->category->name }}</span>
+            {{-- ═══ LEFT COLUMN (Featured Articles with Images) ═══ --}}
+            <div class="md:col-span-5 lg:col-span-5">
+                @if($featured->isNotEmpty())
+                    {{-- Main Featured Article --}}
+                    @php $main = $featured->first(); @endphp
+                    <div class="mb-8">
+                        <div class="td-module-image">
+                            <a href="{{ route('article.show', $main) }}">
+                                @if($main->featured_image)
+                                    <img src="{{ $main->featured_image }}" alt="{{ $main->title }}" class="w-full" loading="lazy">
+                                @else
+                                    <div class="aspect-video bg-gray-200"></div>
+                                @endif
+                            </a>
+                        </div>
+                        <div class="td-module-meta">
+                            @if($main->category)
+                                <a href="{{ route('category.show', $main->category) }}" class="td-post-category">{{ $main->category->name }}</a>
                             @endif
-                            <h3 class="text-base font-bold leading-tight text-white drop-shadow-lg md:text-lg">{{ Str::limit($feat->title, 80) }}</h3>
-                            <div class="mt-2 flex items-center gap-2 text-xs text-gray-300">
-                                @if($feat->author)<span>{{ $feat->author }}</span><span>&middot;</span>@endif
-                                <span>{{ $feat->published_at?->format('M d, Y') }}</span>
-                            </div>
+                            <h2 class="entry-title mt-2 text-2xl md:text-[28px]">
+                                <a href="{{ route('article.show', $main) }}">{{ $main->title }}</a>
+                            </h2>
+                            <div class="td-excerpt">{{ Str::limit(strip_tags($main->body), 160) }}</div>
+                            <div class="td-post-date mt-2">{{ $main->published_at?->format('F j, Y') }}</div>
                         </div>
                     </div>
-                </a>
-            </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-@endif
 
-{{-- ═══ POPULAR SECTION (4 Cards) ═══ --}}
-@if(isset($popular) && $popular->isNotEmpty())
-<section class="bg-gray-50">
-    <div class="mx-auto max-w-7xl px-4 pt-4 pb-6">
-        <h2 class="section-header">Popular</h2>
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            @foreach($popular as $art)
-            <div class="article-card overflow-hidden bg-white shadow-sm">
-                <a href="{{ route('article.show', $art) }}">
-                    <div class="aspect-video overflow-hidden">
-                        @if($art->image_url)
-                        <img src="{{ $art->image_url }}" alt="{{ $art->title }}" class="h-full w-full object-cover transition-transform duration-300 hover:scale-105">
-                        @else
-                        <div class="h-full w-full bg-gray-200"></div>
-                        @endif
+                    {{-- More Featured Articles --}}
+                    @foreach($featured->skip(1) as $feat)
+                    <div class="mb-6 flex gap-4">
+                        <div class="td-module-image w-1/3 shrink-0">
+                            <a href="{{ route('article.show', $feat) }}">
+                                @if($feat->featured_image)
+                                    <img src="{{ $feat->featured_image }}" alt="{{ $feat->title }}" class="w-full aspect-[4/3] object-cover" loading="lazy">
+                                @else
+                                    <div class="aspect-[4/3] bg-gray-200"></div>
+                                @endif
+                            </a>
+                        </div>
+                        <div class="td-module-meta">
+                            @if($feat->category)
+                                <a href="{{ route('category.show', $feat->category) }}" class="td-post-category">{{ $feat->category->name }}</a>
+                            @endif
+                            <h3 class="entry-title mt-1 text-base md:text-lg">
+                                <a href="{{ route('article.show', $feat) }}">{{ $feat->title }}</a>
+                            </h3>
+                            <div class="td-post-date mt-1">{{ $feat->published_at?->format('F j, Y') }}</div>
+                        </div>
                     </div>
-                </a>
-                <div class="p-3">
-                    @if($art->category)
-                    <span class="cat-badge mb-1">{{ $art->category->name }}</span>
-                    @endif
-                    <h3 class="text-sm font-bold leading-tight text-gray-900"><a href="{{ route('article.show', $art) }}" class="hover:text-brand-red">{{ Str::limit($art->title, 60) }}</a></h3>
-                    <span class="mt-1 block text-xs text-gray-500">{{ $art->published_at?->format('M d, Y') }}</span>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-@endif
+                    @endforeach
+                @endif
 
-{{-- ═══ NEWSLETTER BOX ═══ --}}
-<section class="bg-white">
-    <div class="mx-auto max-w-3xl px-4 py-6">
-        <div class="border-2 border-gray-900 p-6 text-center">
-            <h3 class="font-heading text-xl font-black uppercase text-gray-900">{{ $currentSite->name }}</h3>
-            <p class="mt-2 text-sm text-gray-600">{{ $currentSite->description ?? 'Subscribe and receive the latest news delivered to your inbox.' }}</p>
-            <div class="mt-4 flex items-center justify-center gap-2">
-                <input type="email" placeholder="Your email address" class="w-full max-w-xs border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-brand-red">
-                <button class="bg-brand-red px-6 py-2 text-sm font-bold uppercase text-white hover:opacity-90">Subscribe</button>
-            </div>
-        </div>
-    </div>
-</section>
-
-{{-- ═══ CATEGORY SECTIONS (Groups of 3 columns) ═══ --}}
-@foreach($sectionChunks as $chunkIndex => $chunk)
-<section class="{{ $chunkIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50' }}">
-    <div class="mx-auto max-w-7xl px-4 py-6">
-        <div class="grid gap-6 lg:grid-cols-3">
-            @foreach($chunk as $sectionIndex => $section)
-            <div>
-                <h2 class="section-header {{ $chunk->count() > 1 ? 'text-sm' : '' }}">{{ $section['category']->name }}</h2>
-
-                @if($sectionIndex === 1 && $chunk->count() === 3 && $section['articles']->count() >= 2)
-                {{-- Middle column: featured article with larger image --}}
-                <div class="article-card">
-                    @php $first = $section['articles']->first(); @endphp
-                    <a href="{{ route('article.show', $first) }}">
-                        @if($first->image_url)
-                        <img src="{{ $first->image_url }}" alt="{{ $first->title }}" class="aspect-[4/3] w-full object-cover">
-                        @endif
-                    </a>
-                    <h3 class="mt-3 text-lg font-bold leading-tight text-gray-900"><a href="{{ route('article.show', $first) }}" class="hover:text-brand-red">{{ Str::limit($first->title, 70) }}</a></h3>
-                    @if($first->excerpt)
-                    <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ Str::limit($first->excerpt, 150) }}</p>
-                    @endif
-                    <span class="mt-2 block text-xs text-gray-500">{{ $first->published_at?->format('M d, Y') }}</span>
-                </div>
-                {{-- Additional articles as list --}}
-                @foreach($section['articles']->skip(1)->take(2) as $art)
-                <div class="mt-3 flex gap-3 border-t border-gray-100 pt-3">
-                    @if($art->image_url)
-                    <a href="{{ route('article.show', $art) }}" class="shrink-0"><img src="{{ $art->image_url }}" alt="{{ $art->title }}" class="h-16 w-24 object-cover"></a>
-                    @endif
-                    <div>
-                        <h4 class="text-sm font-bold leading-tight text-gray-900"><a href="{{ route('article.show', $art) }}" class="hover:text-brand-red">{{ Str::limit($art->title, 55) }}</a></h4>
-                        <span class="mt-1 block text-xs text-gray-500">{{ $art->published_at?->format('M d, Y') }}</span>
+                {{-- Latest Articles (below featured) --}}
+                @if($latest->isNotEmpty())
+                <div class="mt-6">
+                    <div class="section-header">
+                        <svg class="section-icon h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
+                        <h3>Latest News</h3>
                     </div>
-                </div>
-                @endforeach
-
-                @else
-                {{-- Side columns: list of articles with thumbnails --}}
-                <div class="space-y-4">
-                    @foreach($section['articles']->take(4) as $art)
-                    <div class="flex gap-3 border-b border-gray-100 pb-3">
-                        @if($art->image_url)
-                        <a href="{{ route('article.show', $art) }}" class="shrink-0"><img src="{{ $art->image_url }}" alt="{{ $art->title }}" class="h-16 w-24 object-cover"></a>
-                        @endif
-                        <div>
-                            <h4 class="text-sm font-bold leading-tight text-gray-900"><a href="{{ route('article.show', $art) }}" class="hover:text-brand-red">{{ Str::limit($art->title, 55) }}</a></h4>
-                            <span class="mt-1 block text-xs text-gray-500">{{ $art->published_at?->format('M d, Y') }}</span>
+                    @foreach($latest->take(5) as $art)
+                    <div class="mb-5 flex gap-4">
+                        <div class="td-module-image w-1/3 shrink-0">
+                            <a href="{{ route('article.show', $art) }}">
+                                @if($art->featured_image)
+                                    <img src="{{ $art->featured_image }}" alt="{{ $art->title }}" class="w-full aspect-[4/3] object-cover" loading="lazy">
+                                @else
+                                    <div class="aspect-[4/3] bg-gray-200"></div>
+                                @endif
+                            </a>
+                        </div>
+                        <div class="td-module-meta">
+                            @if($art->category)
+                                <a href="{{ route('category.show', $art->category) }}" class="td-post-category">{{ $art->category->name }}</a>
+                            @endif
+                            <h3 class="entry-title mt-1 text-[15px]">
+                                <a href="{{ route('article.show', $art) }}">{{ $art->title }}</a>
+                            </h3>
+                            <div class="td-excerpt text-[13px] mt-1">{{ Str::limit(strip_tags($art->body), 80) }}</div>
                         </div>
                     </div>
                     @endforeach
                 </div>
                 @endif
             </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-@endforeach
 
-{{-- ═══ LATEST POSTS (2/3 articles + 1/3 sidebar items) ═══ --}}
-@if(isset($latest) && $latest->isNotEmpty())
-<section class="bg-white">
-    <div class="mx-auto max-w-7xl px-4 pt-4 pb-8">
-        <h2 class="section-header">Latest Posts</h2>
-        <div class="grid gap-6 lg:grid-cols-3">
-            {{-- Left: full articles (2 cols wide) --}}
-            <div class="space-y-5 lg:col-span-2">
-                @foreach($latest->take(5) as $art)
-                <article class="flex gap-4 border-b border-gray-100 pb-5">
-                    @if($art->image_url)
-                    <a href="{{ route('article.show', $art) }}" class="shrink-0">
-                        <img src="{{ $art->image_url }}" alt="{{ $art->title }}" class="h-28 w-44 object-cover md:h-36 md:w-56">
-                    </a>
-                    @endif
-                    <div class="min-w-0 flex-1">
-                        @if($art->category)
-                        <span class="cat-badge mb-1">{{ $art->category->name }}</span>
-                        @endif
-                        <h3 class="text-base font-bold leading-tight text-gray-900 md:text-lg"><a href="{{ route('article.show', $art) }}" class="hover:text-brand-red">{{ Str::limit($art->title, 80) }}</a></h3>
-                        @if($art->excerpt)
-                        <p class="mt-1 hidden text-sm text-gray-600 md:block">{{ Str::limit($art->excerpt, 140) }}</p>
-                        @endif
-                        <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
-                            @if($art->author)<span>{{ $art->author }}</span><span>&middot;</span>@endif
-                            <span>{{ $art->published_at?->format('M d, Y') }}</span>
-                        </div>
+            {{-- ═══ MIDDLE COLUMN (Category Article Lists - Text Only) ═══ --}}
+            <div class="md:col-span-4 lg:col-span-4 md:border-l md:border-r md:border-gray-200 md:px-6">
+                @php $catSections = collect($categorySections); @endphp
+                @foreach($catSections->slice(0, 5) as $index => $section)
+                <div class="{{ $index > 0 ? 'mt-6' : '' }}">
+                    <div class="section-header">
+                        <svg class="section-icon h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+                        <h3><a href="{{ route('category.show', $section['category']) }}">{{ $section['category']->name }}</a></h3>
                     </div>
-                </article>
+                    @foreach($section['articles']->take(5) as $art)
+                    <div class="td-article-list-item">
+                        <a href="{{ route('article.show', $art) }}">{{ $art->title }}</a>
+                    </div>
+                    @endforeach
+                </div>
                 @endforeach
             </div>
 
-            {{-- Right: small article items --}}
-            <div class="space-y-4">
-                @foreach($latest->skip(5) as $art)
-                <div class="flex gap-3 border-b border-gray-100 pb-3">
-                    @if($art->image_url)
-                    <a href="{{ route('article.show', $art) }}" class="shrink-0"><img src="{{ $art->image_url }}" alt="{{ $art->title }}" class="h-16 w-24 object-cover"></a>
-                    @endif
-                    <div>
-                        @if($art->category)
-                        <span class="cat-badge mb-1 text-[10px]">{{ $art->category->name }}</span>
-                        @endif
-                        <h4 class="text-sm font-bold leading-tight text-gray-900"><a href="{{ route('article.show', $art) }}" class="hover:text-brand-red">{{ Str::limit($art->title, 50) }}</a></h4>
-                        <span class="mt-1 block text-xs text-gray-500">{{ $art->published_at?->format('M d, Y') }}</span>
+            {{-- ═══ RIGHT COLUMN (More Category Article Lists - Text Only) ═══ --}}
+            <div class="md:col-span-3 lg:col-span-3">
+                @foreach($catSections->slice(5, 5) as $index => $section)
+                <div class="{{ $index > 0 ? 'mt-6' : '' }}">
+                    <div class="section-header">
+                        <svg class="section-icon h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+                        <h3><a href="{{ route('category.show', $section['category']) }}">{{ $section['category']->name }}</a></h3>
                     </div>
+                    @foreach($section['articles']->take(5) as $art)
+                    <div class="td-article-list-item">
+                        <a href="{{ route('article.show', $art) }}">{{ $art->title }}</a>
+                    </div>
+                    @endforeach
+                </div>
+                @endforeach
+
+                {{-- Popular Articles --}}
+                @if($popular->isNotEmpty())
+                <div class="mt-6">
+                    <div class="section-header">
+                        <svg class="section-icon h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"/></svg>
+                        <h3>Most Popular</h3>
+                    </div>
+                    @foreach($popular as $pop)
+                    <div class="td-article-list-item">
+                        <a href="{{ route('article.show', $pop) }}">{{ $pop->title }}</a>
+                    </div>
+                    @endforeach
+                </div>
+                @endif
+            </div>
+
+        </div>
+
+        {{-- ═══ MORE CATEGORY SECTIONS (Full Width Below) ═══ --}}
+        @if(count($categorySections) > 10)
+        <div class="mt-10 border-t border-gray-200 pt-8">
+            <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+                @foreach($catSections->slice(10) as $section)
+                <div>
+                    <div class="section-header">
+                        <svg class="section-icon h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+                        <h3><a href="{{ route('category.show', $section['category']) }}">{{ $section['category']->name }}</a></h3>
+                    </div>
+                    @foreach($section['articles']->take(5) as $art)
+                    <div class="td-article-list-item">
+                        <a href="{{ route('article.show', $art) }}">{{ $art->title }}</a>
+                    </div>
+                    @endforeach
                 </div>
                 @endforeach
             </div>
         </div>
-    </div>
-</section>
-@endif
+        @endif
 
+    </div>
+</div>
 @endsection

@@ -42,9 +42,11 @@ class ArticleResource extends Resource
                                 Forms\Components\Textarea::make('excerpt')
                                     ->maxLength(500)
                                     ->rows(3),
-                                Forms\Components\RichEditor::make('body')
+                                Forms\Components\Textarea::make('body')
                                     ->required()
-                                    ->columnSpanFull(),
+                                    ->columnSpanFull()
+                                    ->rows(20)
+                                    ->autosize(),
                             ]),
 
                         Forms\Components\Section::make('SEO')
@@ -64,7 +66,7 @@ class ArticleResource extends Resource
                                     ->required()
                                     ->searchable()
                                     ->preload()
-                                    ->live(),
+                                    ->live(onBlur: true),
                                 Forms\Components\Select::make('status')
                                     ->options([
                                         'draft' => 'Draft',

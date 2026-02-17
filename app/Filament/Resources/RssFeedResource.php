@@ -33,7 +33,7 @@ class RssFeedResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload()
-                            ->live(),
+                            ->live(onBlur: true),
                         Forms\Components\TextInput::make('name')
                             ->required()
                             ->maxLength(255),

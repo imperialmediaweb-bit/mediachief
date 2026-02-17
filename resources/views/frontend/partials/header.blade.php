@@ -3,71 +3,147 @@
         ->where('is_active', true)
         ->whereNull('parent_id')
         ->orderBy('sort_order')
-        ->limit(10)
+        ->limit(12)
+        ->get();
+
+    $menuPages = \App\Models\Page::where('site_id', $currentSite->id)
+        ->where('show_in_menu', true)
+        ->where('is_published', true)
+        ->orderBy('sort_order')
         ->get();
 @endphp
 
-{{-- Logo / Header Bar --}}
-<div class="border-b border-gray-200 bg-white">
+{{-- Header --}}
+<header class="bg-white">
     <div class="mx-auto max-w-7xl px-4">
-        <div class="flex h-20 items-center justify-between">
-            <button type="button" class="text-gray-700 md:hidden" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" aria-label="Menu">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <div class="flex items-center justify-between py-6 md:py-8">
+            {{-- Hamburger Menu Button --}}
+            <button id="td-menu-btn" class="flex items-center gap-2 text-black hover:text-brand-red transition-colors" aria-label="Menu">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
             </button>
-            <a href="{{ route('home') }}" class="flex items-center gap-2">
-                @if($currentSite->logo ?? false)
-                    <img src="{{ asset('storage/' . $currentSite->logo) }}" alt="{{ $currentSite->name }}" class="h-10">
+
+            {{-- Centered Logo --}}
+            <a href="{{ route('home') }}" class="td-header-logo text-3xl md:text-5xl lg:text-[56px] leading-none">
+                @if($currentSite->logo)
+                    <img src="{{ asset('storage/' . $currentSite->logo) }}" alt="{{ $currentSite->name }}" class="h-10 md:h-14">
                 @else
-                    <span class="font-heading text-3xl font-black uppercase tracking-tight text-gray-900">{{ $currentSite->name }}</span>
+                    {{ $currentSite->name }}
                 @endif
             </a>
-            <div class="flex items-center gap-3">
-                <button type="button" class="text-gray-600 hover:text-brand-red" onclick="document.getElementById('search-overlay').classList.toggle('hidden')" aria-label="Search">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                </button>
-            </div>
+
+            {{-- Search Button --}}
+            <button id="td-search-btn" class="text-black hover:text-brand-red transition-colors" aria-label="Search">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </button>
         </div>
     </div>
-</div>
+    <div class="border-b-[3px] border-black"></div>
+</header>
 
-{{-- Main Navigation --}}
-<nav class="bg-gray-900 sticky top-0 z-40">
-    <div class="mx-auto max-w-7xl px-4">
-        <div class="hidden h-12 items-center gap-0 md:flex">
-            <a href="{{ route('home') }}" class="flex h-full items-center bg-brand-red px-5 text-sm font-bold uppercase tracking-wide text-white">
-                <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                Home
-            </a>
-            @foreach($categories as $cat)
-                <a href="{{ route('category.show', $cat) }}" class="flex h-full items-center px-4 text-[13px] font-semibold uppercase tracking-wide text-gray-300 hover:bg-brand-red hover:text-white transition-colors">{{ $cat->name }}</a>
-            @endforeach
+{{-- Mobile/Hamburger Menu Overlay --}}
+<div id="td-menu-overlay" class="td-menu-overlay">
+    <div class="td-menu-panel">
+        {{-- Close Button --}}
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-600">
+            <span class="text-white font-heading text-lg font-bold uppercase">Menu</span>
+            <button id="td-menu-close" class="text-gray-400 hover:text-white">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
         </div>
-        {{-- Mobile: just show home + hamburger indicator --}}
-        <div class="flex h-12 items-center md:hidden">
-            <a href="{{ route('home') }}" class="flex h-full items-center bg-brand-red px-4 text-sm font-bold uppercase text-white">Home</a>
-        </div>
-    </div>
-</nav>
 
-{{-- Mobile Menu --}}
-<div id="mobile-menu" class="hidden bg-gray-900 md:hidden relative z-30">
-    <div class="border-t border-gray-700 px-4 py-2">
+        {{-- Home --}}
+        <a href="{{ route('home') }}">Home</a>
+
+        {{-- Categories --}}
         @foreach($categories as $cat)
-            <a href="{{ route('category.show', $cat) }}" class="block border-b border-gray-800 py-3 text-[13px] font-semibold uppercase text-gray-300 hover:text-white">{{ $cat->name }}</a>
+            <a href="{{ route('category.show', $cat) }}">{{ $cat->name }}</a>
         @endforeach
+
+        {{-- Pages --}}
+        @if($menuPages->isNotEmpty())
+            <div class="border-t border-gray-600 mt-2 pt-2">
+                @foreach($menuPages as $page)
+                    <a href="{{ route('page.show', $page) }}">{{ $page->title }}</a>
+                @endforeach
+            </div>
+        @endif
     </div>
 </div>
 
 {{-- Search Overlay --}}
-<div id="search-overlay" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-sm">
-    <div class="mx-auto flex max-w-2xl items-start justify-center pt-32">
-        <form action="{{ route('home') }}" method="GET" class="w-full px-4">
-            <div class="relative">
-                <input type="text" name="q" placeholder="Search..." class="w-full border-b-2 border-white bg-transparent px-4 py-4 text-2xl text-white placeholder-gray-500 outline-none focus:border-brand-red" autofocus>
-                <button type="button" class="absolute right-2 top-4 text-gray-400 hover:text-white" onclick="document.getElementById('search-overlay').classList.add('hidden')">
-                    <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+<div id="td-search-overlay" class="fixed inset-0 z-[9998] bg-black/90" style="display:none;">
+    <div class="flex h-full w-full items-center justify-center">
+        <div class="w-full max-w-xl px-6">
+            <form action="{{ route('home') }}" method="GET" class="relative">
+                <input type="text" name="q" placeholder="Search..." autofocus
+                       class="w-full border-b-2 border-white bg-transparent py-4 text-2xl text-white placeholder-gray-400 outline-none">
+                <button type="submit" class="absolute right-0 top-1/2 -translate-y-1/2 text-white">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
                 </button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
+    <button id="td-search-close" class="absolute top-8 right-8 text-gray-400 hover:text-white">
+        <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
 </div>
+
+@push('scripts')
+<script>
+(function() {
+    // Hamburger menu
+    var menuBtn = document.getElementById('td-menu-btn');
+    var menuOverlay = document.getElementById('td-menu-overlay');
+    var menuClose = document.getElementById('td-menu-close');
+
+    if (menuBtn && menuOverlay) {
+        menuBtn.addEventListener('click', function() {
+            menuOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        function closeMenu() {
+            menuOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        if (menuClose) menuClose.addEventListener('click', closeMenu);
+        menuOverlay.addEventListener('click', function(e) {
+            if (e.target === menuOverlay) closeMenu();
+        });
+    }
+
+    // Search overlay
+    var searchBtn = document.getElementById('td-search-btn');
+    var searchOverlay = document.getElementById('td-search-overlay');
+    var searchClose = document.getElementById('td-search-close');
+
+    if (searchBtn && searchOverlay) {
+        searchBtn.addEventListener('click', function() {
+            searchOverlay.style.display = 'flex';
+            var input = searchOverlay.querySelector('input');
+            if (input) input.focus();
+        });
+
+        function closeSearch() {
+            searchOverlay.style.display = 'none';
+        }
+
+        if (searchClose) searchClose.addEventListener('click', closeSearch);
+        searchOverlay.addEventListener('click', function(e) {
+            if (e.target === searchOverlay) closeSearch();
+        });
+    }
+})();
+</script>
+@endpush

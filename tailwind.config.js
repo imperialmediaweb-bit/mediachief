@@ -12,12 +12,12 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['var(--font-body, "Open Sans")', ...defaultTheme.fontFamily.sans],
-                heading: ['var(--font-heading, "Roboto")', ...defaultTheme.fontFamily.sans],
+                sans: ['var(--font-body, "Work Sans")', ...defaultTheme.fontFamily.sans],
+                heading: ['var(--font-heading, "Big Shoulders Text")', ...defaultTheme.fontFamily.sans],
             },
             colors: {
                 brand: {
-                    red: 'var(--brand-primary, #e51a2f)',
+                    red: 'var(--brand-primary, #E04040)',
                     dark: 'var(--brand-dark, #0a0a0a)',
                     darker: 'var(--brand-darker, #070707)',
                     gray: 'var(--brand-gray, #1a1a1a)',
