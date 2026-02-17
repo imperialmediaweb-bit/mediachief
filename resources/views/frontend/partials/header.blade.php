@@ -8,65 +8,92 @@
 @endphp
 
 <header>
-    {{-- Logo Area: Newsletter | Logo | Pricing Plans --}}
-    <div class="bg-white py-5">
+    {{-- Mobile Header (phones only) --}}
+    <div class="td-mobile-header md:hidden" style="border-bottom: 3px solid #000; background: #fff;">
         <div class="mx-auto max-w-[1200px] px-4">
-            <div class="flex items-center justify-between">
-                {{-- Newsletter button (left) --}}
-                <a href="#" class="td-header-newsletter hidden md:flex">
-                    <svg class="td-nl-icon h-9 w-9" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
-                    <span>Newsletter</span>
-                </a>
-
-                {{-- Centered Logo --}}
+            <div class="flex items-center justify-between py-2.5">
+                <button type="button" class="text-black" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" aria-label="Menu">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
                 <a href="{{ route('home') }}" class="text-center">
-                    @if($currentSite->logo ?? false)
-                        <img src="{{ asset('storage/' . $currentSite->logo) }}" alt="{{ $currentSite->name }}" class="h-[50px] md:h-[70px]">
-                    @else
-                        <span class="td-header-logo">{{ $currentSite->name }}</span>
-                    @endif
-                    <div class="td-header-tagline mt-1">"Informed, Involved, Inspired Together."</div>
+                    <span class="td-header-logo">{{ $currentSite->name }}</span>
                 </a>
-
-                {{-- Pricing Plans (right) --}}
-                <a href="#" class="td-header-pricing hidden md:flex">
-                    Pricing Plans
-                </a>
+                <button type="button" class="text-black" onclick="document.getElementById('search-overlay').classList.toggle('hidden')" aria-label="Search">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </button>
             </div>
         </div>
     </div>
 
-    {{-- Navigation Bar (white bg, black borders, centered nav) --}}
-    <nav class="td-nav-bar">
+    {{-- Desktop Header: 3-column layout (25% / 50% / 25%) --}}
+    <div class="hidden bg-white md:block">
         <div class="mx-auto max-w-[1200px] px-4">
-            <div class="flex h-[48px] items-center justify-between">
-                {{-- Mobile menu button --}}
-                <button type="button" class="text-black md:hidden" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" aria-label="Menu">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                </button>
-
-                {{-- Desktop nav (centered) --}}
-                <div class="hidden h-full flex-1 items-center justify-center md:flex">
-                    {{-- "All" button (hamburger + label) --}}
-                    <button type="button" class="td-nav-all-btn" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" aria-label="All categories">
-                        <svg viewBox="0 0 1024 1024"><path d="M945.172 561.724h-866.376c-22.364 0-40.55-18.196-40.55-40.591 0-22.385 18.186-40.581 40.55-40.581h866.365c22.385 0 40.561 18.196 40.561 40.581 0.010 22.395-18.176 40.591-40.55 40.591v0zM945.183 330.403h-866.386c-22.374 0-40.55-18.196-40.55-40.571 0-22.405 18.176-40.612 40.55-40.612h866.376c22.374 0 40.561 18.207 40.561 40.612 0.010 22.364-18.186 40.571-40.55 40.571v0zM945.172 793.066h-866.376c-22.374 0-40.55-18.196-40.55-40.602 0-22.385 18.176-40.581 40.55-40.581h866.365c22.385 0 40.581 18.196 40.581 40.581 0.010 22.395-18.196 40.602-40.571 40.602v0z"></path></svg>
-                        <span>All</span>
-                    </button>
-                    @foreach($categories as $cat)
-                        <a href="{{ route('category.show', $cat) }}" class="td-nav-link">{{ $cat->name }}</a>
-                    @endforeach
+            <div class="flex items-center py-5">
+                {{-- Left column (25%): Newsletter button --}}
+                <div class="flex w-1/4 items-center justify-start">
+                    <a href="#" class="td-header-newsletter">
+                        <svg class="td-nl-icon h-9 w-9" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+                        <span>Newsletter</span>
+                    </a>
                 </div>
 
-                {{-- Search --}}
-                <button type="button" class="flex h-[48px] items-center px-3 text-black hover:text-[var(--brand-primary,#E04040)]" onclick="document.getElementById('search-overlay').classList.toggle('hidden')" aria-label="Search">
-                    <svg class="h-[24px] w-[24px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                {{-- Center column (50%): Logo + tagline --}}
+                <div class="flex w-1/2 flex-col items-center">
+                    <a href="{{ route('home') }}" class="text-center">
+                        @if($currentSite->logo ?? false)
+                            <img src="{{ asset('storage/' . $currentSite->logo) }}" alt="{{ $currentSite->name }}" class="h-[70px]">
+                        @else
+                            <span class="td-header-logo">{{ $currentSite->name }}</span>
+                        @endif
+                    </a>
+                    <span class="td-header-tagline">"Informed, Involved, Inspired Together."</span>
+                </div>
+
+                {{-- Right column (25%): Pricing Plans button --}}
+                <div class="flex w-1/4 items-center justify-end">
+                    <a href="#" class="td-header-pricing">Pricing Plans</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Navigation Bar (white bg, 1px top + 3px bottom black border) --}}
+    <nav class="td-nav-bar">
+        <div class="mx-auto max-w-[1200px] px-4">
+            <div class="hidden h-[48px] items-center justify-center md:flex">
+                {{-- "All" button (hamburger icon + label, black bg) --}}
+                <button type="button" class="td-nav-all-btn" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" aria-label="All categories">
+                    <svg viewBox="0 0 1024 1024"><path d="M945.172 561.724h-866.376c-22.364 0-40.55-18.196-40.55-40.591 0-22.385 18.186-40.581 40.55-40.581h866.365c22.385 0 40.561 18.196 40.561 40.581 0.010 22.395-18.176 40.591-40.55 40.591v0zM945.183 330.403h-866.386c-22.374 0-40.55-18.196-40.55-40.571 0-22.405 18.176-40.612 40.55-40.612h866.376c22.374 0 40.561 18.207 40.561 40.612 0.010 22.364-18.186 40.571-40.55 40.571v0zM945.172 793.066h-866.376c-22.374 0-40.55-18.196-40.55-40.602 0-22.385 18.176-40.581 40.55-40.581h866.365c22.385 0 40.581 18.196 40.581 40.581 0.010 22.395-18.196 40.602-40.571 40.602v0z"></path></svg>
+                    <span>All</span>
+                </button>
+
+                {{-- Category nav links --}}
+                @foreach($categories as $cat)
+                    <a href="{{ route('category.show', $cat) }}" class="td-nav-link">{{ $cat->name }}</a>
+                @endforeach
+
+                {{-- Search icon (right side) --}}
+                <div class="ml-auto">
+                    <button type="button" class="flex h-[48px] items-center px-3 text-black hover:text-[var(--brand-primary,#E04040)]" onclick="document.getElementById('search-overlay').classList.toggle('hidden')" aria-label="Search">
+                        <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Mobile: hamburger + search only --}}
+            <div class="flex h-[48px] items-center justify-between md:hidden">
+                <button type="button" class="text-black" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" aria-label="Menu">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+                <button type="button" class="text-black" onclick="document.getElementById('search-overlay').classList.toggle('hidden')" aria-label="Search">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </button>
             </div>
         </div>
     </nav>
 
-    {{-- Mobile menu --}}
-    <div id="mobile-menu" class="hidden bg-black md:hidden">
+    {{-- Mobile menu (slides down) --}}
+    <div id="mobile-menu" class="hidden bg-black">
         <div class="border-t border-gray-800 px-4 py-2">
             <a href="{{ route('home') }}" class="block py-2.5 text-[13px] font-extrabold uppercase text-white" style="font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;">Home</a>
             @foreach($categories as $cat)
