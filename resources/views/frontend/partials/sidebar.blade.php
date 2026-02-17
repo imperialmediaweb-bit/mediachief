@@ -14,55 +14,45 @@
         ->get();
 @endphp
 
-<aside class="space-y-6">
-    {{-- Popular Posts - Newspaper style with numbering --}}
-    <div class="bg-white">
-        <h3 class="td-block-title"><span>Most Popular</span></h3>
-        <div class="divide-y divide-gray-100">
-            @foreach($popularArticles as $index => $popular)
-                <div class="flex gap-3 py-3">
-                    <span class="flex h-7 w-7 shrink-0 items-center justify-center bg-[#222222] text-[11px] font-bold text-white">{{ $index + 1 }}</span>
-                    <div class="min-w-0 flex-1">
-                        <h4 class="text-[13px] font-bold leading-[1.3] text-[#111]">
-                            <a href="{{ route('article.show', $popular) }}" class="hover:text-brand-red">{{ Str::limit($popular->title, 55) }}</a>
-                        </h4>
-                        <span class="mt-1 block text-[11px] text-gray-400">{{ $popular->published_at?->diffForHumans() }}</span>
-                    </div>
+<aside>
+    {{-- Popular Posts --}}
+    <div class="widget">
+        <div class="block-title"><span>Most Popular</span></div>
+        @foreach($popularArticles as $index => $popular)
+            <div style="padding-bottom: 12px; display: flex; gap: 10px; border-bottom: 1px dashed #f1f1f1; margin-bottom: 10px;">
+                <span style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: var(--td_black, #222); color: #fff; font-size: 11px; font-weight: 700; flex-shrink: 0; font-family: 'Open Sans', sans-serif;">{{ $index + 1 }}</span>
+                <div style="min-width: 0; flex: 1;">
+                    <h4 style="font-family: 'Roboto', sans-serif; font-size: 13px; font-weight: 500; line-height: 1.3; margin: 0 0 4px;"><a href="{{ route('article.show', $popular) }}" style="color: #111; text-decoration: none;">{{ Str::limit($popular->title, 55) }}</a></h4>
+                    <span class="td-post-date" style="font-size: 11px;">{{ $popular->published_at?->diffForHumans() }}</span>
                 </div>
-            @endforeach
-        </div>
+            </div>
+        @endforeach
     </div>
 
-    {{-- Stay Connected - Newspaper style social counters --}}
-    <div class="bg-white">
-        <h3 class="td-block-title"><span>Stay Connected</span></h3>
-        <div class="space-y-2 pt-2">
-            <a href="#" class="flex items-center justify-between bg-[#516eab] px-3 py-2 text-white transition-opacity hover:opacity-90">
-                <div class="flex items-center gap-2">
-                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                    <span class="text-[12px] font-bold uppercase">Facebook</span>
-                </div>
-                <span class="text-[11px]">Like</span>
+    {{-- Stay Connected --}}
+    <div class="widget">
+        <div class="block-title"><span>Stay Connected</span></div>
+        <div style="padding-top: 5px;">
+            <a href="#" style="display: flex; align-items: center; justify-content: space-between; background: #516eab; padding: 8px 12px; color: #fff; text-decoration: none; margin-bottom: 6px;">
+                <span style="display: flex; align-items: center; gap: 8px;"><svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg><span style="font-size: 12px; font-weight: 700; text-transform: uppercase;">Facebook</span></span>
+                <span style="font-size: 11px;">Like</span>
             </a>
-            <a href="#" class="flex items-center justify-between bg-[#29c5f6] px-3 py-2 text-white transition-opacity hover:opacity-90">
-                <div class="flex items-center gap-2">
-                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                    <span class="text-[12px] font-bold uppercase">Twitter</span>
-                </div>
-                <span class="text-[11px]">Follow</span>
+            <a href="#" style="display: flex; align-items: center; justify-content: space-between; background: #29c5f6; padding: 8px 12px; color: #fff; text-decoration: none;">
+                <span style="display: flex; align-items: center; gap: 8px;"><svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span style="font-size: 12px; font-weight: 700; text-transform: uppercase;">Twitter</span></span>
+                <span style="font-size: 11px;">Follow</span>
             </a>
         </div>
     </div>
 
     {{-- Categories --}}
-    <div class="bg-white">
-        <h3 class="td-block-title"><span>Categories</span></h3>
-        <ul>
+    <div class="widget widget_categories">
+        <div class="block-title"><span>Categories</span></div>
+        <ul style="list-style: none; margin: 0; padding: 0;">
             @foreach($sidebarCategories as $cat)
-                <li>
-                    <a href="{{ route('category.show', $cat) }}" class="flex items-center justify-between border-b border-gray-100 py-2 text-[13px] text-gray-600 transition-colors hover:text-brand-red">
+                <li style="margin: 0; border-bottom: 1px solid #f1f1f1;">
+                    <a href="{{ route('category.show', $cat) }}" style="display: flex; align-items: center; justify-content: space-between; padding: 7px 0; font-size: 13px; color: #111; text-decoration: none;">
                         <span>{{ $cat->name }}</span>
-                        <span class="text-[11px] text-gray-400">({{ $cat->articles_count }})</span>
+                        <span style="font-size: 11px; color: #aaa;">({{ $cat->articles_count }})</span>
                     </a>
                 </li>
             @endforeach
@@ -70,13 +60,13 @@
     </div>
 
     {{-- Newsletter --}}
-    <div class="bg-white">
-        <h3 class="td-block-title"><span>Newsletter</span></h3>
-        <p class="mb-3 text-[13px] leading-relaxed text-gray-500">Get the latest news delivered to your inbox.</p>
+    <div class="widget">
+        <div class="block-title"><span>Newsletter</span></div>
+        <p style="font-size: 13px; line-height: 1.6; color: #767676; margin-bottom: 12px;">Get the latest news delivered to your inbox.</p>
         <form action="#" method="POST">
             @csrf
-            <input type="email" name="email" placeholder="Your email address" class="mb-2 w-full border border-gray-300 px-3 py-2 text-[13px] text-gray-900 placeholder-gray-400 outline-none focus:border-brand-red">
-            <button type="submit" class="w-full bg-brand-red px-4 py-2 text-[12px] font-bold uppercase tracking-wider text-white transition-colors hover:bg-red-700">Subscribe</button>
+            <input type="email" name="email" placeholder="Your email address" style="width: 100%; border: 1px solid #e1e1e1; padding: 6px 9px; font-size: 12px; margin-bottom: 8px; height: 34px;">
+            <input type="submit" value="SUBSCRIBE" style="width: 100%; font-size: 11px; font-weight: 700; letter-spacing: 1px;">
         </form>
     </div>
 </aside>

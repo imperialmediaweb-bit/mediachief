@@ -1,0 +1,48 @@
+/* ═══ Newspaper Icon Font Replacement ═══
+   Original uses @font-face 'newspaper' icon font.
+   Since we don't have the .woff/.ttf files, we provide
+   the icon mappings and use SVG icons inline in templates.
+   This file also provides social icon color mappings.
+*/
+
+/* Icon base styles */
+[class^="td-icon-"]:before,
+[class*=" td-icon-"]:before {
+    font-family: 'newspaper', sans-serif;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    text-align: center;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+[class*="td-icon-"] {
+    line-height: 1;
+    text-align: center;
+    display: inline-block;
+}
+
+/* Social icon hover colors */
+.td-social-icon-wrap:hover .td-icon-font { -webkit-transition: color 0.3s; transition: color 0.3s; }
+.td-social-icon-wrap:hover i.td-icon-facebook { color: #3B5998; }
+.td-social-icon-wrap:hover i.td-icon-twitter { color: #00aced; }
+.td-social-icon-wrap:hover i.td-icon-instagram { color: #3f729b; }
+.td-social-icon-wrap:hover i.td-icon-youtube { color: #bb0000; }
+.td-social-icon-wrap:hover i.td-icon-linkedin { color: #007bb6; }
+.td-social-icon-wrap:hover i.td-icon-pinterest { color: #cb2027; }
+.td-social-icon-wrap:hover i.td-icon-rss { color: #f36f24; }
+.td-social-icon-wrap:hover i.td-icon-telegram { color: #3b9de1; }
+.td-social-icon-wrap:hover i.td-icon-whatsapp { color: #7bbf6a; }
+.td-social-icon-wrap:hover i.td-icon-tiktok { color: #009191; }
+.td-social-icon-wrap:hover i.td-icon-vimeo { color: #5289cc; }
+.td-social-icon-wrap:hover i.td-icon-reddit { color: #ff4100; }
+.td-social-icon-wrap:hover i.td-icon-tumblr { color: #32506d; }
+.td-social-icon-wrap:hover i.td-icon-flickr { color: #ff0084; }
+.td-social-icon-wrap:hover i.td-icon-dribbble { color: #ea4c89; }
+.td-social-icon-wrap:hover i.td-icon-soundcloud { color: #ff5500; }
+.td-social-icon-wrap:hover i.td-icon-spotify { color: #81b900; }
+.td-social-icon-wrap:hover i.td-icon-discord { color: #7289DA; }
