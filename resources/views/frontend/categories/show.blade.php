@@ -4,40 +4,65 @@
 
 @section('content')
 <div class="bg-white">
-    <div class="mx-auto max-w-7xl px-4 py-6">
+    <div class="mx-auto max-w-[1200px] px-4 py-6">
         <div class="grid gap-8 lg:grid-cols-3">
             {{-- Main Content --}}
             <div class="lg:col-span-2">
                 {{-- Breadcrumb --}}
-                <div class="mb-3 text-xs" style="font-family: 'Work Sans', sans-serif; color: #999;">
-                    <a href="{{ route('home') }}" class="hover:text-brand-red">Home</a> &raquo;
+                <div class="mb-3 text-[12px]" style="font-family: 'Work Sans', sans-serif; color: #999;">
+                    <a href="{{ route('home') }}" class="hover:text-[var(--brand-primary,#E04040)]">Home</a> &raquo;
                     <span style="color: #000;">{{ $category->name }}</span>
                 </div>
 
                 {{-- Category Title --}}
-                <div class="section-header mb-6">
-                    <svg class="section-icon h-5 w-5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
-                    <h1 class="text-2xl md:text-3xl" style="font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif; font-weight: 800; color: #000;">{{ $category->name }}</h1>
-                </div>
+                <div class="td-section-red mb-6">{{ $category->name }}</div>
 
-                {{-- Articles --}}
-                @foreach($articles as $article)
-                <div class="mb-6 flex gap-4 border-b border-gray-100 pb-6">
-                    <div class="td-module-image w-1/3 shrink-0">
+                {{-- Featured cards for first page --}}
+                @if($articles->onFirstPage() && $articles->count() >= 3)
+                <div class="mb-6 grid grid-cols-1 gap-5 md:grid-cols-3">
+                    @foreach($articles->take(3) as $article)
+                    <div>
+                        <div class="td-module-image">
+                            <a href="{{ route('article.show', $article) }}">
+                                @if($article->featured_image)
+                                    <img src="{{ $article->featured_image }}" alt="{{ $article->title }}" class="aspect-[16/10] w-full object-cover" loading="lazy">
+                                @else
+                                    <div class="aspect-[16/10] w-full bg-gray-200"></div>
+                                @endif
+                            </a>
+                        </div>
+                        <div class="td-module-meta mt-2">
+                            <h3 class="td-title text-[15px]">
+                                <a href="{{ route('article.show', $article) }}">{{ $article->title }}</a>
+                            </h3>
+                            <span class="td-date mt-1 block">{{ $article->published_at?->format('F j, Y') }}</span>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                @php $skipCount = 3; @endphp
+                @else
+                @php $skipCount = 0; @endphp
+                @endif
+
+                {{-- Article list --}}
+                @foreach($articles->skip($skipCount) as $article)
+                <div class="flex gap-4 border-b border-gray-100 py-4">
+                    <div class="td-module-image w-[200px] shrink-0">
                         <a href="{{ route('article.show', $article) }}">
                             @if($article->featured_image)
-                                <img src="{{ $article->featured_image }}" alt="{{ $article->title }}" class="w-full aspect-[4/3] object-cover" loading="lazy">
+                                <img src="{{ $article->featured_image }}" alt="{{ $article->title }}" class="aspect-[4/3] w-full object-cover" loading="lazy">
                             @else
-                                <div class="aspect-[4/3] bg-gray-200"></div>
+                                <div class="aspect-[4/3] w-full bg-gray-200"></div>
                             @endif
                         </a>
                     </div>
                     <div class="td-module-meta">
-                        <h2 class="entry-title text-lg md:text-xl">
+                        <h2 class="td-title text-[17px] md:text-[20px]">
                             <a href="{{ route('article.show', $article) }}">{{ $article->title }}</a>
                         </h2>
-                        <div class="td-excerpt mt-2">{{ Str::limit(strip_tags($article->body), 120) }}</div>
-                        <div class="td-post-date mt-2">{{ $article->published_at?->format('F j, Y') }}</div>
+                        <p class="td-excerpt mt-2">{{ Str::limit(strip_tags($article->body), 120) }}</p>
+                        <span class="td-date mt-2 block">{{ $article->published_at?->format('F j, Y') }}</span>
                     </div>
                 </div>
                 @endforeach
