@@ -14,18 +14,18 @@
         ->get();
 @endphp
 
-<aside class="space-y-6">
-    {{-- Popular Posts --}}
+<aside class="td-sidebar-sticky space-y-6">
+    {{-- Popular Posts (numbered list) --}}
     <div class="bg-white">
         <div class="td-section-red text-[16px]">Most Popular</div>
         @foreach($popularArticles as $index => $popular)
             <div class="flex gap-3 border-b border-gray-100 py-3">
-                <span class="flex h-7 w-7 shrink-0 items-center justify-center bg-black text-[11px] font-bold text-white">{{ $index + 1 }}</span>
+                <span class="td-popular-number">{{ $index + 1 }}</span>
                 <div class="min-w-0 flex-1">
-                    <h4 class="td-title text-[13px]" style="font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif; font-weight: 700; color: #000;">
-                        <a href="{{ route('article.show', $popular) }}" class="hover:text-[var(--brand-primary,#E04040)]">{{ Str::limit($popular->title, 55) }}</a>
+                    <h4 class="text-[15px]" style="font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif; font-weight: 700; line-height: 1.1; color: #000;">
+                        <a href="{{ route('article.show', $popular) }}" class="hover:text-[var(--accent-color-1,#E04040)]" style="transition: color 0.2s ease;">{{ Str::limit($popular->title, 55) }}</a>
                     </h4>
-                    <span class="mt-1 block text-[11px] text-gray-400" style="font-family: 'Work Sans', sans-serif;">{{ $popular->published_at?->diffForHumans() }}</span>
+                    <span class="mt-1 block text-[12px]" style="font-family: 'Work Sans', sans-serif; color: #999; font-weight: 500;">{{ $popular->published_at?->diffForHumans() }}</span>
                 </div>
             </div>
         @endforeach
@@ -60,7 +60,7 @@
         <ul>
             @foreach($sidebarCategories as $cat)
                 <li>
-                    <a href="{{ route('category.show', $cat) }}" class="flex items-center justify-between border-b border-gray-100 py-2 text-[13px] text-gray-600 transition-colors hover:text-[var(--brand-primary,#E04040)]" style="font-family: 'Work Sans', sans-serif;">
+                    <a href="{{ route('category.show', $cat) }}" class="flex items-center justify-between border-b border-gray-100 py-2 text-[13px] text-gray-600 transition-colors hover:text-[var(--accent-color-1,#E04040)]" style="font-family: 'Work Sans', sans-serif;">
                         <span>{{ $cat->name }}</span>
                         <span class="text-[11px] text-gray-400">({{ $cat->articles_count }})</span>
                     </a>
@@ -75,8 +75,8 @@
         <p class="mb-3 text-[13px] leading-relaxed text-gray-500" style="font-family: 'Work Sans', sans-serif;">Get the latest news delivered to your inbox.</p>
         <form action="#" method="POST">
             @csrf
-            <input type="email" name="email" placeholder="Your email address" class="mb-2 w-full border border-gray-300 px-3 py-2 text-[13px] text-gray-900 placeholder-gray-400 outline-none focus:border-[var(--brand-primary,#E04040)]">
-            <button type="submit" class="w-full px-4 py-2 text-[12px] font-bold uppercase tracking-wider text-white transition-colors hover:opacity-90" style="background: var(--brand-primary, #E04040); font-family: 'Work Sans', sans-serif;">Subscribe</button>
+            <input type="email" name="email" placeholder="Your email address" class="mb-2 w-full border border-gray-300 px-3 py-2 text-[13px] text-gray-900 placeholder-gray-400 outline-none focus:border-[var(--accent-color-1,#E04040)]" style="font-family: 'Work Sans', sans-serif;">
+            <button type="submit" class="w-full px-4 py-2 text-[12px] font-bold uppercase tracking-wider text-white transition-colors hover:opacity-90" style="background: var(--accent-color-1, #E04040); font-family: 'Work Sans', sans-serif;">Subscribe</button>
         </form>
     </div>
 </aside>
