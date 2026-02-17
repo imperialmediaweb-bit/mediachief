@@ -190,7 +190,11 @@
 
             {{-- Sidebar --}}
             <div>
-                @include('frontend.partials.sidebar')
+                @if(file_exists(storage_path('app/wp-theme/sidebar.html')))
+                    {!! file_get_contents(storage_path('app/wp-theme/sidebar.html')) !!}
+                @else
+                    @include('frontend.partials.sidebar')
+                @endif
             </div>
         </div>
     </div>

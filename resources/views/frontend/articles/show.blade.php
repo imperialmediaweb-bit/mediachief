@@ -15,6 +15,19 @@
     @endif
 @endpush
 
+@section('wp_head')
+    @if($article->seo)
+        @foreach($article->seo as $key => $value)
+            <meta name="{{ $key }}" content="{{ $value }}">
+        @endforeach
+    @endif
+    <meta property="og:title" content="{{ $article->title }}">
+    <meta property="og:description" content="{{ $article->excerpt ?? '' }}">
+    @if($article->image_url)
+        <meta property="og:image" content="{{ $article->image_url }}">
+    @endif
+@endsection
+
 @section('content')
 <div class="bg-[#f9f9f9] py-6">
     <div class="mx-auto max-w-[1100px] px-4">
@@ -113,7 +126,11 @@
             </article>
 
             <div>
-                @include('frontend.partials.sidebar')
+                @if(file_exists(storage_path('app/wp-theme/sidebar.html')))
+                    {!! file_get_contents(storage_path('app/wp-theme/sidebar.html')) !!}
+                @else
+                    @include('frontend.partials.sidebar')
+                @endif
             </div>
         </div>
     </div>

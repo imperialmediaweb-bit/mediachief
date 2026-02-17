@@ -94,9 +94,9 @@ if [ "$DB_READY" = true ]; then
     # Storage link
     php artisan storage:link 2>/dev/null || true
 
-    # Import WordPress theme CSS (if site has a wordpress_url)
-    echo "Importing WordPress theme CSS..."
-    timeout 60 php artisan wp:import-theme-css 2>&1 || echo "Theme CSS import skipped or failed"
+    # Import full WordPress template (HTML shell + CSS + fonts) for exact design replica
+    echo "Importing WordPress template..."
+    timeout 120 php artisan wp:import-template 2>&1 || echo "Template import skipped or failed"
 
     # Start queue worker in background
     php artisan queue:work --queue=rss,ai --tries=3 --timeout=180 --sleep=10 --max-jobs=100 --max-time=3600 &>/dev/null &

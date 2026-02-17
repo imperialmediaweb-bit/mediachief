@@ -1,3 +1,73 @@
+@php
+    // Check if WordPress shell templates exist (imported by wp:import-template command)
+    $wpBeforePath = storage_path('app/wp-theme/shell_before.html');
+    $wpAfterPath = storage_path('app/wp-theme/shell_after.html');
+    $useWpShell = file_exists($wpBeforePath) && file_exists($wpAfterPath);
+@endphp
+
+@if($useWpShell)
+{{-- ═══ WordPress Shell Mode: Exact design replica using imported WP HTML ═══ --}}
+@php
+    $shellBefore = file_get_contents($wpBeforePath);
+    $shellAfter = file_get_contents($wpAfterPath);
+
+    // Dynamic page title
+    $pageTitle = $__env->yieldContent('title', $currentSite->name ?? 'MediaChief');
+    $shellBefore = str_replace('<!-- MC_TITLE -->', e($pageTitle), $shellBefore);
+
+    // Build analytics/extra head content
+    $analytics = $currentSite->analytics ?? [];
+    $headExtra = '';
+
+    // Google Analytics 4
+    if (!empty($analytics['google_analytics_4'])) {
+        $gaId = e($analytics['google_analytics_4']);
+        $headExtra .= "<script async src=\"https://www.googletagmanager.com/gtag/js?id={$gaId}\"></script>\n";
+        $headExtra .= "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{$gaId}');</script>\n";
+    } elseif (!empty($analytics['google_analytics_ua'])) {
+        $gaId = e($analytics['google_analytics_ua']);
+        $headExtra .= "<script async src=\"https://www.googletagmanager.com/gtag/js?id={$gaId}\"></script>\n";
+        $headExtra .= "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{$gaId}');</script>\n";
+    }
+
+    // Google Tag Manager (head part)
+    if (!empty($analytics['google_tag_manager'])) {
+        $gtmId = e($analytics['google_tag_manager']);
+        $headExtra .= "<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','{$gtmId}');</script>\n";
+    }
+
+    // Google AdSense
+    if (!empty($analytics['google_adsense'])) {
+        $adsId = e($analytics['google_adsense']);
+        $headExtra .= "<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={$adsId}\" crossorigin=\"anonymous\"></script>\n";
+    }
+
+    // Google Site Verification
+    if (!empty($currentSite->seo_settings['google_site_verification'])) {
+        $headExtra .= '<meta name="google-site-verification" content="' . e($currentSite->seo_settings['google_site_verification']) . "\">\n";
+    }
+
+    // OG meta from child views
+    $headExtra .= $__env->yieldContent('wp_head', '');
+
+    $shellBefore = str_replace('<!-- MC_HEAD_EXTRA -->', $headExtra, $shellBefore);
+
+    // GTM noscript for body start
+    $bodyStart = '';
+    if (!empty($analytics['google_tag_manager'])) {
+        $gtmId = e($analytics['google_tag_manager']);
+        $bodyStart = "<noscript><iframe src=\"https://www.googletagmanager.com/ns.html?id={$gtmId}\" height=\"0\" width=\"0\" style=\"display:none;visibility:hidden\"></iframe></noscript>\n";
+    }
+    $shellBefore = str_replace('<!-- MC_BODY_START -->', $bodyStart, $shellBefore);
+@endphp
+{!! $shellBefore !!}
+
+@yield('content')
+
+{!! $shellAfter !!}
+
+@else
+{{-- ═══ Fallback Mode: Tailwind-based design (when WP templates not yet imported) ═══ --}}
 <!DOCTYPE html>
 <html lang="{{ $currentSite->language ?? 'en' }}">
 <head>
@@ -11,11 +81,6 @@
         <link rel="icon" href="{{ asset('storage/' . $currentSite->favicon) }}">
     @elseif(!empty($currentSite->seo_settings['wp_favicon_url']))
         <link rel="icon" href="{{ $currentSite->seo_settings['wp_favicon_url'] }}">
-    @endif
-
-    {{-- Load imported WordPress theme CSS if available --}}
-    @if(file_exists(public_path('css/wp-theme/newspaper.css')))
-        <link rel="stylesheet" href="{{ asset('css/wp-theme/newspaper.css') }}">
     @endif
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -109,3 +174,4 @@
     @stack('scripts')
 </body>
 </html>
+@endif
