@@ -47,6 +47,13 @@
         $headExtra .= '<meta name="google-site-verification" content="' . e($currentSite->seo_settings['google_site_verification']) . "\">\n";
     }
 
+    // Load our Tailwind CSS + JS for content area styling
+    try {
+        $headExtra .= app(\Illuminate\Foundation\Vite::class)(['resources/css/app.css', 'resources/js/app.js']);
+    } catch (\Exception $e) {
+        // Vite manifest not found - skip
+    }
+
     // OG meta from child views
     $headExtra .= $__env->yieldContent('wp_head', '');
 
