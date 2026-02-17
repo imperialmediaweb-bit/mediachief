@@ -47,6 +47,11 @@
 
                 {{-- Desktop nav (centered) --}}
                 <div class="hidden h-full flex-1 items-center justify-center md:flex">
+                    {{-- "All" button (hamburger + label) --}}
+                    <button type="button" class="td-nav-all-btn" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" aria-label="All categories">
+                        <svg viewBox="0 0 1024 1024"><path d="M945.172 561.724h-866.376c-22.364 0-40.55-18.196-40.55-40.591 0-22.385 18.186-40.581 40.55-40.581h866.365c22.385 0 40.561 18.196 40.561 40.581 0.010 22.395-18.176 40.591-40.55 40.591v0zM945.183 330.403h-866.386c-22.374 0-40.55-18.196-40.55-40.571 0-22.405 18.176-40.612 40.55-40.612h866.376c22.374 0 40.561 18.207 40.561 40.612 0.010 22.364-18.186 40.571-40.55 40.571v0zM945.172 793.066h-866.376c-22.374 0-40.55-18.196-40.55-40.602 0-22.385 18.176-40.581 40.55-40.581h866.365c22.385 0 40.581 18.196 40.581 40.581 0.010 22.395-18.196 40.602-40.571 40.602v0z"></path></svg>
+                        <span>All</span>
+                    </button>
                     @foreach($categories as $cat)
                         <a href="{{ route('category.show', $cat) }}" class="td-nav-link">{{ $cat->name }}</a>
                     @endforeach
