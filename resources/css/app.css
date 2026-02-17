@@ -4,75 +4,124 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Minimal base reset - preflight disabled to avoid conflicts with imported WP CSS */
+/* ═══ Base Resets (preflight disabled) ═══ */
 @layer base {
     *, *::before, *::after {
         box-sizing: border-box;
     }
 
+    body {
+        margin: 0;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
     img, video {
         max-width: 100%;
         height: auto;
+        display: block;
+    }
+
+    svg {
+        display: inline-block;
+        vertical-align: middle;
+        flex-shrink: 0;
+    }
+    svg:not([width]):not([class*="w-"]):not([style*="width"]) {
+        width: 1em;
+        height: 1em;
     }
 
     a {
-        @apply transition-colors duration-200;
+        color: inherit;
+        text-decoration: inherit;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        margin: 0;
+        font-size: inherit;
+        font-weight: inherit;
+    }
+
+    ul, ol {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    p { margin: 0; }
+
+    button, input, textarea, select {
+        font: inherit;
+        color: inherit;
+    }
+
+    input, textarea {
+        background: transparent;
     }
 }
 
+/* ═══ Reusable Components ═══ */
 @layer components {
-    /* ═══ NEWSPAPER THEME - BLOCK TITLE ═══
-       Red bar on left side of title, gray border bottom */
-    .td-block-title {
-        @apply relative mb-4 border-b-[2px] border-gray-200 pb-2 text-[16px] font-bold font-heading uppercase tracking-wide text-[#111];
-    }
-    .td-block-title span {
-        @apply relative inline-block pb-[9px];
-        margin-bottom: -2px;
-        border-bottom: 3px solid var(--brand-primary, #e51a2f);
-    }
-
-    /* ═══ CATEGORY BADGE ═══ */
-    .td-cat-badge {
-        @apply inline-block bg-brand-red px-[6px] py-[2px] text-[10px] font-bold uppercase tracking-wider text-white leading-normal;
-    }
-
-    /* Legacy support */
     .cat-badge {
-        @apply inline-block bg-brand-red px-[6px] py-[2px] text-[10px] font-bold uppercase tracking-wider text-white leading-normal;
+        @apply inline-block bg-brand-red px-2 py-[2px] text-[10px] font-bold uppercase tracking-wider text-white leading-normal;
     }
 
-    /* ═══ FEATURED CARD (image overlay style) ═══ */
-    .td-featured-card {
-        @apply relative block;
+    .section-header {
+        @apply relative mb-5 border-b-[3px] border-brand-red pb-2 text-lg font-bold font-heading uppercase tracking-wide text-gray-900;
     }
 
-    /* ═══ FOOTER TITLE ═══ */
-    .td-footer-title {
-        @apply mb-3 border-b-[2px] border-[#444] pb-2 text-[13px] font-bold uppercase tracking-wide text-white;
+    .article-card {
+        @apply transition-all;
+    }
+    .article-card:hover img {
+        transform: scale(1.05);
     }
 
-    /* ═══ PAGINATION ═══ */
     .pagination-link {
-        @apply inline-flex items-center justify-center w-9 h-9 text-[12px] font-medium border border-gray-300 text-gray-600 hover:bg-brand-red hover:text-white hover:border-brand-red transition-colors;
+        @apply inline-flex items-center justify-center w-9 h-9 text-xs font-medium border border-gray-300 text-gray-600 hover:bg-brand-red hover:text-white hover:border-brand-red transition-colors;
     }
     .pagination-link.active {
         @apply bg-brand-red text-white border-brand-red;
     }
+}
 
-    /* ═══ ARTICLE CONTENT ═══ */
-    .td-article-content {
-        word-wrap: break-word;
-    }
-    .td-article-content img {
-        @apply my-4;
-    }
-    .td-article-content p {
-        @apply mb-4;
-    }
+/* ═══ Article Content (user-generated HTML body) ═══ */
+.mc-post-content,
+.td-article-content {
+    font-family: "Open Sans", sans-serif;
+    font-size: 15px;
+    line-height: 1.85;
+    color: #333;
+    word-wrap: break-word;
+}
+.mc-post-content p { margin-bottom: 22px; }
+.mc-post-content img { max-width: 100%; height: auto; margin: 18px 0; border-radius: 2px; }
+.mc-post-content h2,
+.mc-post-content h3 {
+    font-family: "Roboto", sans-serif;
+    font-weight: 600;
+    margin: 26px 0 12px;
+    color: #111;
+}
+.mc-post-content h2 { font-size: 24px; }
+.mc-post-content h3 { font-size: 20px; }
+.mc-post-content ul, .mc-post-content ol { margin: 0 0 20px 24px; }
+.mc-post-content ul { list-style: disc; }
+.mc-post-content ol { list-style: decimal; }
+.mc-post-content li { margin-bottom: 6px; }
+.mc-post-content blockquote {
+    border-left: 4px solid var(--brand-primary, #e51a2f);
+    margin: 20px 0;
+    padding: 12px 20px;
+    background: #f8f8f8;
+    font-style: italic;
+    color: #555;
+}
+.mc-post-content a { color: var(--brand-primary, #e51a2f); }
+.mc-post-content a:hover { text-decoration: underline; }
 
-    /* ═══ SECTION HEADER (legacy) ═══ */
-    .section-header {
-        @apply relative mb-4 border-b-[2px] border-gray-200 pb-2 text-[16px] font-bold font-heading uppercase tracking-wide text-[#111];
-    }
+/* ═══ Trending Ticker ═══ */
+.td-ticker-item {
+    transition: opacity 0.5s ease;
 }

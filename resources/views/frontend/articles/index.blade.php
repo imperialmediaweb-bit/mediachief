@@ -5,393 +5,207 @@
 @section('content')
 
 @php
-    // Pre-compute layout groups from category sections to match tagDiv Composer structure:
-    // 1. First category → full-width grid block (6 article cards in 3x2)
-    // 2. Popular row (4 cards)
-    // 3. Next 3 categories → triple-column row (featured img + list per column)
-    // 4. Next category → full-width featured + list block
-    // 5. Next 3 categories → triple-column row
-    // 6. Remaining categories → groups of 3 in triple-column rows, or full-width blocks
-    // 7. Latest posts at the bottom
-
     $sections = collect($categorySections ?? []);
-    $idx = 0;
-
-    $gridSection = $sections->get($idx); // First category as grid block
-    if ($gridSection) $idx++;
-
-    $tripleRow1 = $sections->slice($idx, min(3, max(0, $sections->count() - $idx)))->values();
-    $idx += $tripleRow1->count();
-
-    $wideSection = $sections->get($idx); // Wide featured+list block
-    if ($wideSection) $idx++;
-
-    $tripleRow2 = $sections->slice($idx, min(3, max(0, $sections->count() - $idx)))->values();
-    $idx += $tripleRow2->count();
-
-    // Remaining categories grouped in threes
-    $remaining = $sections->slice($idx)->values();
-    $remainingChunks = $remaining->chunk(3);
+    // Group categories into chunks of 3 for the 3-column layout
+    $sectionChunks = $sections->chunk(3);
 @endphp
 
-{{-- ═══ Hero Big Grid (3 Featured Articles) ═══ --}}
+{{-- ═══ FEATURED SECTION (3 Overlay Cards) ═══ --}}
 @if(isset($featured) && $featured->isNotEmpty())
-<div class="mc-container" style="padding-top:20px;padding-bottom:4px">
-    @if($featured->count() >= 3)
-    <div class="mc-big-grid">
-        @php $main = $featured->first(); @endphp
-        <a href="{{ route('article.show', $main) }}" class="mc-big-grid-left mc-big-grid-item">
-            @if($main->image_url)
-                <img src="{{ $main->image_url }}" alt="{{ $main->title }}">
-            @endif
-            <div class="mc-big-grid-meta">
-                @if($main->category)<span class="mc-cat">{{ $main->category->name }}</span>@endif
-                <h3><a href="{{ route('article.show', $main) }}">{{ $main->title }}</a></h3>
-                <div class="mc-module-meta" style="color:#ccc">
-                    @if($main->author)<span>{{ $main->author }}</span> - @endif
-                    <span>{{ $main->published_at?->format('F d, Y') }}</span>
-                </div>
+<section class="bg-white">
+    <div class="mx-auto max-w-7xl px-4 pt-4">
+        @if($featured->first()->category)
+        <h2 class="section-header">{{ $featured->first()->category->name }}</h2>
+        @else
+        <h2 class="section-header">Featured</h2>
+        @endif
+        <div class="grid gap-4 pb-6 md:grid-cols-3">
+            @foreach($featured as $feat)
+            <div class="article-card group relative overflow-hidden">
+                <a href="{{ route('article.show', $feat) }}" class="block">
+                    <div class="relative aspect-[4/3] overflow-hidden">
+                        @if($feat->image_url)
+                        <img src="{{ $feat->image_url }}" alt="{{ $feat->title }}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+                        @else
+                        <div class="h-full w-full bg-gray-200"></div>
+                        @endif
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 p-4">
+                            @if($feat->category)
+                            <span class="cat-badge mb-2">{{ $feat->category->name }}</span>
+                            @endif
+                            <h3 class="text-base font-bold leading-tight text-white drop-shadow-lg md:text-lg">{{ Str::limit($feat->title, 80) }}</h3>
+                            <div class="mt-2 flex items-center gap-2 text-xs text-gray-300">
+                                @if($feat->author)<span>{{ $feat->author }}</span><span>&middot;</span>@endif
+                                <span>{{ $feat->published_at?->format('M d, Y') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
             </div>
-        </a>
-        <div class="mc-big-grid-right">
-            @foreach($featured->skip(1)->take(2) as $feat)
-            <a href="{{ route('article.show', $feat) }}" class="mc-big-grid-item">
-                @if($feat->image_url)
-                    <img src="{{ $feat->image_url }}" alt="{{ $feat->title }}">
-                @endif
-                <div class="mc-big-grid-meta mc-small">
-                    @if($feat->category)<span class="mc-cat">{{ $feat->category->name }}</span>@endif
-                    <h3><a href="{{ route('article.show', $feat) }}">{{ Str::limit($feat->title, 70) }}</a></h3>
-                </div>
-            </a>
             @endforeach
         </div>
     </div>
-    @else
-    <div class="mc-big-grid">
-        @foreach($featured as $feat)
-        <a href="{{ route('article.show', $feat) }}" class="mc-big-grid-item" style="flex:1;min-height:300px">
-            @if($feat->image_url)<img src="{{ $feat->image_url }}" alt="{{ $feat->title }}">@endif
-            <div class="mc-big-grid-meta">
-                @if($feat->category)<span class="mc-cat">{{ $feat->category->name }}</span>@endif
-                <h3><a href="{{ route('article.show', $feat) }}">{{ $feat->title }}</a></h3>
-            </div>
-        </a>
-        @endforeach
-    </div>
-    @endif
-</div>
+</section>
 @endif
 
-{{-- ═══ Content + Sidebar ═══ --}}
-<div class="mc-container" style="padding-top:20px;padding-bottom:20px">
-    <div class="mc-row">
-        <div class="mc-span8">
-
-            {{-- ═══ Section 1: First Category – Grid Block (td_flex_block_1 style) ═══ --}}
-            @if($gridSection)
-            <div class="mc-block">
-                <h2 class="mc-block-title"><span>{{ $gridSection['category']->name }}</span></h2>
-                <div class="mc-grid-3">
-                    @foreach($gridSection['articles']->take(6) as $art)
-                    <div class="mc-card">
-                        <a href="{{ route('article.show', $art) }}" class="mc-card-thumb">
-                            @if($art->image_url)
-                            <img src="{{ $art->image_url }}" alt="{{ $art->title }}">
-                            @else
-                            <div class="mc-card-placeholder"></div>
-                            @endif
-                        </a>
-                        <div class="mc-card-info">
-                            <h3 class="mc-module-title" style="font-size:14px"><a href="{{ route('article.show', $art) }}">{{ Str::limit($art->title, 60) }}</a></h3>
-                            <div class="mc-module-meta">
-                                @if($art->author)<span class="mc-author">{{ $art->author }}</span> - @endif
-                                <span>{{ $art->published_at?->format('F d, Y') }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-            @endif
-
-            {{-- ═══ Popular Section (4 cards sorted by views) ═══ --}}
-            @if(isset($popular) && $popular->isNotEmpty())
-            <div class="mc-block">
-                <h2 class="mc-block-title"><span>Popular</span></h2>
-                <div class="mc-grid-4">
-                    @foreach($popular as $art)
-                    <div class="mc-card">
-                        <a href="{{ route('article.show', $art) }}" class="mc-card-thumb">
-                            @if($art->image_url)
-                            <img src="{{ $art->image_url }}" alt="{{ $art->title }}">
-                            @else
-                            <div class="mc-card-placeholder"></div>
-                            @endif
-                        </a>
-                        <div class="mc-card-info">
-                            @if($art->category)
-                            <a href="{{ route('category.show', $art->category) }}" class="mc-cat">{{ $art->category->name }}</a>
-                            @endif
-                            <h3 class="mc-module-title" style="font-size:13px"><a href="{{ route('article.show', $art) }}">{{ Str::limit($art->title, 55) }}</a></h3>
-                            <div class="mc-module-meta">{{ $art->published_at?->format('F d, Y') }}</div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-            @endif
-
-            {{-- ═══ Triple-Column Row #1 (3 categories side by side) ═══ --}}
-            @if($tripleRow1->isNotEmpty())
-            <div class="mc-triple-row">
-                @foreach($tripleRow1 as $s)
-                <div class="mc-triple-col">
-                    <h3 class="mc-block-title"><span>{{ $s['category']->name }}</span></h3>
-                    @foreach($s['articles']->take(5) as $i => $art)
-                    @if($i === 0)
-                    {{-- First article: featured image + title --}}
-                    <div class="mc-module" style="margin-bottom:12px">
-                        <a href="{{ route('article.show', $art) }}" class="mc-module-thumb" style="display:block">
-                            @if($art->image_url)
-                            <img src="{{ $art->image_url }}" alt="{{ $art->title }}" style="aspect-ratio:16/10;object-fit:cover">
-                            @endif
-                        </a>
-                        <h4 class="mc-module-title" style="font-size:14px;margin-top:8px"><a href="{{ route('article.show', $art) }}">{{ Str::limit($art->title, 55) }}</a></h4>
-                        <div class="mc-module-meta">
-                            @if($art->author)<span class="mc-author">{{ $art->author }}</span> - @endif
-                            {{ $art->published_at?->format('F d, Y') }}
-                        </div>
-                    </div>
-                    @else
-                    {{-- Remaining articles: small thumb + title list --}}
-                    <div class="mc-list">
+{{-- ═══ POPULAR SECTION (4 Cards) ═══ --}}
+@if(isset($popular) && $popular->isNotEmpty())
+<section class="bg-gray-50">
+    <div class="mx-auto max-w-7xl px-4 pt-4 pb-6">
+        <h2 class="section-header">Popular</h2>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            @foreach($popular as $art)
+            <div class="article-card overflow-hidden bg-white shadow-sm">
+                <a href="{{ route('article.show', $art) }}">
+                    <div class="aspect-video overflow-hidden">
                         @if($art->image_url)
-                        <a href="{{ route('article.show', $art) }}" class="mc-list-thumb">
-                            <img src="{{ $art->image_url }}" alt="{{ $art->title }}">
-                        </a>
+                        <img src="{{ $art->image_url }}" alt="{{ $art->title }}" class="h-full w-full object-cover transition-transform duration-300 hover:scale-105">
+                        @else
+                        <div class="h-full w-full bg-gray-200"></div>
                         @endif
-                        <div class="mc-list-info">
-                            <h4 class="mc-list-title"><a href="{{ route('article.show', $art) }}">{{ Str::limit($art->title, 50) }}</a></h4>
-                            <div class="mc-module-meta">{{ $art->published_at?->format('F d, Y') }}</div>
-                        </div>
                     </div>
+                </a>
+                <div class="p-3">
+                    @if($art->category)
+                    <span class="cat-badge mb-1">{{ $art->category->name }}</span>
                     @endif
-                    @endforeach
-                </div>
-                @endforeach
-            </div>
-            @endif
-
-            {{-- ═══ Wide Category Block (featured left + list right) ═══ --}}
-            @if($wideSection)
-            <div class="mc-block">
-                <h2 class="mc-block-title"><span>{{ $wideSection['category']->name }}</span></h2>
-                <div class="mc-wide-block">
-                    @php $catFeat = $wideSection['articles']->first(); @endphp
-                    <div class="mc-wide-left">
-                        <div class="mc-module-thumb">
-                            <a href="{{ route('article.show', $catFeat) }}">
-                                @if($catFeat->image_url)
-                                <img src="{{ $catFeat->image_url }}" alt="{{ $catFeat->title }}" style="aspect-ratio:4/3;object-fit:cover">
-                                @endif
-                            </a>
-                        </div>
-                        <h3 class="mc-module-title" style="font-size:16px;margin-top:10px">
-                            <a href="{{ route('article.show', $catFeat) }}">{{ $catFeat->title }}</a>
-                        </h3>
-                        @if($catFeat->excerpt)
-                        <div class="mc-excerpt">{{ Str::limit($catFeat->excerpt, 120) }}</div>
-                        @endif
-                        <div class="mc-module-meta" style="margin-top:6px">
-                            @if($catFeat->author)<span class="mc-author">{{ $catFeat->author }}</span> - @endif
-                            <span>{{ $catFeat->published_at?->format('F d, Y') }}</span>
-                        </div>
-                    </div>
-                    <div class="mc-wide-right">
-                        @foreach($wideSection['articles']->skip(1) as $art)
-                        <div class="mc-list">
-                            @if($art->image_url)
-                            <a href="{{ route('article.show', $art) }}" class="mc-list-thumb">
-                                <img src="{{ $art->image_url }}" alt="{{ $art->title }}">
-                            </a>
-                            @endif
-                            <div class="mc-list-info">
-                                <h4 class="mc-list-title"><a href="{{ route('article.show', $art) }}">{{ Str::limit($art->title, 55) }}</a></h4>
-                                <div class="mc-module-meta">{{ $art->published_at?->format('F d, Y') }}</div>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-            @endif
-
-            {{-- ═══ Triple-Column Row #2 ═══ --}}
-            @if($tripleRow2->isNotEmpty())
-            <div class="mc-triple-row">
-                @foreach($tripleRow2 as $s)
-                <div class="mc-triple-col">
-                    <h3 class="mc-block-title"><span>{{ $s['category']->name }}</span></h3>
-                    @foreach($s['articles']->take(5) as $i => $art)
-                    @if($i === 0)
-                    <div class="mc-module" style="margin-bottom:12px">
-                        <a href="{{ route('article.show', $art) }}" class="mc-module-thumb" style="display:block">
-                            @if($art->image_url)
-                            <img src="{{ $art->image_url }}" alt="{{ $art->title }}" style="aspect-ratio:16/10;object-fit:cover">
-                            @endif
-                        </a>
-                        <h4 class="mc-module-title" style="font-size:14px;margin-top:8px"><a href="{{ route('article.show', $art) }}">{{ Str::limit($art->title, 55) }}</a></h4>
-                        <div class="mc-module-meta">
-                            @if($art->author)<span class="mc-author">{{ $art->author }}</span> - @endif
-                            {{ $art->published_at?->format('F d, Y') }}
-                        </div>
-                    </div>
-                    @else
-                    <div class="mc-list">
-                        @if($art->image_url)
-                        <a href="{{ route('article.show', $art) }}" class="mc-list-thumb">
-                            <img src="{{ $art->image_url }}" alt="{{ $art->title }}">
-                        </a>
-                        @endif
-                        <div class="mc-list-info">
-                            <h4 class="mc-list-title"><a href="{{ route('article.show', $art) }}">{{ Str::limit($art->title, 50) }}</a></h4>
-                            <div class="mc-module-meta">{{ $art->published_at?->format('F d, Y') }}</div>
-                        </div>
-                    </div>
-                    @endif
-                    @endforeach
-                </div>
-                @endforeach
-            </div>
-            @endif
-
-            {{-- ═══ Remaining Categories (grouped in threes) ═══ --}}
-            @foreach($remainingChunks as $chunk)
-            @if($chunk->count() >= 3)
-            <div class="mc-triple-row">
-                @foreach($chunk as $s)
-                <div class="mc-triple-col">
-                    <h3 class="mc-block-title"><span>{{ $s['category']->name }}</span></h3>
-                    @foreach($s['articles']->take(5) as $i => $art)
-                    @if($i === 0)
-                    <div class="mc-module" style="margin-bottom:12px">
-                        <a href="{{ route('article.show', $art) }}" class="mc-module-thumb" style="display:block">
-                            @if($art->image_url)
-                            <img src="{{ $art->image_url }}" alt="{{ $art->title }}" style="aspect-ratio:16/10;object-fit:cover">
-                            @endif
-                        </a>
-                        <h4 class="mc-module-title" style="font-size:14px;margin-top:8px"><a href="{{ route('article.show', $art) }}">{{ Str::limit($art->title, 55) }}</a></h4>
-                        <div class="mc-module-meta">{{ $art->published_at?->format('F d, Y') }}</div>
-                    </div>
-                    @else
-                    <div class="mc-list">
-                        @if($art->image_url)
-                        <a href="{{ route('article.show', $art) }}" class="mc-list-thumb">
-                            <img src="{{ $art->image_url }}" alt="{{ $art->title }}">
-                        </a>
-                        @endif
-                        <div class="mc-list-info">
-                            <h4 class="mc-list-title"><a href="{{ route('article.show', $art) }}">{{ Str::limit($art->title, 50) }}</a></h4>
-                            <div class="mc-module-meta">{{ $art->published_at?->format('F d, Y') }}</div>
-                        </div>
-                    </div>
-                    @endif
-                    @endforeach
-                </div>
-                @endforeach
-            </div>
-            @else
-            {{-- Leftover 1-2 categories as full-width blocks --}}
-            @foreach($chunk as $s)
-            <div class="mc-block">
-                <h2 class="mc-block-title"><span>{{ $s['category']->name }}</span></h2>
-                <div class="mc-grid-3">
-                    @foreach($s['articles']->take(6) as $art)
-                    <div class="mc-card">
-                        <a href="{{ route('article.show', $art) }}" class="mc-card-thumb">
-                            @if($art->image_url)
-                            <img src="{{ $art->image_url }}" alt="{{ $art->title }}">
-                            @else
-                            <div class="mc-card-placeholder"></div>
-                            @endif
-                        </a>
-                        <div class="mc-card-info">
-                            <h3 class="mc-module-title" style="font-size:14px"><a href="{{ route('article.show', $art) }}">{{ Str::limit($art->title, 60) }}</a></h3>
-                            <div class="mc-module-meta">{{ $art->published_at?->format('F d, Y') }}</div>
-                        </div>
-                    </div>
-                    @endforeach
+                    <h3 class="text-sm font-bold leading-tight text-gray-900"><a href="{{ route('article.show', $art) }}" class="hover:text-brand-red">{{ Str::limit($art->title, 60) }}</a></h3>
+                    <span class="mt-1 block text-xs text-gray-500">{{ $art->published_at?->format('M d, Y') }}</span>
                 </div>
             </div>
             @endforeach
-            @endif
-            @endforeach
-
-            {{-- ═══ Latest Posts (50/50 featured+list like tagDiv) ═══ --}}
-            @if(isset($latest) && $latest->isNotEmpty())
-            <div class="mc-block">
-                <h2 class="mc-block-title"><span>Latest Posts</span></h2>
-                <div class="mc-wide-block">
-                    <div class="mc-wide-left">
-                        @foreach($latest->take(3) as $art)
-                        <div class="mc-module" style="margin-bottom:18px">
-                            <a href="{{ route('article.show', $art) }}" class="mc-module-thumb" style="display:block">
-                                @if($art->image_url)
-                                <img src="{{ $art->image_url }}" alt="{{ $art->title }}" style="aspect-ratio:16/10;object-fit:cover">
-                                @endif
-                            </a>
-                            @if($art->category)
-                            <a href="{{ route('category.show', $art->category) }}" class="mc-cat" style="margin-top:10px">{{ $art->category->name }}</a>
-                            @endif
-                            <h3 class="mc-module-title" style="font-size:16px;margin-top:6px">
-                                <a href="{{ route('article.show', $art) }}">{{ $art->title }}</a>
-                            </h3>
-                            @if($art->excerpt)
-                            <div class="mc-excerpt">{{ Str::limit($art->excerpt, 120) }}</div>
-                            @endif
-                            <div class="mc-module-meta" style="margin-top:6px">
-                                @if($art->author)<span class="mc-author">{{ $art->author }}</span> - @endif
-                                <span>{{ $art->published_at?->format('F d, Y') }}</span>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                    <div class="mc-wide-right">
-                        @foreach($latest->skip(3) as $art)
-                        <div class="mc-list" style="gap:15px;padding:12px 0">
-                            @if($art->image_url)
-                            <a href="{{ route('article.show', $art) }}" class="mc-list-thumb" style="width:120px;height:80px">
-                                <img src="{{ $art->image_url }}" alt="{{ $art->title }}">
-                            </a>
-                            @endif
-                            <div class="mc-list-info">
-                                @if($art->category)
-                                <a href="{{ route('category.show', $art->category) }}" class="mc-cat" style="margin-bottom:4px">{{ $art->category->name }}</a>
-                                @endif
-                                <h4 class="mc-list-title"><a href="{{ route('article.show', $art) }}">{{ Str::limit($art->title, 55) }}</a></h4>
-                                <div class="mc-module-meta">
-                                    @if($art->author)<span class="mc-author">{{ $art->author }}</span> - @endif
-                                    {{ $art->published_at?->format('F d, Y') }}
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-            @endif
-
-        </div>
-
-        <div class="mc-span4">
-            @if(file_exists(storage_path('app/wp-theme/sidebar.html')))
-                {!! file_get_contents(storage_path('app/wp-theme/sidebar.html')) !!}
-            @else
-                @include('frontend.partials.sidebar')
-            @endif
         </div>
     </div>
-</div>
+</section>
+@endif
+
+{{-- ═══ NEWSLETTER BOX ═══ --}}
+<section class="bg-white">
+    <div class="mx-auto max-w-3xl px-4 py-6">
+        <div class="border-2 border-gray-900 p-6 text-center">
+            <h3 class="font-heading text-xl font-black uppercase text-gray-900">{{ $currentSite->name }}</h3>
+            <p class="mt-2 text-sm text-gray-600">{{ $currentSite->description ?? 'Subscribe and receive the latest news delivered to your inbox.' }}</p>
+            <div class="mt-4 flex items-center justify-center gap-2">
+                <input type="email" placeholder="Your email address" class="w-full max-w-xs border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-brand-red">
+                <button class="bg-brand-red px-6 py-2 text-sm font-bold uppercase text-white hover:opacity-90">Subscribe</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{-- ═══ CATEGORY SECTIONS (Groups of 3 columns) ═══ --}}
+@foreach($sectionChunks as $chunkIndex => $chunk)
+<section class="{{ $chunkIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50' }}">
+    <div class="mx-auto max-w-7xl px-4 py-6">
+        <div class="grid gap-6 lg:grid-cols-3">
+            @foreach($chunk as $sectionIndex => $section)
+            <div>
+                <h2 class="section-header {{ $chunk->count() > 1 ? 'text-sm' : '' }}">{{ $section['category']->name }}</h2>
+
+                @if($sectionIndex === 1 && $chunk->count() === 3 && $section['articles']->count() >= 2)
+                {{-- Middle column: featured article with larger image --}}
+                <div class="article-card">
+                    @php $first = $section['articles']->first(); @endphp
+                    <a href="{{ route('article.show', $first) }}">
+                        @if($first->image_url)
+                        <img src="{{ $first->image_url }}" alt="{{ $first->title }}" class="aspect-[4/3] w-full object-cover">
+                        @endif
+                    </a>
+                    <h3 class="mt-3 text-lg font-bold leading-tight text-gray-900"><a href="{{ route('article.show', $first) }}" class="hover:text-brand-red">{{ Str::limit($first->title, 70) }}</a></h3>
+                    @if($first->excerpt)
+                    <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ Str::limit($first->excerpt, 150) }}</p>
+                    @endif
+                    <span class="mt-2 block text-xs text-gray-500">{{ $first->published_at?->format('M d, Y') }}</span>
+                </div>
+                {{-- Additional articles as list --}}
+                @foreach($section['articles']->skip(1)->take(2) as $art)
+                <div class="mt-3 flex gap-3 border-t border-gray-100 pt-3">
+                    @if($art->image_url)
+                    <a href="{{ route('article.show', $art) }}" class="shrink-0"><img src="{{ $art->image_url }}" alt="{{ $art->title }}" class="h-16 w-24 object-cover"></a>
+                    @endif
+                    <div>
+                        <h4 class="text-sm font-bold leading-tight text-gray-900"><a href="{{ route('article.show', $art) }}" class="hover:text-brand-red">{{ Str::limit($art->title, 55) }}</a></h4>
+                        <span class="mt-1 block text-xs text-gray-500">{{ $art->published_at?->format('M d, Y') }}</span>
+                    </div>
+                </div>
+                @endforeach
+
+                @else
+                {{-- Side columns: list of articles with thumbnails --}}
+                <div class="space-y-4">
+                    @foreach($section['articles']->take(4) as $art)
+                    <div class="flex gap-3 border-b border-gray-100 pb-3">
+                        @if($art->image_url)
+                        <a href="{{ route('article.show', $art) }}" class="shrink-0"><img src="{{ $art->image_url }}" alt="{{ $art->title }}" class="h-16 w-24 object-cover"></a>
+                        @endif
+                        <div>
+                            <h4 class="text-sm font-bold leading-tight text-gray-900"><a href="{{ route('article.show', $art) }}" class="hover:text-brand-red">{{ Str::limit($art->title, 55) }}</a></h4>
+                            <span class="mt-1 block text-xs text-gray-500">{{ $art->published_at?->format('M d, Y') }}</span>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                @endif
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endforeach
+
+{{-- ═══ LATEST POSTS (2/3 articles + 1/3 sidebar items) ═══ --}}
+@if(isset($latest) && $latest->isNotEmpty())
+<section class="bg-white">
+    <div class="mx-auto max-w-7xl px-4 pt-4 pb-8">
+        <h2 class="section-header">Latest Posts</h2>
+        <div class="grid gap-6 lg:grid-cols-3">
+            {{-- Left: full articles (2 cols wide) --}}
+            <div class="space-y-5 lg:col-span-2">
+                @foreach($latest->take(5) as $art)
+                <article class="flex gap-4 border-b border-gray-100 pb-5">
+                    @if($art->image_url)
+                    <a href="{{ route('article.show', $art) }}" class="shrink-0">
+                        <img src="{{ $art->image_url }}" alt="{{ $art->title }}" class="h-28 w-44 object-cover md:h-36 md:w-56">
+                    </a>
+                    @endif
+                    <div class="min-w-0 flex-1">
+                        @if($art->category)
+                        <span class="cat-badge mb-1">{{ $art->category->name }}</span>
+                        @endif
+                        <h3 class="text-base font-bold leading-tight text-gray-900 md:text-lg"><a href="{{ route('article.show', $art) }}" class="hover:text-brand-red">{{ Str::limit($art->title, 80) }}</a></h3>
+                        @if($art->excerpt)
+                        <p class="mt-1 hidden text-sm text-gray-600 md:block">{{ Str::limit($art->excerpt, 140) }}</p>
+                        @endif
+                        <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
+                            @if($art->author)<span>{{ $art->author }}</span><span>&middot;</span>@endif
+                            <span>{{ $art->published_at?->format('M d, Y') }}</span>
+                        </div>
+                    </div>
+                </article>
+                @endforeach
+            </div>
+
+            {{-- Right: small article items --}}
+            <div class="space-y-4">
+                @foreach($latest->skip(5) as $art)
+                <div class="flex gap-3 border-b border-gray-100 pb-3">
+                    @if($art->image_url)
+                    <a href="{{ route('article.show', $art) }}" class="shrink-0"><img src="{{ $art->image_url }}" alt="{{ $art->title }}" class="h-16 w-24 object-cover"></a>
+                    @endif
+                    <div>
+                        @if($art->category)
+                        <span class="cat-badge mb-1 text-[10px]">{{ $art->category->name }}</span>
+                        @endif
+                        <h4 class="text-sm font-bold leading-tight text-gray-900"><a href="{{ route('article.show', $art) }}" class="hover:text-brand-red">{{ Str::limit($art->title, 50) }}</a></h4>
+                        <span class="mt-1 block text-xs text-gray-500">{{ $art->published_at?->format('M d, Y') }}</span>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+</section>
+@endif
 
 @endsection
