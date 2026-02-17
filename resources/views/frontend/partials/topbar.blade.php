@@ -8,7 +8,7 @@
 
 <div class="border-b border-gray-200 bg-gray-50">
     <div class="mx-auto max-w-7xl px-4">
-        <div class="flex h-9 items-center justify-between text-xs">
+        <div class="flex h-9 items-center justify-between text-xs" style="font-family: 'Work Sans', sans-serif;">
             <span class="text-gray-500">{{ now()->translatedFormat('l, F d, Y') }}</span>
             <div class="flex items-center gap-1">
                 @foreach($topMenuPages as $page)
