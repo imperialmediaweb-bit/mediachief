@@ -47,7 +47,7 @@
 
         {{-- ═══ SECTION 2: POPULAR (4 articles in a row) ═══ --}}
         @if($popular->isNotEmpty())
-        <div class="border-t border-gray-200 py-4">
+        <div class="td-popular-section">
             <div class="td-section-red">Popular</div>
             <div class="td-popular-grid">
                 @foreach($popular as $pop)
@@ -81,12 +81,12 @@
             <p class="td-nl-text">Subscribe and receive notifications. Join our membership program.</p>
         </div>
 
-        {{-- ═══ SECTION 3: Three Editorial Columns (each with red header + image article) ═══ --}}
+        {{-- ═══ SECTION 3: Three Editorial Columns (arrow headers + image article + list) ═══ --}}
         @if($catSections->count() >= 3)
         <div class="grid grid-cols-1 gap-5 border-t border-gray-200 py-4 md:grid-cols-3">
             @foreach($catSections->slice(0, 3) as $section)
             <div>
-                <div class="td-section-red text-[18px]">{{ $section['category']->name }}</div>
+                <div class="td-section-arrow"><h3>{{ $section['category']->name }}</h3></div>
                 @php $first = $section['articles']->first(); @endphp
                 @if($first)
                 <div class="mb-3">
