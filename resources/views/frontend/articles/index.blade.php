@@ -4,19 +4,21 @@
 
 @section('content')
 <div class="bg-white">
-    <div class="mx-auto max-w-[1200px] px-4">
-        @php $catSections = collect($categorySections); @endphp
+    @php $catSections = collect($categorySections); @endphp
 
-        {{-- ═══ AD BANNER (light gray bg row) ═══ --}}
-        <div class="td-ad-row">
+    {{-- ═══ AD BANNER (full-width gray bg row) ═══ --}}
+    <div class="td-ad-row">
+        <div class="mx-auto max-w-[1200px] px-4">
             <div class="td-ad-banner">
                 <a href="#">Promote your business. Contact us!</a>
             </div>
         </div>
+    </div>
 
-        {{-- ═══ SECTION 1: LOCAL NEWS (3 equal columns) ═══ --}}
-        @if($featured->isNotEmpty())
-        <div class="py-4">
+    {{-- ═══ SECTION 1: LOCAL NEWS (3 equal columns) ═══ --}}
+    @if($featured->isNotEmpty())
+    <div class="td-local-news-section">
+        <div class="mx-auto max-w-[1200px] px-4">
             <div class="td-section-red">{{ $catSections->first()['category']->name ?? 'Local News' }}</div>
             <div class="td-hero-grid">
                 @foreach($featured->take(3) as $feat)
@@ -43,11 +45,13 @@
                 @endforeach
             </div>
         </div>
-        @endif
+    </div>
+    @endif
 
-        {{-- ═══ SECTION 2: POPULAR (4 articles in a row) ═══ --}}
-        @if($popular->isNotEmpty())
-        <div class="td-popular-section">
+    {{-- ═══ SECTION 2: POPULAR (4 articles in a row) ═══ --}}
+    @if($popular->isNotEmpty())
+    <div class="td-popular-section">
+        <div class="mx-auto max-w-[1200px] px-4">
             <div class="td-section-red">Popular</div>
             <div class="td-popular-grid">
                 @foreach($popular as $pop)
@@ -73,16 +77,20 @@
                 @endforeach
             </div>
         </div>
-        @endif
+    </div>
+    @endif
 
-        {{-- ═══ NEWSLETTER BANNER ═══ --}}
+    {{-- ═══ NEWSLETTER BANNER ═══ --}}
+    <div class="mx-auto max-w-[1200px] px-4">
         <div class="td-newsletter-banner">
             <div class="td-nl-logo">{{ $currentSite->name }}</div>
             <p class="td-nl-text">Subscribe and receive notifications. Join our membership program.</p>
         </div>
+    </div>
 
-        {{-- ═══ SECTION 3: Three Editorial Columns (arrow headers + image article + list) ═══ --}}
-        @if($catSections->count() >= 3)
+    {{-- ═══ SECTION 3: Three Editorial Columns (arrow headers + image article + list) ═══ --}}
+    @if($catSections->count() >= 3)
+    <div class="mx-auto max-w-[1200px] px-4">
         <div class="grid grid-cols-1 gap-5 border-t border-gray-200 py-4 md:grid-cols-3">
             @foreach($catSections->slice(0, 3) as $section)
             <div>
@@ -115,17 +123,21 @@
             </div>
             @endforeach
         </div>
-        @endif
+    </div>
+    @endif
 
-        {{-- ═══ AD BANNER ═══ --}}
-        <div class="td-ad-row">
+    {{-- ═══ AD BANNER ═══ --}}
+    <div class="td-ad-row">
+        <div class="mx-auto max-w-[1200px] px-4">
             <div class="td-ad-banner">
                 <a href="#">Promote your business. Contact us!</a>
             </div>
         </div>
+    </div>
 
-        {{-- ═══ SECTION 4: Three Category Columns with DECORATED striped-line headers + thumbnails ═══ --}}
-        @if($catSections->count() > 3)
+    {{-- ═══ SECTION 4: Three Category Columns with DECORATED striped-line headers + thumbnails ═══ --}}
+    @if($catSections->count() > 3)
+    <div class="mx-auto max-w-[1200px] px-4">
         <div class="grid grid-cols-1 gap-6 border-t border-gray-200 py-4 md:grid-cols-3">
             @foreach($catSections->slice(3, 3) as $section)
             <div>
@@ -145,10 +157,12 @@
             </div>
             @endforeach
         </div>
-        @endif
+    </div>
+    @endif
 
-        {{-- ═══ SECTION 5: LATEST POSTS (decorated header + 2-column rows) ═══ --}}
-        @if($latest->isNotEmpty())
+    {{-- ═══ SECTION 5: LATEST POSTS (decorated header + 2-column rows) ═══ --}}
+    @if($latest->isNotEmpty())
+    <div class="mx-auto max-w-[1200px] px-4">
         <div class="border-t border-gray-200">
             <div class="td-section-decorated">
                 <span class="td-section-title">Latest Posts</span>
@@ -183,10 +197,12 @@
                 @endforeach
             </div>
         </div>
-        @endif
+    </div>
+    @endif
 
-        {{-- ═══ More Category Sections (if any remaining) ═══ --}}
-        @if($catSections->count() > 6)
+    {{-- ═══ More Category Sections (if any remaining) ═══ --}}
+    @if($catSections->count() > 6)
+    <div class="mx-auto max-w-[1200px] px-4">
         <div class="grid grid-cols-1 gap-6 border-t border-gray-200 py-6 md:grid-cols-3">
             @foreach($catSections->slice(6) as $section)
             <div>
@@ -201,8 +217,8 @@
             </div>
             @endforeach
         </div>
-        @endif
-
     </div>
+    @endif
+
 </div>
 @endsection
