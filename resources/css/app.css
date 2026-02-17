@@ -4,6 +4,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══ CSS Variables (matching Alabama Express / Newspaper theme) ═══ */
+:root {
+    --accent-color: #fff;
+    --accent-color-1: #E04040;
+    --accent-color-2: #F35858;
+    --base-color-1: #000000;
+    --light-color-1: #EDEDED;
+    --td_theme_color: #e04040;
+    --global-font-1: 'Big Shoulders Text', sans-serif;
+    --global-font-2: 'Roboto Slab', serif;
+    --global-font-3: 'Work Sans', sans-serif;
+    --brand-primary: #E04040;
+}
+
 /* ═══ Base Resets (preflight disabled) ═══ */
 @layer base {
     *, *::before, *::after {
@@ -63,11 +77,11 @@
 
 /* ═══ Reusable Components ═══ */
 @layer components {
-    /* Red background section header (LOCAL NEWS, POPULAR, etc.) */
+    /* Red background section header (LOCAL NEWS, POPULAR, SCANDALS, etc.) */
     .td-section-red {
-        background-color: var(--brand-primary, #E04040);
+        background-color: var(--accent-color-1, #E04040);
         color: #fff;
-        font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+        font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
         font-size: 24px;
         font-weight: 700;
         font-style: italic;
@@ -76,9 +90,16 @@
         padding: 8px 20px;
         margin-bottom: 15px;
         text-align: left;
+        line-height: 1.2;
+    }
+    @media (min-width: 1019px) and (max-width: 1140px) {
+        .td-section-red { font-size: 21px; }
+    }
+    @media (min-width: 768px) and (max-width: 1018px) {
+        .td-section-red { font-size: 18px; margin-bottom: 10px; }
     }
 
-    /* Decorative section header with striped lines (US NEWS, LATEST POSTS) */
+    /* Decorative section header with striped lines (LATEST POSTS) */
     .td-section-decorated {
         position: relative;
         text-align: center;
@@ -93,16 +114,16 @@
         border-bottom-width: 4px;
         padding: 5px 35px 3px;
         position: relative;
-        font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+        font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
         font-size: 32px;
         font-weight: 700;
         font-style: italic;
         text-transform: uppercase;
-        color: var(--brand-primary, #E04040);
+        color: var(--accent-color-1, #E04040);
         letter-spacing: 1px;
     }
 
-    /* Arrow section header for category columns (› Movies, › Celebrity, etc.) */
+    /* Arrow section header for category columns */
     .td-section-arrow {
         margin-bottom: 12px;
         padding-bottom: 2px;
@@ -125,20 +146,20 @@
         content: "›";
         font-size: 26px;
         font-weight: 400;
-        color: var(--brand-primary, #E04040);
+        color: var(--accent-color-1, #E04040);
     }
     .td-section-arrow a:hover {
-        color: var(--brand-primary, #E04040);
+        color: var(--accent-color-1, #E04040);
     }
 
     /* Category badge (red text with left/right border) */
     .td-cat-badge {
         display: inline-block;
-        color: var(--brand-primary, #E04040);
+        color: var(--accent-color-1, #E04040);
         border-width: 0 2px;
         border-style: solid;
-        border-color: var(--brand-primary, #E04040);
-        font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+        border-color: var(--accent-color-1, #E04040);
+        font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
         font-size: 16px;
         font-weight: 700;
         text-transform: uppercase;
@@ -147,8 +168,8 @@
         transition: color 0.2s, border-color 0.2s;
     }
     .td-cat-badge:hover {
-        color: #F35858;
-        border-color: #F35858;
+        color: var(--accent-color-2, #F35858);
+        border-color: var(--accent-color-2, #F35858);
     }
 
     /* Article list items (text-only links) */
@@ -168,7 +189,7 @@
         transition: color 0.2s ease;
     }
     .td-article-list-item a:hover {
-        color: var(--brand-primary, #E04040);
+        color: var(--accent-color-1, #E04040);
     }
 
     /* Article card with image */
@@ -192,17 +213,17 @@
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        color: var(--brand-primary, #E04040);
+        color: var(--accent-color-1, #E04040);
     }
     .td-module-meta .td-title {
-        font-family: 'Work Sans', var(--font-heading, 'Big Shoulders Text'), sans-serif;
+        font-family: 'Work Sans', var(--global-font-1), sans-serif;
         font-weight: 500;
         font-size: 15px;
         line-height: 1.3;
         color: #000;
     }
     .td-module-meta .td-title a:hover {
-        color: var(--brand-primary, #E04040);
+        color: var(--accent-color-1, #E04040);
     }
     .td-module-meta .td-excerpt {
         font-family: 'Work Sans', sans-serif;
@@ -261,13 +282,13 @@
         text-align: center;
     }
     .td-popular-meta .td-cat-badge {
-        font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+        font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
         font-size: 16px;
         font-weight: 700;
         border-width: 0 2px;
     }
     .td-popular-title {
-        font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+        font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
         font-size: 22px;
         font-weight: 800;
         line-height: 1.2;
@@ -275,7 +296,7 @@
         margin: 0 0 10px;
     }
     .td-popular-title a:hover {
-        color: var(--brand-primary, #E04040);
+        color: var(--accent-color-1, #E04040);
     }
     @media (max-width: 1140px) and (min-width: 1019px) {
         .td-popular-grid { margin-left: -15px; margin-right: -15px; }
@@ -345,14 +366,14 @@
     text-align: center;
 }
 .td-hero-meta .td-cat-badge {
-    font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
     font-size: 16px;
     font-weight: 700;
     border-width: 0 2px;
     margin-top: 25px;
 }
 .td-hero-title {
-    font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
     font-size: 32px;
     font-weight: 800;
     line-height: 1.36;
@@ -369,7 +390,7 @@
     box-decoration-break: clone;
 }
 .td-hero-title a:hover {
-    color: var(--brand-primary, #E04040);
+    color: var(--accent-color-1, #E04040);
 }
 .td-hero-excerpt {
     font-family: 'Roboto Slab', serif;
@@ -415,7 +436,7 @@
     margin: 0;
 }
 .td-ad-banner a {
-    font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
     font-size: 20px;
     font-weight: 700;
     color: #000;
@@ -446,13 +467,102 @@
     flex: 1;
 }
 .td-article-thumb-item .td-thumb-title:hover {
-    color: var(--brand-primary, #E04040);
+    color: var(--accent-color-1, #E04040);
 }
 .td-article-thumb-item .td-thumb-img {
     width: 80px;
     height: 60px;
     object-fit: cover;
     flex-shrink: 0;
+}
+
+/* ═══ Horizontal article module (image left + content right) ═══ */
+.td-module-horizontal {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid #eaeaea;
+}
+.td-module-horizontal:last-child {
+    border-bottom: none;
+}
+.td-module-horizontal .td-module-image-wrap {
+    flex: 0 0 30%;
+    width: 30%;
+    overflow: hidden;
+}
+.td-module-horizontal .td-module-image-wrap img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+.td-module-horizontal .td-module-image-wrap:hover img {
+    transform: scale(1.03);
+}
+.td-module-horizontal .td-module-content {
+    flex: 1;
+    padding-left: 15px;
+}
+.td-module-horizontal .td-module-content .entry-title {
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #000;
+    margin: 0 0 10px;
+}
+.td-module-horizontal .td-module-content .entry-title a:hover {
+    color: var(--accent-color-1, #E04040);
+}
+.td-module-horizontal .td-module-content .td-post-category {
+    display: inline-block;
+    margin: 0 5px 0 0;
+    padding: 0 5px;
+    background-color: transparent;
+    color: var(--accent-color-1, #E04040);
+    border-width: 0 2px;
+    border-style: solid;
+    border-color: var(--accent-color-1, #E04040);
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1;
+    transition: color 0.2s, border-color 0.2s;
+}
+.td-module-horizontal .td-module-content .td-post-category:hover {
+    color: var(--accent-color-2, #F35858);
+    border-color: var(--accent-color-2, #F35858);
+}
+.td-module-horizontal .td-module-content .td-post-date {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #999;
+    line-height: 1;
+}
+.td-module-horizontal .td-module-content .td-excerpt {
+    font-family: 'Roboto Slab', serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: #000;
+    margin-top: 8px;
+}
+@media (min-width: 1019px) and (max-width: 1140px) {
+    .td-module-horizontal .td-module-content .entry-title { font-size: 18px; }
+    .td-module-horizontal .td-module-content .td-post-category { font-size: 14px; }
+    .td-module-horizontal .td-module-content .td-excerpt { font-size: 13px; }
+}
+@media (min-width: 768px) and (max-width: 1018px) {
+    .td-module-horizontal .td-module-content .entry-title { font-size: 16px; }
+    .td-module-horizontal .td-module-content .td-post-category { font-size: 12px; }
+    .td-module-horizontal .td-module-content .td-excerpt { font-size: 12px; }
+}
+@media (max-width: 767px) {
+    .td-module-horizontal .td-module-image-wrap { flex: 0 0 35%; width: 35%; }
+    .td-module-horizontal .td-module-content .entry-title { font-size: 18px; }
 }
 
 /* ═══ Article Content (user-generated HTML body) ═══ */
@@ -468,7 +578,7 @@
 .mc-post-content img { max-width: 100%; height: auto; margin: 18px 0; border-radius: 2px; }
 .mc-post-content h2,
 .mc-post-content h3 {
-    font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
     font-weight: 600;
     margin: 26px 0 12px;
     color: #111;
@@ -480,14 +590,14 @@
 .mc-post-content ol { list-style: decimal; }
 .mc-post-content li { margin-bottom: 6px; }
 .mc-post-content blockquote {
-    border-left: 4px solid var(--brand-primary, #E04040);
+    border-left: 4px solid var(--accent-color-1, #E04040);
     margin: 20px 0;
     padding: 12px 20px;
     background: #f8f8f8;
     font-style: italic;
     color: #555;
 }
-.mc-post-content a { color: var(--brand-primary, #E04040); }
+.mc-post-content a { color: var(--accent-color-1, #E04040); }
 .mc-post-content a:hover { text-decoration: underline; }
 
 /* ═══ Trending Ticker ═══ */
@@ -502,7 +612,7 @@
     border-bottom: 3px solid #000;
 }
 .td-nav-link {
-    font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
     font-size: 18px;
     font-weight: 800;
     text-transform: uppercase;
@@ -515,7 +625,7 @@
     transition: color 0.2s ease;
 }
 .td-nav-link:hover {
-    color: var(--brand-primary, #E04040);
+    color: var(--accent-color-1, #E04040);
 }
 .td-nav-link::after { display: none; }
 
@@ -538,7 +648,7 @@
     transition: background-color 0.2s ease;
 }
 .td-nav-all-btn:hover {
-    background-color: var(--brand-primary, #E04040);
+    background-color: var(--accent-color-1, #E04040);
 }
 .td-nav-all-btn svg {
     width: 17px;
@@ -554,57 +664,65 @@
 
 /* ═══ Header Logo ═══ */
 .td-header-logo {
-    font-family: 'Big Shoulders Inline Text', var(--font-heading, 'Big Shoulders Text'), sans-serif;
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
     font-weight: 900;
     text-transform: uppercase;
-    color: #000;
+    color: var(--base-color-1, #000);
     letter-spacing: -1px;
     font-size: 70px;
     line-height: 1.1;
 }
 .td-header-tagline {
-    font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+    font-family: var(--global-font-1), sans-serif;
     font-weight: 400;
     font-size: 16px;
-    color: var(--brand-primary, #E04040);
+    color: var(--accent-color-1, #E04040);
     text-transform: none;
     letter-spacing: 0;
+    line-height: 1.2;
 }
-@media (max-width: 1018px) {
+@media (min-width: 1019px) and (max-width: 1140px) {
+    .td-header-logo { font-size: 60px; }
+    .td-header-tagline { font-size: 15px; }
+}
+@media (min-width: 768px) and (max-width: 1018px) {
     .td-header-logo { font-size: 50px; letter-spacing: -2px; }
+    .td-header-tagline { font-size: 14px; }
 }
 @media (max-width: 767px) {
     .td-header-logo { font-size: 42px; letter-spacing: -1px; }
 }
 
 /* ═══ Newsletter Header Button ═══ */
-.td-header-newsletter {
-    font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
-    font-size: 20px;
-    font-weight: 700;
+.td-header-newsletter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
+    font-size: 15px;
+    font-weight: 600;
     text-transform: uppercase;
     color: #000;
-    display: flex;
-    align-items: center;
-    gap: 10px;
     cursor: pointer;
     transition: color 0.2s ease;
+    letter-spacing: 0.5px;
 }
-.td-header-newsletter:hover {
-    color: var(--brand-primary, #E04040);
+.td-header-newsletter-btn:hover {
+    color: var(--accent-color-1, #E04040);
 }
-.td-header-newsletter .td-nl-icon {
-    color: var(--brand-primary, #E04040);
-    font-size: 36px;
-    transition: color 0.2s ease;
+.td-header-newsletter-btn .td-nl-icon {
+    width: 24px;
+    height: 24px;
+    fill: var(--accent-color-1, #E04040);
+    transition: fill 0.2s ease;
 }
-.td-header-newsletter:hover .td-nl-icon {
-    color: #F35858;
+.td-header-newsletter-btn:hover .td-nl-icon {
+    fill: var(--accent-color-2, #F35858);
 }
 
 /* ═══ Pricing Plans Button ═══ */
 .td-header-pricing {
-    font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
     font-size: 20px;
     font-weight: 700;
     text-transform: uppercase;
@@ -617,8 +735,8 @@
     transition: color 0.2s ease, border-color 0.2s ease;
 }
 .td-header-pricing:hover {
-    color: var(--brand-primary, #E04040);
-    border-color: var(--brand-primary, #E04040);
+    color: var(--accent-color-1, #E04040);
+    border-color: var(--accent-color-1, #E04040);
 }
 @media (max-width: 1140px) and (min-width: 1019px) {
     .td-header-pricing { font-size: 18px; padding: 4px 12px; }
@@ -636,7 +754,7 @@
     text-align: center;
 }
 .td-newsletter-banner .td-nl-logo {
-    font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
     font-weight: 900;
     font-size: 32px;
     text-transform: uppercase;
@@ -650,45 +768,280 @@
     margin-top: 8px;
 }
 
-/* ═══ Footer ═══ */
+/* ═══ Footer (light theme matching Alabama Express) ═══ */
 .td-footer {
-    background: #000;
-    color: #aaa;
+    background-color: var(--light-color-1, #EDEDED);
+    color: #000;
     font-family: 'Work Sans', sans-serif;
 }
+
+/* Footer top bar with logo and navigation */
+.td-footer-nav {
+    background: #fff;
+    border-top: 1px solid #000;
+    border-bottom: 3px solid #000;
+}
 .td-footer-logo {
-    font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
     font-weight: 900;
     text-transform: uppercase;
-    color: #fff;
-    letter-spacing: 2px;
-    font-size: 28px;
+    color: var(--base-color-1, #000);
+    letter-spacing: -1px;
+    font-size: 54px;
+    line-height: 1.1;
 }
-.td-footer-nav {
-    background: #1a1a1a;
-    border-bottom: 1px solid #333;
+@media (min-width: 1019px) and (max-width: 1140px) {
+    .td-footer-logo { font-size: 40px; }
 }
-.td-footer-nav a {
-    font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;
-    font-size: 14px;
-    font-weight: 800;
+@media (min-width: 768px) and (max-width: 1018px) {
+    .td-footer-logo { font-size: 40px; }
+}
+@media (max-width: 767px) {
+    .td-footer-logo { font-size: 42px; }
+}
+
+.td-footer-nav-link {
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
+    font-size: 18px;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: #fff;
-    padding: 0 12px;
-    height: 40px;
+    color: #000;
+    padding: 0 15px;
     display: inline-flex;
     align-items: center;
     transition: color 0.2s ease;
 }
-.td-footer-nav a:hover {
-    color: var(--brand-primary, #E04040);
+.td-footer-nav-link:hover {
+    color: var(--accent-color-1, #E04040);
 }
-.td-footer h4 {
+
+.td-footer-secondary-link {
     font-family: 'Work Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: #000;
+    padding: 0 8px;
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.2s ease;
+}
+.td-footer-secondary-link:hover {
+    color: var(--accent-color-1, #E04040);
+}
+
+/* Footer section titles */
+.td-footer h4 {
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #000;
+    margin-bottom: 15px;
+}
+
+/* Footer about description */
+.td-footer-about {
+    font-family: 'Roboto Slab', serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #000;
+}
+.td-footer-about a {
+    color: #ec3535;
+}
+.td-footer-about a:hover {
+    color: #c11f1f;
+}
+
+/* Footer social icons */
+.td-footer-social {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background-color: var(--accent-color-1, #E04040);
+    color: #fff;
+    transition: background-color 0.2s ease;
+}
+.td-footer-social:hover {
+    background-color: #000;
+}
+.td-footer-social svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+/* Footer article list */
+.td-footer-article {
+    padding: 12px 0;
+    border-bottom: 1px solid #ccc;
+}
+.td-footer-article:last-child {
+    border-bottom: none;
+}
+.td-footer-article .td-footer-article-title {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #000;
+    transition: color 0.2s ease;
+}
+.td-footer-article .td-footer-article-title:hover {
+    color: var(--accent-color-1, #E04040);
+}
+.td-footer-article .td-footer-article-cat {
+    display: inline-block;
+    color: var(--accent-color-1, #E04040);
+    border-width: 0 2px;
+    border-style: solid;
+    border-color: var(--accent-color-1, #E04040);
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0 5px;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+.td-footer-article .td-footer-article-date {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #999;
+    margin-top: 4px;
+}
+@media (min-width: 1019px) and (max-width: 1140px) {
+    .td-footer-article .td-footer-article-title { font-size: 18px; }
+}
+@media (min-width: 768px) and (max-width: 1018px) {
+    .td-footer-article .td-footer-article-title { font-size: 16px; }
+}
+
+/* Footer copyright bar */
+.td-footer-copyright {
+    border-top: 1px solid #ccc;
+    padding: 15px 0;
+    text-align: center;
+}
+.td-footer-copyright p {
+    font-family: 'Roboto Slab', serif;
+    font-size: 13px;
+    color: #666;
+}
+.td-footer-copyright a {
+    color: var(--accent-color-1, #E04040);
+}
+
+/* ═══ Sticky Sidebar ═══ */
+@media (min-width: 1024px) {
+    .td-sidebar-sticky {
+        position: sticky;
+        top: 20px;
+    }
+}
+
+/* ═══ Numbered list counter for sidebar popular articles ═══ */
+.td-popular-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background-color: #000;
+    color: #fff;
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+/* ═══ Newsletter modal popup ═══ */
+.td-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+.td-modal-overlay.active {
+    display: flex;
+}
+.td-modal-popup {
+    background: #fff;
+    width: 500px;
+    max-width: 95%;
+    border: 2px solid #000;
+    border-bottom-width: 5px;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.16);
+    position: relative;
+}
+.td-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 30px 30px 0;
+}
+.td-modal-header h3 {
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #000;
+}
+.td-modal-close {
+    color: var(--accent-color-1, #E04040);
+    cursor: pointer;
+    font-size: 20px;
+    transition: color 0.2s ease;
+}
+.td-modal-close:hover {
+    color: var(--accent-color-2, #F35858);
+}
+.td-modal-body {
+    padding: 20px 30px 30px;
+}
+.td-modal-body .td-form-input {
+    width: 100%;
+    border: 1px solid #000;
+    padding: 10px 15px;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 14px;
+    margin-bottom: 12px;
+    outline: none;
+}
+.td-modal-body .td-form-input:focus {
+    border-color: var(--accent-color-1, #E04040);
+}
+.td-modal-body .td-form-submit {
+    width: 100%;
+    background: var(--accent-color-1, #E04040);
+    color: #fff;
+    border: none;
+    padding: 12px;
+    font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;
     font-size: 18px;
     font-weight: 700;
     text-transform: uppercase;
-    color: #fff;
-    margin-bottom: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.td-modal-body .td-form-submit:hover {
+    background: var(--accent-color-2, #F35858);
+}
+.td-modal-body .td-form-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 12px;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 12px;
+    color: #666;
 }

@@ -28,11 +28,11 @@
     {{-- Desktop Header: 3-column layout (25% / 50% / 25%) --}}
     <div class="hidden bg-white md:block">
         <div class="mx-auto max-w-[1200px] px-4">
-            <div class="flex items-center py-5">
+            <div class="flex items-center" style="padding-top: 20px; padding-bottom: 20px;">
                 {{-- Left column (25%): Newsletter button --}}
                 <div class="flex w-1/4 items-center justify-start">
-                    <a href="#" class="td-header-newsletter">
-                        <svg class="td-nl-icon h-9 w-9" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+                    <a href="#" class="td-header-newsletter-btn" onclick="event.preventDefault();document.getElementById('newsletter-modal').classList.add('active');">
+                        <svg class="td-nl-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 3v18h24v-18h-24zm21.518 2l-9.518 7.713-9.518-7.713h19.036zm-19.518 14v-11.817l10 8.104 10-8.104v11.817h-20z"/></svg>
                         <span>Newsletter</span>
                     </a>
                 </div>
@@ -74,7 +74,7 @@
 
                 {{-- Search icon (right side) --}}
                 <div class="ml-auto">
-                    <button type="button" class="flex h-[48px] items-center px-3 text-black hover:text-[var(--brand-primary,#E04040)]" onclick="document.getElementById('search-overlay').classList.toggle('hidden')" aria-label="Search">
+                    <button type="button" class="flex h-[48px] items-center px-3 text-black hover:text-[var(--accent-color-1,#E04040)]" onclick="document.getElementById('search-overlay').classList.toggle('hidden')" aria-label="Search">
                         <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </button>
                 </div>
@@ -95,9 +95,9 @@
     {{-- Mobile menu (slides down) --}}
     <div id="mobile-menu" class="hidden bg-black">
         <div class="border-t border-gray-800 px-4 py-2">
-            <a href="{{ route('home') }}" class="block py-2.5 text-[13px] font-extrabold uppercase text-white" style="font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;">Home</a>
+            <a href="{{ route('home') }}" class="block py-2.5 text-[13px] font-extrabold uppercase text-white" style="font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;">Home</a>
             @foreach($categories as $cat)
-                <a href="{{ route('category.show', $cat) }}" class="block border-t border-gray-800 py-2.5 text-[13px] font-extrabold uppercase text-gray-300 hover:text-white" style="font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;">{{ $cat->name }}</a>
+                <a href="{{ route('category.show', $cat) }}" class="block border-t border-gray-800 py-2.5 text-[13px] font-extrabold uppercase text-gray-300 hover:text-white" style="font-family: 'Big Shoulders Inline Text', var(--global-font-1), sans-serif;">{{ $cat->name }}</a>
             @endforeach
         </div>
     </div>
@@ -108,11 +108,34 @@
     <div class="mx-auto flex max-w-2xl items-start justify-center pt-32">
         <form action="{{ route('home') }}" method="GET" class="w-full px-4">
             <div class="relative">
-                <input type="text" name="q" placeholder="Search..." class="w-full border-b-2 border-white bg-transparent px-4 py-4 text-2xl text-white placeholder-gray-500 outline-none focus:border-[var(--brand-primary,#E04040)]" autofocus>
+                <input type="text" name="q" placeholder="Search..." class="w-full border-b-2 border-white bg-transparent px-4 py-4 text-2xl text-white placeholder-gray-500 outline-none focus:border-[var(--accent-color-1,#E04040)]" autofocus>
                 <button type="button" class="absolute right-2 top-4 text-gray-400 hover:text-white" onclick="document.getElementById('search-overlay').classList.add('hidden')">
                     <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
         </form>
+    </div>
+</div>
+
+{{-- Newsletter Modal Popup --}}
+<div id="newsletter-modal" class="td-modal-overlay" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="td-modal-popup">
+        <div class="td-modal-header">
+            <h3>Newsletter</h3>
+            <span class="td-modal-close" onclick="document.getElementById('newsletter-modal').classList.remove('active')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </span>
+        </div>
+        <div class="td-modal-body">
+            <form action="#" method="POST">
+                @csrf
+                <input type="email" name="email" placeholder="Your email address" class="td-form-input" required>
+                <button type="submit" class="td-form-submit">Subscribe</button>
+                <div class="td-form-checkbox">
+                    <input type="checkbox" id="nl-agree" required>
+                    <label for="nl-agree">I have read and agree to the terms & conditions</label>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
