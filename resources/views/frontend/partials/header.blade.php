@@ -36,12 +36,12 @@
         </div>
     </div>
 
-    {{-- Navigation Bar (white bg, black text, underline hover) --}}
+    {{-- Dark Navigation Bar --}}
     <nav class="td-nav-bar">
         <div class="mx-auto max-w-[1200px] px-4">
-            <div class="flex h-[48px] items-center justify-between">
+            <div class="flex h-[46px] items-center justify-between">
                 {{-- Mobile menu button --}}
-                <button type="button" class="text-black md:hidden" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" aria-label="Menu">
+                <button type="button" class="text-white md:hidden" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" aria-label="Menu">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
 
@@ -53,19 +53,19 @@
                 </div>
 
                 {{-- Search --}}
-                <button type="button" class="flex h-[48px] items-center px-3 text-black hover:text-[var(--brand-primary,#E04040)]" onclick="document.getElementById('search-overlay').classList.toggle('hidden')" aria-label="Search">
-                    <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <button type="button" class="flex h-[46px] items-center px-3 text-white hover:text-gray-300" onclick="document.getElementById('search-overlay').classList.toggle('hidden')" aria-label="Search">
+                    <svg class="h-[16px] w-[16px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </button>
             </div>
         </div>
     </nav>
 
     {{-- Mobile menu --}}
-    <div id="mobile-menu" class="hidden border-b border-gray-200 bg-white md:hidden">
-        <div class="px-4 py-2">
-            <a href="{{ route('home') }}" class="block py-2.5 text-[15px] font-extrabold uppercase text-black" style="font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;">Home</a>
+    <div id="mobile-menu" class="hidden bg-black md:hidden">
+        <div class="border-t border-gray-800 px-4 py-2">
+            <a href="{{ route('home') }}" class="block py-2.5 text-[13px] font-extrabold uppercase text-white" style="font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;">Home</a>
             @foreach($categories as $cat)
-                <a href="{{ route('category.show', $cat) }}" class="block border-t border-gray-100 py-2.5 text-[15px] font-extrabold uppercase text-black hover:text-[var(--brand-primary,#E04040)]" style="font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;">{{ $cat->name }}</a>
+                <a href="{{ route('category.show', $cat) }}" class="block border-t border-gray-800 py-2.5 text-[13px] font-extrabold uppercase text-gray-300 hover:text-white" style="font-family: var(--font-heading, 'Big Shoulders Text'), sans-serif;">{{ $cat->name }}</a>
             @endforeach
         </div>
     </div>
