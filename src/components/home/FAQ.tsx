@@ -7,28 +7,28 @@ import {
 
 const FAQS = [
   {
-    q: "În cât timp îmi este publicat articolul?",
-    a: "În maximum 24h de la confirmarea plății și primirea textului. De obicei, publicarea se face în același zi, iar linkurile sunt livrate pe email cu raport parțial, urmat de raportul PDF complet.",
+    q: "How fast is my article published?",
+    a: "Within 24h of payment confirmation and receiving your text. Publication usually happens the same day, links are delivered by email with a partial report, followed by the complete PDF report.",
   },
   {
-    q: "Pot trimite articol gata scris sau îl redactați voi?",
-    a: "Ambele variante. Poți trimite textul gata scris (îl publicăm ca atare), sau poți să ne dai doar punctele-cheie și scriem noi un articol profesionist, optimizat SEO, pentru presă.",
+    q: "Can I send a ready-written article, or do you write it?",
+    a: "Both. You can send finished copy (we publish it as-is), or just give us the key points and we write a professional, SEO-optimized article ready for the press.",
   },
   {
-    q: "Pot alege pe ce ziare apar?",
-    a: "Pentru pachetul Local, da — alegi ziarul dorit dintr-o listă. Pentru Regional alegi zona (Moldova / Transilvania / Muntenia / Banat). Pentru Național 50, articolul apare pe toate cele 50 de ziare partenere.",
+    q: "Can I choose which newspapers I appear in?",
+    a: "For the Local package, yes — you pick the state newspaper you want from a list. For Regional you choose the region (Northeast / Midwest / South / West). For National 50, your article appears in all 50 partner newspapers — one in every state.",
   },
   {
-    q: "Cât timp rămâne articolul online?",
-    a: "Permanent. Articolele rămân online pe site-urile partenere atâta timp cât acele site-uri funcționează — minim câțiva ani, de regulă.",
+    q: "How long does the article stay online?",
+    a: "Permanently. Articles remain online on the partner sites for as long as those sites operate — typically several years at minimum.",
   },
   {
-    q: "De ce pachetele de cazino sunt mai scumpe?",
-    a: "Publicarea de conținut din zona iGaming/pariuri/cazino presupune responsabilitate legală suplimentară, verificări de conformitate și acceptarea din partea editorilor. Tariful reflectă acest efort adițional.",
+    q: "Why are the casino packages more expensive?",
+    a: "Publishing iGaming/betting/casino content involves extra legal responsibility, compliance checks and editor acceptance. The price reflects that additional effort.",
   },
   {
-    q: "Pot vedea lista completă a celor 50 ziare?",
-    a: "Da, îți trimitem lista completă în format PDF pe email, gratuit — completezi formularul de pe pagina de pachete și o primești în 2 minute.",
+    q: "Can I see the full list of the 50 newspapers?",
+    a: "Yes — we send you the full list as a PDF by email, free. Fill in the form on the packages page and you'll receive it within 2 minutes.",
   },
 ];
 
@@ -37,8 +37,8 @@ export function FAQ() {
     <section className="section bg-white">
       <div className="container max-w-3xl">
         <div className="text-center">
-          <p className="eyebrow">Întrebări frecvente</p>
-          <h2 className="h2 mt-2">Răspunsuri rapide</h2>
+          <p className="eyebrow">Frequently asked questions</p>
+          <h2 className="h2 mt-2">Quick answers</h2>
         </div>
         <div className="mt-10">
           <Accordion type="single" collapsible className="w-full">

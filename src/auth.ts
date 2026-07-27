@@ -19,14 +19,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Resend({
       apiKey: process.env.RESEND_API_KEY,
-      from: process.env.FROM_EMAIL || "MediaExpres <noreply@mediaexpres.ro>",
+      from: process.env.FROM_EMAIL || "Media Chief <noreply@media-chief.com>",
     }),
   ],
   session: { strategy: "database" },
   pages: {
-    signIn: "/cont/login",
-    verifyRequest: "/cont/verify",
-    error: "/cont/login",
+    signIn: "/account/login",
+    verifyRequest: "/account/verify",
+    error: "/account/login",
   },
   callbacks: {
     async session({ session, user }) {

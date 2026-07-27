@@ -6,16 +6,16 @@ export default function NotFound() {
     <section className="section bg-white">
       <div className="container text-center max-w-xl mx-auto">
         <p className="eyebrow">404</p>
-        <h1 className="h1 mt-3">Pagina nu există</h1>
+        <h1 className="h1 mt-3">Page not found</h1>
         <p className="lead mt-4">
-          Ne pare rău, nu găsim pagina căutată. Probabil a fost mutată sau ștearsă.
+          Sorry, we can&apos;t find the page you were looking for. It was probably moved or deleted.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Button asChild>
-            <Link href="/">Înapoi acasă</Link>
+            <Link href="/">Back home</Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link href="/pachete">Vezi pachetele</Link>
+            <Link href="/packages">View packages</Link>
           </Button>
         </div>
       </div>

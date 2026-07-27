@@ -34,9 +34,10 @@ export function Navbar() {
     >
       <div className="container flex h-20 items-center justify-between">
         <Logo />
-        <nav className="hidden items-center gap-8 lg:flex" aria-label="Principal">
+        <nav className="hidden items-center gap-8 lg:flex" aria-label="Main">
           {NAV_LINKS.map((link) => {
-            const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
+            const active =
+              link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
             return (
               <Link
                 key={link.href}
@@ -53,7 +54,7 @@ export function Navbar() {
         </nav>
         <div className="hidden lg:block">
           <OrderModal
-            trigger={<Button variant="accent">Comandă acum</Button>}
+            trigger={<Button variant="accent">Order now</Button>}
           />
         </div>
         <MobileNav />

@@ -19,16 +19,16 @@ export function CtaBanner() {
         <div className="mx-auto max-w-3xl text-center">
           <Sparkles className="mx-auto h-10 w-10 text-brand-gold" />
           <h2 className="mt-6 font-serif text-4xl font-bold leading-tight sm:text-5xl">
-            Pregătit să-ți publici articolul?
+            Ready to publish your article?
           </h2>
           <p className="mt-6 text-lg text-white/90">
-            Alege un pachet, trimite-ne articolul, iar în 24h ești pe 50 de ziare. Nu plătești
-            nimic până nu confirmăm capacitatea de publicare.
+            Pick a package, send us your article, and within 24h you&apos;re in 50 newspapers.
+            You don&apos;t pay anything until we confirm publishing capacity.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Button variant="gold" size="lg" asChild>
-              <Link href="/pachete">
-                Vezi pachetele <ArrowRight className="h-4 w-4" />
+              <Link href="/packages">
+                View packages <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
             <OrderModal
@@ -38,7 +38,7 @@ export function CtaBanner() {
                   size="lg"
                   className="border-white/30 bg-white/10 text-white hover:bg-white hover:text-brand-navy"
                 >
-                  Comandă acum
+                  Order now
                 </Button>
               }
             />

@@ -4,7 +4,7 @@ import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "Verifica-ti emailul",
+  title: "Check your email",
   robots: { index: false, follow: false },
 };
 
@@ -16,19 +16,19 @@ export default function VerifyPage() {
           <Mail className="h-8 w-8 text-green-600" />
         </div>
         <h1 className="mt-5 font-serif text-2xl font-bold text-brand-navy">
-          Verifica-ti emailul
+          Check your email
         </h1>
         <p className="mt-3 text-sm text-slate-600">
-          Ti-am trimis un link magic. Deschide emailul si apasa pe link ca sa
-          intri in cont. Link-ul expira in 24 ore.
+          We sent you a magic link. Open the email and click the link to sign
+          in. The link expires in 24 hours.
         </p>
         <p className="mt-4 text-xs text-slate-500">
-          Nu a ajuns? Verifica folder-ul de spam sau incearca din nou cu o alta
-          adresa.
+          Didn&apos;t arrive? Check your spam folder or try again with another
+          address.
         </p>
         <div className="mt-6">
           <Button variant="outline" asChild>
-            <Link href="/cont/login">Inapoi la login</Link>
+            <Link href="/account/login">Back to sign in</Link>
           </Button>
         </div>
       </div>

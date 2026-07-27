@@ -30,7 +30,7 @@ export function OrderForm({ defaultPackageId, onSuccess }: OrderFormProps) {
     resolver: zodResolver(orderSchema),
     defaultValues: {
       packageId: defaultPackageId || "",
-      gdprConsent: false as unknown as true,
+      privacyConsent: false as unknown as true,
     },
   });
 
@@ -45,14 +45,14 @@ export function OrderForm({ defaultPackageId, onSuccess }: OrderFormProps) {
       });
       const body = await res.json();
       if (!res.ok || !body.ok) {
-        throw new Error(body.error || "Eroare la trimitere");
+        throw new Error(body.error || "Failed to submit");
       }
       setStatus("success");
       reset();
       onSuccess?.();
     } catch (e: unknown) {
       setStatus("error");
-      setErrorMsg(e instanceof Error ? e.message : "Eroare necunoscută");
+      setErrorMsg(e instanceof Error ? e.message : "Unknown error");
     }
   };
 
@@ -61,14 +61,14 @@ export function OrderForm({ defaultPackageId, onSuccess }: OrderFormProps) {
       <div className="flex flex-col items-center gap-4 py-8 text-center">
         <CheckCircle2 className="h-16 w-16 text-green-600" />
         <h3 className="font-serif text-2xl font-semibold text-brand-navy">
-          Comandă primită!
+          Order received!
         </h3>
         <p className="text-slate-600">
-          Îți mulțumim! Echipa noastră te va contacta în maximum 2 ore (în timpul programului) cu
-          detaliile de plată și confirmarea publicării.
+          Thank you! Our team will contact you within 2 hours (during business hours) with
+          payment details and publication confirmation.
         </p>
         <Button variant="outline" onClick={() => setStatus("idle")}>
-          Trimite altă comandă
+          Send another order
         </Button>
       </div>
     );
@@ -79,93 +79,93 @@ export function OrderForm({ defaultPackageId, onSuccess }: OrderFormProps) {
       <input type="text" {...register("website")} className="hidden" tabIndex={-1} autoComplete="off" />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Nume complet *" error={errors.name?.message}>
-          <Input {...register("name")} placeholder="Ion Popescu" />
+        <Field label="Full name *" error={errors.name?.message}>
+          <Input {...register("name")} placeholder="John Smith" />
         </Field>
         <Field label="Email *" error={errors.email?.message}>
-          <Input type="email" {...register("email")} placeholder="ion@firma.ro" />
+          <Input type="email" {...register("email")} placeholder="john@company.com" />
         </Field>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Telefon *" error={errors.phone?.message}>
-          <Input type="tel" {...register("phone")} placeholder="+40 721 234 567" />
+        <Field label="Phone *" error={errors.phone?.message}>
+          <Input type="tel" {...register("phone")} placeholder="+1 (555) 123-4567" />
         </Field>
-        <Field label="Companie" error={errors.company?.message}>
-          <Input {...register("company")} placeholder="opțional" />
+        <Field label="Company" error={errors.company?.message}>
+          <Input {...register("company")} placeholder="optional" />
         </Field>
       </div>
 
-      <Field label="Alege pachetul *" error={errors.packageId?.message}>
+      <Field label="Choose a package *" error={errors.packageId?.message}>
         <select
           {...register("packageId")}
           className="flex h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-brand-navy focus:border-brand-navy"
         >
-          <option value="">— alege un pachet —</option>
+          <option value="">— choose a package —</option>
           <optgroup label="Standard">
             {getAllPackages()
               .filter((p) => p.category === "standard")
               .map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.name} — {formatPrice(p.price)} RON
+                  {p.name} — ${formatPrice(p.price)}
                 </option>
               ))}
           </optgroup>
-          <optgroup label="Cazino / iGaming">
+          <optgroup label="Casino / iGaming">
             {getAllPackages()
               .filter((p) => p.category === "casino")
               .map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.name} — {formatPrice(p.price)} RON
+                  {p.name} — ${formatPrice(p.price)}
                 </option>
               ))}
           </optgroup>
-          <optgroup label="Abonamente lunare">
+          <optgroup label="Monthly subscriptions">
             {SUBSCRIPTION_PLANS.map((p) => (
               <option key={`sub-${p.id}`} value={`sub-${p.id}`}>
-                Abonament {p.name} — de la {formatPrice(p.priceStandard)} RON/lună
+                {p.name} subscription — from ${formatPrice(p.priceStandard)}/month
               </option>
             ))}
           </optgroup>
         </select>
       </Field>
 
-      <Field label="Titlul articolului *" error={errors.articleTitle?.message}>
-        <Input {...register("articleTitle")} placeholder="Titlul propus pentru articol" />
+      <Field label="Article title *" error={errors.articleTitle?.message}>
+        <Input {...register("articleTitle")} placeholder="Proposed title for the article" />
       </Field>
 
       <Field
-        label="Textul articolului"
+        label="Article text"
         error={errors.articleBody?.message}
-        hint="Poți completa acum sau îl poți trimite ulterior pe email"
+        hint="You can fill this in now or send it later by email"
       >
-        <Textarea {...register("articleBody")} rows={6} placeholder="Paragrafele articolului..." />
+        <Textarea {...register("articleBody")} rows={6} placeholder="The article paragraphs..." />
       </Field>
 
       <Field
-        label="URL articol existent"
+        label="Existing article URL"
         error={errors.articleUrl?.message}
-        hint="Dacă articolul e deja online, pune link-ul aici"
+        hint="If the article is already online, drop the link here"
       >
         <Input type="url" {...register("articleUrl")} placeholder="https://..." />
       </Field>
 
-      <Field label="Observații" error={errors.notes?.message}>
-        <Textarea {...register("notes")} rows={3} placeholder="Preferințe, data dorită etc." />
+      <Field label="Notes" error={errors.notes?.message}>
+        <Textarea {...register("notes")} rows={3} placeholder="Preferences, preferred date, etc." />
       </Field>
 
       <label className="flex items-start gap-3 text-sm text-slate-700 cursor-pointer">
-        <Checkbox {...register("gdprConsent")} />
+        <Checkbox {...register("privacyConsent")} />
         <span>
-          Sunt de acord cu{" "}
-          <a href="/legal/gdpr" className="text-brand-red font-medium hover:underline">
-            procesarea datelor personale
+          I agree to the{" "}
+          <a href="/legal/privacy" className="text-brand-red font-medium hover:underline">
+            processing of my personal data
           </a>{" "}
-          conform GDPR. *
+          as described in the privacy policy. *
         </span>
       </label>
-      {errors.gdprConsent && (
-        <p className="text-sm text-red-600">{errors.gdprConsent.message}</p>
+      {errors.privacyConsent && (
+        <p className="text-sm text-red-600">{errors.privacyConsent.message}</p>
       )}
 
       {status === "error" && errorMsg && (
@@ -184,14 +184,14 @@ export function OrderForm({ defaultPackageId, onSuccess }: OrderFormProps) {
       >
         {status === "submitting" ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" /> Se trimite...
+            <Loader2 className="h-4 w-4 animate-spin" /> Sending...
           </>
         ) : (
-          "Trimite comanda"
+          "Submit order"
         )}
       </Button>
       <p className="text-xs text-slate-500 text-center">
-        Nu reținem nimic pe card — te contactăm pentru facturare & plată.
+        We never store card details — we contact you for invoicing and payment.
       </p>
     </form>
   );

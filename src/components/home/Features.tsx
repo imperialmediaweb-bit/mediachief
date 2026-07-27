@@ -10,33 +10,33 @@ import {
 const FEATURES = [
   {
     icon: Newspaper,
-    title: "50 de ziare partenere",
-    description: "41 ziare locale + 9 naționale, acoperire în toate cele 4 regiuni.",
+    title: "50 partner newspapers",
+    description: "One newspaper in every U.S. state — coverage across all 4 regions.",
   },
   {
     icon: Facebook,
-    title: "37 pagini Facebook",
-    description: "Distribuție automată pe paginile asociate. Include fiecare pachet.",
+    title: "37 Facebook pages",
+    description: "Automatic distribution on the associated pages. Included in every package.",
   },
   {
     icon: Clock,
-    title: "Livrare în 24h",
-    description: "Publicare rapidă pe toate site-urile. Linkurile ajung la tine imediat.",
+    title: "24h delivery",
+    description: "Fast publication on every site. The links reach you right away.",
   },
   {
     icon: FileText,
-    title: "Raport PDF complet",
-    description: "URL-uri + screenshot-uri pentru toate articolele publicate.",
+    title: "Complete PDF report",
+    description: "URLs + screenshots for every published article.",
   },
   {
     icon: Link2,
-    title: "Linkuri permanente",
-    description: "Articolele rămân online indefinit. SEO on-page + backlinks câștigate.",
+    title: "Permanent links",
+    description: "Articles stay online indefinitely. On-page SEO + earned backlinks.",
   },
   {
     icon: Headphones,
-    title: "Suport dedicat",
-    description: "Echipă PR cu care vorbești direct pe email, telefon sau WhatsApp.",
+    title: "Dedicated support",
+    description: "A PR team you can talk to directly by email, phone or WhatsApp.",
   },
 ];
 
@@ -45,8 +45,8 @@ export function Features() {
     <section className="section bg-newsprint">
       <div className="container">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="eyebrow">De ce MediaExpres</p>
-          <h2 className="h2 mt-2">Tot ce primești, în fiecare pachet</h2>
+          <p className="eyebrow">Why Media Chief</p>
+          <h2 className="h2 mt-2">Everything you get, in every package</h2>
         </div>
         <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((f) => (

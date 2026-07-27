@@ -1,75 +1,74 @@
 export interface Newspaper {
   name: string;
-  region: "Moldova" | "Transilvania" | "Muntenia" | "Banat" | "Național";
-  type: "local" | "national" | "tematic";
-  county?: string;
+  region: "Northeast" | "Midwest" | "South" | "West";
+  type: "local" | "national" | "topical";
+  state?: string;
   url?: string;
 }
 
-// NOTE: Această listă este folosită DOAR în admin panel (protejat)
-// și pentru generarea PDF-ului trimis clienților care completează lead-form-ul.
-// NU este expusă pe nicio pagină publică indexabilă de Google.
+// NOTE: This list is used ONLY in the admin panel (protected)
+// and for generating the PDF sent to clients who complete the lead form.
+// It is NOT exposed on any public page indexable by Google.
 export const NEWSPAPERS: Newspaper[] = [
-  { name: "Ziar Național 1", region: "Național", type: "national" },
-  { name: "Ziar Național 2", region: "Național", type: "national" },
-  { name: "Ziar Național 3", region: "Național", type: "national" },
-  { name: "Ziar Național 4", region: "Național", type: "national" },
-  { name: "Ziar Național 5", region: "Național", type: "national" },
-  { name: "Ziar Național 6", region: "Național", type: "national" },
-  { name: "Ziar Național 7", region: "Național", type: "national" },
-  { name: "Ziar Național 8", region: "Național", type: "national" },
-  { name: "Ziar Național 9", region: "Național", type: "national" },
-  // Moldova (10)
-  { name: "Ziar Iași", region: "Moldova", type: "local", county: "Iași" },
-  { name: "Ziar Bacău", region: "Moldova", type: "local", county: "Bacău" },
-  { name: "Ziar Botoșani", region: "Moldova", type: "local", county: "Botoșani" },
-  { name: "Ziar Vaslui", region: "Moldova", type: "local", county: "Vaslui" },
-  { name: "Ziar Suceava", region: "Moldova", type: "local", county: "Suceava" },
-  { name: "Ziar Neamț", region: "Moldova", type: "local", county: "Neamț" },
-  { name: "Ziar Galați", region: "Moldova", type: "local", county: "Galați" },
-  { name: "Ziar Vrancea", region: "Moldova", type: "local", county: "Vrancea" },
-  { name: "Ziar Brăila", region: "Moldova", type: "local", county: "Brăila" },
-  { name: "Ziar Buzău", region: "Moldova", type: "local", county: "Buzău" },
-  // Transilvania (10)
-  { name: "Ziar Cluj", region: "Transilvania", type: "local", county: "Cluj" },
-  { name: "Ziar Brașov", region: "Transilvania", type: "local", county: "Brașov" },
-  { name: "Ziar Sibiu", region: "Transilvania", type: "local", county: "Sibiu" },
-  { name: "Ziar Mureș", region: "Transilvania", type: "local", county: "Mureș" },
-  { name: "Ziar Alba", region: "Transilvania", type: "local", county: "Alba" },
-  { name: "Ziar Bihor", region: "Transilvania", type: "local", county: "Bihor" },
-  { name: "Ziar Maramureș", region: "Transilvania", type: "local", county: "Maramureș" },
-  { name: "Ziar Satu Mare", region: "Transilvania", type: "local", county: "Satu Mare" },
-  { name: "Ziar Hunedoara", region: "Transilvania", type: "local", county: "Hunedoara" },
-  { name: "Ziar Sălaj", region: "Transilvania", type: "local", county: "Sălaj" },
-  // Muntenia + București (10)
-  { name: "Ziar București 1", region: "Muntenia", type: "local", county: "București" },
-  { name: "Ziar București 2", region: "Muntenia", type: "local", county: "București" },
-  { name: "Ziar Prahova", region: "Muntenia", type: "local", county: "Prahova" },
-  { name: "Ziar Dâmbovița", region: "Muntenia", type: "local", county: "Dâmbovița" },
-  { name: "Ziar Argeș", region: "Muntenia", type: "local", county: "Argeș" },
-  { name: "Ziar Ilfov", region: "Muntenia", type: "local", county: "Ilfov" },
-  { name: "Ziar Giurgiu", region: "Muntenia", type: "local", county: "Giurgiu" },
-  { name: "Ziar Călărași", region: "Muntenia", type: "local", county: "Călărași" },
-  { name: "Ziar Ialomița", region: "Muntenia", type: "local", county: "Ialomița" },
-  { name: "Ziar Teleorman", region: "Muntenia", type: "local", county: "Teleorman" },
-  // Banat + Oltenia (11)
-  { name: "Ziar Timiș", region: "Banat", type: "local", county: "Timiș" },
-  { name: "Ziar Arad", region: "Banat", type: "local", county: "Arad" },
-  { name: "Ziar Caraș-Severin", region: "Banat", type: "local", county: "Caraș-Severin" },
-  { name: "Ziar Dolj", region: "Banat", type: "local", county: "Dolj" },
-  { name: "Ziar Gorj", region: "Banat", type: "local", county: "Gorj" },
-  { name: "Ziar Mehedinți", region: "Banat", type: "local", county: "Mehedinți" },
-  { name: "Ziar Olt", region: "Banat", type: "local", county: "Olt" },
-  { name: "Ziar Vâlcea", region: "Banat", type: "local", county: "Vâlcea" },
-  { name: "Ziar Constanța", region: "Muntenia", type: "local", county: "Constanța" },
-  { name: "Ziar Tulcea", region: "Muntenia", type: "local", county: "Tulcea" },
-  { name: "Ziar Covasna", region: "Transilvania", type: "local", county: "Covasna" },
+  // Northeast (9)
+  { name: "Daily Connecticut", region: "Northeast", type: "local", state: "Connecticut" },
+  { name: "Daily Maine", region: "Northeast", type: "local", state: "Maine" },
+  { name: "Daily Massachusetts", region: "Northeast", type: "local", state: "Massachusetts" },
+  { name: "Daily New Hampshire", region: "Northeast", type: "local", state: "New Hampshire" },
+  { name: "Daily Rhode Island", region: "Northeast", type: "local", state: "Rhode Island" },
+  { name: "Daily Vermont", region: "Northeast", type: "local", state: "Vermont" },
+  { name: "Daily New Jersey", region: "Northeast", type: "local", state: "New Jersey" },
+  { name: "Daily New York", region: "Northeast", type: "local", state: "New York" },
+  { name: "Daily Pennsylvania", region: "Northeast", type: "local", state: "Pennsylvania" },
+  // Midwest (12)
+  { name: "Daily Illinois", region: "Midwest", type: "local", state: "Illinois" },
+  { name: "Daily Indiana", region: "Midwest", type: "local", state: "Indiana" },
+  { name: "Daily Michigan", region: "Midwest", type: "local", state: "Michigan" },
+  { name: "Daily Ohio", region: "Midwest", type: "local", state: "Ohio" },
+  { name: "Daily Wisconsin", region: "Midwest", type: "local", state: "Wisconsin" },
+  { name: "Daily Iowa", region: "Midwest", type: "local", state: "Iowa" },
+  { name: "Daily Kansas", region: "Midwest", type: "local", state: "Kansas" },
+  { name: "Daily Minnesota", region: "Midwest", type: "local", state: "Minnesota" },
+  { name: "Daily Missouri", region: "Midwest", type: "local", state: "Missouri" },
+  { name: "Daily Nebraska", region: "Midwest", type: "local", state: "Nebraska" },
+  { name: "Daily North Dakota", region: "Midwest", type: "local", state: "North Dakota" },
+  { name: "Daily South Dakota", region: "Midwest", type: "local", state: "South Dakota" },
+  // South (16)
+  { name: "Daily Delaware", region: "South", type: "local", state: "Delaware" },
+  { name: "Daily Florida", region: "South", type: "local", state: "Florida" },
+  { name: "Daily Georgia", region: "South", type: "local", state: "Georgia" },
+  { name: "Daily Maryland", region: "South", type: "local", state: "Maryland" },
+  { name: "Daily North Carolina", region: "South", type: "local", state: "North Carolina" },
+  { name: "Daily South Carolina", region: "South", type: "local", state: "South Carolina" },
+  { name: "Daily Virginia", region: "South", type: "local", state: "Virginia" },
+  { name: "Daily West Virginia", region: "South", type: "local", state: "West Virginia" },
+  { name: "Daily Alabama", region: "South", type: "local", state: "Alabama" },
+  { name: "Daily Kentucky", region: "South", type: "local", state: "Kentucky" },
+  { name: "Daily Mississippi", region: "South", type: "local", state: "Mississippi" },
+  { name: "Daily Tennessee", region: "South", type: "local", state: "Tennessee" },
+  { name: "Daily Arkansas", region: "South", type: "local", state: "Arkansas" },
+  { name: "Daily Louisiana", region: "South", type: "local", state: "Louisiana" },
+  { name: "Daily Oklahoma", region: "South", type: "local", state: "Oklahoma" },
+  { name: "Daily Texas", region: "South", type: "local", state: "Texas" },
+  // West (13)
+  { name: "Daily Arizona", region: "West", type: "local", state: "Arizona" },
+  { name: "Daily Colorado", region: "West", type: "local", state: "Colorado" },
+  { name: "Daily Idaho", region: "West", type: "local", state: "Idaho" },
+  { name: "Daily Montana", region: "West", type: "local", state: "Montana" },
+  { name: "Daily Nevada", region: "West", type: "local", state: "Nevada" },
+  { name: "Daily New Mexico", region: "West", type: "local", state: "New Mexico" },
+  { name: "Daily Utah", region: "West", type: "local", state: "Utah" },
+  { name: "Daily Wyoming", region: "West", type: "local", state: "Wyoming" },
+  { name: "Daily Alaska", region: "West", type: "local", state: "Alaska" },
+  { name: "Daily California", region: "West", type: "local", state: "California" },
+  { name: "Daily Hawaii", region: "West", type: "local", state: "Hawaii" },
+  { name: "Daily Oregon", region: "West", type: "local", state: "Oregon" },
+  { name: "Daily Washington", region: "West", type: "local", state: "Washington" },
 ];
 
 export const REGION_COUNTS = {
-  Moldova: NEWSPAPERS.filter((n) => n.region === "Moldova").length,
-  Transilvania: NEWSPAPERS.filter((n) => n.region === "Transilvania").length,
-  Muntenia: NEWSPAPERS.filter((n) => n.region === "Muntenia").length,
-  Banat: NEWSPAPERS.filter((n) => n.region === "Banat").length,
-  Național: NEWSPAPERS.filter((n) => n.region === "Național").length,
+  Northeast: NEWSPAPERS.filter((n) => n.region === "Northeast").length,
+  Midwest: NEWSPAPERS.filter((n) => n.region === "Midwest").length,
+  South: NEWSPAPERS.filter((n) => n.region === "South").length,
+  West: NEWSPAPERS.filter((n) => n.region === "West").length,
 };

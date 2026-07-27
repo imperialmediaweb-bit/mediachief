@@ -7,17 +7,19 @@
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
   <!-- Logo top-left -->
-  <g transform="translate(80 70)">
-    <rect x="0" y="0" width="80" height="72" rx="6" fill="#F8F5F0"/>
-    <path d="M12 60 L12 16 L24 16 L40 42 L56 16 L68 16 L68 60 L58 60 L58 32 L43 55 L37 55 L22 32 L22 60 Z" fill="#0B2545"/>
+  <g transform="translate(80 60)">
+    <path d="M40 0 L76 11 L76 42 C76 60 61 72 40 78 C19 72 4 60 4 42 L4 11 Z" fill="#c1121f"/>
+    <path d="M40 12 L44.3 22.2 L55.4 23.1 L47 30.4 L49.5 41.2 L40 35.4 L30.5 41.2 L33 30.4 L24.6 23.1 L35.7 22.2 Z" fill="#F8F5F0"/>
+    <path d="M22 52 L40 44 L58 52" stroke="#F8F5F0" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M22 62 L40 54 L58 62" stroke="#F8F5F0" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
   </g>
-  <text x="200" y="125" font-family="Georgia, serif" font-weight="700" font-size="56" fill="#F8F5F0">Media</text>
-  <text x="370" y="125" font-family="sans-serif" font-weight="500" font-size="56" fill="#E4B363">Expres</text>
+  <text x="185" y="118" font-family="Georgia, serif" font-weight="700" font-size="56" fill="#F8F5F0">Media</text>
+  <text x="355" y="118" font-family="sans-serif" font-weight="500" font-size="56" fill="#E4B363">Chief</text>
   <!-- Headline -->
-  <text x="80" y="290" font-family="Georgia, serif" font-weight="700" font-size="72" fill="#F8F5F0">Articolul tău în</text>
-  <text x="80" y="380" font-family="Georgia, serif" font-weight="700" font-size="72" fill="#E4B363">50 de ziare în 24h</text>
-  <text x="80" y="440" font-family="sans-serif" font-weight="400" font-size="30" fill="#F8F5F0" opacity="0.85">Comunicate de presă • Distribuție Facebook • Raport PDF</text>
+  <text x="80" y="290" font-family="Georgia, serif" font-weight="700" font-size="72" fill="#F8F5F0">Your article in</text>
+  <text x="80" y="380" font-family="Georgia, serif" font-weight="700" font-size="72" fill="#E4B363">50 U.S. newspapers in 24h</text>
+  <text x="80" y="440" font-family="sans-serif" font-weight="400" font-size="30" fill="#F8F5F0" opacity="0.85">Press releases • Facebook distribution • PDF report</text>
   <!-- Red accent bar -->
-  <rect x="80" y="480" width="220" height="6" fill="#D7263D"/>
-  <text x="80" y="560" font-family="sans-serif" font-weight="600" font-size="28" fill="#F8F5F0" opacity="0.9">mediaexpres.ro</text>
+  <rect x="80" y="480" width="220" height="6" fill="#c1121f"/>
+  <text x="80" y="560" font-family="sans-serif" font-weight="600" font-size="28" fill="#F8F5F0" opacity="0.9">media-chief.com</text>
 </svg>

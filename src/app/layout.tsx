@@ -11,19 +11,19 @@ import {
 import "./globals.css";
 
 const playfair = Playfair_Display({
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin"],
   variable: "--font-playfair",
   display: "swap",
 });
 
 const inter = Inter({
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
 });
 
 const oswald = Oswald({
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin"],
   variable: "--font-oswald",
   display: "swap",
   weight: ["400", "500", "600", "700"],
@@ -44,21 +44,21 @@ export const metadata: Metadata = {
   description: SITE.description,
   applicationName: SITE.name,
   keywords: [
-    "comunicat de presă",
-    "distribuție comunicate",
-    "ziare românești",
-    "publicare articole",
     "press release",
+    "press release distribution",
+    "US newspapers",
+    "article publishing",
+    "newswire",
     "PR",
     "marketing",
     "SEO",
-    "cazino",
+    "casino",
     "iGaming",
   ],
   authors: [{ name: SITE.name }],
   openGraph: {
     type: "website",
-    locale: "ro_RO",
+    locale: "en_US",
     url: SITE.url,
     siteName: SITE.name,
     title: `${SITE.name} — ${SITE.tagline}`,
@@ -90,7 +90,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
-      lang="ro"
+      lang="en"
       className={`${playfair.variable} ${inter.variable} ${oswald.variable}`}
     >
       <body className="min-h-screen font-sans flex flex-col">

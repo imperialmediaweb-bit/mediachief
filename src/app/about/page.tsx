@@ -1,57 +1,55 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Target, Users, Award, Handshake } from "lucide-react";
 import { Stats } from "@/components/home/Stats";
 import { CtaBanner } from "@/components/home/CtaBanner";
 
 export const metadata: Metadata = {
-  title: "Despre noi — MediaExpres",
+  title: "About us — Media Chief",
   description:
-    "MediaExpres este o agenție românească specializată în distribuție de comunicate de presă pe rețeaua celor mai citite ziare din România.",
-  alternates: { canonical: "/despre" },
+    "Media Chief is a U.S. agency specialized in press release distribution across a network of newspapers covering all 50 states.",
+  alternates: { canonical: "/about" },
 };
 
 const VALUES = [
   {
     icon: Target,
-    title: "Rezultate măsurabile",
+    title: "Measurable results",
     description:
-      "Fiecare articol publicat e documentat cu URL și screenshot. Vezi exact ce cumperi.",
+      "Every published article is documented with a URL and a screenshot. You see exactly what you paid for.",
   },
   {
     icon: Users,
-    title: "Clientul pe primul loc",
+    title: "Clients come first",
     description:
-      "Suport dedicat, timp de răspuns sub 2 ore în program. Zero roboți, doar oameni.",
+      "Dedicated support, under 2 hours response time during business hours. No bots, just people.",
   },
   {
     icon: Award,
-    title: "Calitate editorială",
+    title: "Editorial quality",
     description:
-      "Publicăm doar pe site-uri active, cu trafic real și autoritate SEO demonstrată.",
+      "We only publish on active sites with real traffic and proven SEO authority.",
   },
   {
     icon: Handshake,
-    title: "Parteneriat pe termen lung",
+    title: "Long-term partnership",
     description:
-      "Abonamentele noastre sunt gândite pentru brand-uri care vor prezență constantă.",
+      "Our subscriptions are built for brands that want a consistent press presence.",
   },
 ];
 
-export default function DesprePage() {
+export default function AboutPage() {
   return (
     <>
       <section className="bg-brand-navy text-white">
         <div className="container py-20 text-center">
-          <p className="eyebrow text-brand-gold">Despre MediaExpres</p>
+          <p className="eyebrow text-brand-gold">About Media Chief</p>
           <h1 className="h1 mt-3 text-white max-w-3xl mx-auto">
-            Facem presa accesibilă tuturor afacerilor românești
+            Making the press accessible to every business
           </h1>
           <p className="lead mx-auto mt-6 max-w-2xl text-white/85">
-            Am pornit de la o întrebare simplă: de ce ar plăti o firmă locală sume uriașe pentru
-            publicare în presă, când tehnologia ne permite să distribuim rapid și eficient pe zeci
-            de ziare simultan?
+            We started from a simple question: why should a local business pay enormous sums for
+            press coverage, when technology lets us distribute quickly and efficiently to dozens
+            of newspapers at once?
           </p>
         </div>
       </section>
@@ -59,32 +57,33 @@ export default function DesprePage() {
       <section className="section bg-white">
         <div className="container grid gap-12 lg:grid-cols-2 lg:items-center">
           <div>
-            <p className="eyebrow">Misiune</p>
-            <h2 className="h2 mt-2">Comunicate de presă, la îndemâna oricărei afaceri</h2>
+            <p className="eyebrow">Mission</p>
+            <h2 className="h2 mt-2">Press releases, within reach of every business</h2>
             <div className="prose-me mt-6 space-y-4">
               <p>
-                Timp de ani de zile, apariția în presă a fost un privilegiu rezervat corporațiilor
-                cu bugete de PR consistente. MediaExpres schimbă asta.
+                For years, appearing in the press was a privilege reserved for corporations with
+                serious PR budgets. Media Chief changes that.
               </p>
               <p>
-                Cu o rețea de 50 de ziare partenere (41 locale + 9 naționale) și 37 pagini Facebook,
-                oferim IMM-urilor, clinicilor, restaurantelor, startup-urilor și agențiilor de
-                marketing acces la vizibilitatea pe care, până acum, doar cei mari și-o permiteau.
+                With a network of 50 partner newspapers — one in every U.S. state — and 37
+                Facebook pages, we give small businesses, clinics, restaurants, startups and
+                marketing agencies access to the visibility that only the big players used to
+                afford.
               </p>
               <p>
-                Totul cu prețuri fixe, transparente, livrare în 24h și raport PDF complet —
-                documentat la link și screenshot.
+                All with fixed, transparent pricing, 24h delivery and a complete PDF report —
+                documented with links and screenshots.
               </p>
             </div>
           </div>
           <div className="relative">
             <div className="rounded-2xl bg-gradient-to-br from-brand-navy to-brand-red p-10 text-white shadow-2xl">
               <blockquote className="font-serif text-2xl leading-relaxed italic">
-                &ldquo;Vedem presa ca pe o infrastructură de comunicare — și vrem să fie la
-                îndemâna oricărei afaceri care are ceva important de spus.&rdquo;
+                &ldquo;We see the press as communication infrastructure — and we want it within
+                reach of every business that has something important to say.&rdquo;
               </blockquote>
               <p className="mt-6 text-sm font-semibold text-brand-gold">
-                — Echipa MediaExpres
+                — The Media Chief Team
               </p>
             </div>
           </div>
@@ -96,8 +95,8 @@ export default function DesprePage() {
       <section className="section bg-newsprint">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="eyebrow">Valorile noastre</p>
-            <h2 className="h2 mt-2">În ce credem</h2>
+            <p className="eyebrow">Our values</p>
+            <h2 className="h2 mt-2">What we believe in</h2>
           </div>
           <div className="mt-12 grid gap-6 md:grid-cols-2">
             {VALUES.map((v) => (

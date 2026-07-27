@@ -9,12 +9,12 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "JSON invalid" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
   }
   const parsed = contactSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { ok: false, error: parsed.error.errors[0]?.message || "Date invalide" },
+      { ok: false, error: parsed.error.errors[0]?.message || "Invalid data" },
       { status: 400 }
     );
   }
@@ -22,15 +22,15 @@ export async function POST(req: NextRequest) {
   if (data.website) return NextResponse.json({ ok: true });
 
   const html = wrapEmail(
-    "Mesaj nou contact",
+    "New contact message",
     `
     <table style="width:100%;border-collapse:collapse;">
-      ${kv("Nume", data.name)}
+      ${kv("Name", data.name)}
       ${kv("Email", data.email)}
-      ${kv("Subiect", data.subject)}
+      ${kv("Subject", data.subject)}
     </table>
     <div style="margin-top:20px;padding:16px;background:#F8F5F0;border-radius:8px;">
-      <strong style="color:#0B2545;">Mesaj:</strong>
+      <strong style="color:#0B2545;">Message:</strong>
       <p style="margin:8px 0 0;white-space:pre-wrap;color:#334155;">${data.message.replace(/</g, "&lt;")}</p>
     </div>
   `
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
   });
 
   if (!r.ok) {
-    return NextResponse.json({ ok: false, error: "Eroare" }, { status: 500 });
+    return NextResponse.json({ ok: false, error: "Something went wrong" }, { status: 500 });
   }
   return NextResponse.json({ ok: true });
 }

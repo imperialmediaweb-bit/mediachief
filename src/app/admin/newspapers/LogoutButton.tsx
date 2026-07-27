@@ -13,7 +13,7 @@ export function LogoutButton() {
   };
   return (
     <Button variant="ghost" size="sm" onClick={onLogout}>
-      <LogOut className="h-4 w-4" /> Ieși
+      <LogOut className="h-4 w-4" /> Log out
     </Button>
   );
 }

@@ -24,10 +24,10 @@ export function RequestListModal({ trigger, successHref, successCtaLabel }: Requ
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Solicită lista completă</DialogTitle>
+          <DialogTitle>Request the full list</DialogTitle>
           <DialogDescription>
-            Completează datele — îți trimitem lista tuturor ziarelor partenere în PDF, gratuit, în
-            maximum 2 minute.
+            Fill in your details — we&apos;ll send you the list of all partner newspapers as a
+            PDF, free, within 2 minutes.
           </DialogDescription>
         </DialogHeader>
         <RequestListForm successHref={successHref} successCtaLabel={successCtaLabel} />

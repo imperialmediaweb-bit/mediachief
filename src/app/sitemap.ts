@@ -8,14 +8,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const staticPages = [
     { url: `${base}/`, lastModified: now, changeFrequency: "weekly" as const, priority: 1 },
-    { url: `${base}/pachete`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.9 },
-    { url: `${base}/despre`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.6 },
+    { url: `${base}/packages`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.9 },
+    { url: `${base}/about`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.6 },
     { url: `${base}/contact`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.6 },
     { url: `${base}/blog`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.7 },
-    { url: `${base}/legal/termeni`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.3 },
-    { url: `${base}/legal/confidentialitate`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.3 },
+    { url: `${base}/legal/terms`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.3 },
+    { url: `${base}/legal/privacy`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.3 },
     { url: `${base}/legal/cookies`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.3 },
-    { url: `${base}/legal/gdpr`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.3 },
   ];
 
   const blog = getAllSlugs().map((slug) => ({
@@ -25,7 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  // NOTE: /reteaua-noastra, /comanda and /admin/* are intentionally EXCLUDED
+  // NOTE: /our-network, /order and /admin/* are intentionally EXCLUDED
   // from the sitemap to protect the network from indexing.
   return [...staticPages, ...blog];
 }

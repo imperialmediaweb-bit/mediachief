@@ -3,27 +3,27 @@ import { PackageOpen, FileText, Send, FileCheck2 } from "lucide-react";
 const STEPS = [
   {
     icon: PackageOpen,
-    title: "Alegi pachetul",
+    title: "Pick a package",
     description:
-      "Local, Regional, Național sau abonament lunar. Selectezi în funcție de obiectivul tău.",
+      "Local, Regional, National or a monthly subscription. Choose based on your goal.",
   },
   {
     icon: FileText,
-    title: "Trimiți articolul",
+    title: "Send your article",
     description:
-      "Titlu, text, (opțional) imagini. Acceptăm text gata scris sau idei pe care le redactăm.",
+      "Title, text, (optional) images. We accept ready-to-publish copy or ideas we write up for you.",
   },
   {
     icon: Send,
-    title: "Publicăm pe 50 ziare",
+    title: "We publish on 50 newspapers",
     description:
-      "În maximum 24h publicăm pe rețeaua noastră + distribuim automat pe 37 pagini Facebook.",
+      "Within 24h we publish across our network + automatically distribute on 37 Facebook pages.",
   },
   {
     icon: FileCheck2,
-    title: "Primești raport PDF",
+    title: "You get a PDF report",
     description:
-      "Raport complet cu URL-urile și screenshot-urile tuturor publicărilor. Permanent online.",
+      "Complete report with the URLs and screenshots of every publication. Permanently online.",
   },
 ];
 
@@ -32,11 +32,11 @@ export function HowItWorks() {
     <section className="section bg-white">
       <div className="container">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="eyebrow">Simplu ca 1-2-3-4</p>
-          <h2 className="h2 mt-2">Cum funcționează</h2>
+          <p className="eyebrow">As simple as 1-2-3-4</p>
+          <h2 className="h2 mt-2">How it works</h2>
           <p className="lead mt-4">
-            Proces simplu, rezultate mari. În mai puțin de 24h ești pe prima pagină a celor mai
-            citite ziare românești.
+            Simple process, big results. In under 24h you&apos;re on the front page of newspapers
+            across all 50 states.
           </p>
         </div>
 

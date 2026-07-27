@@ -1,54 +1,53 @@
 export const SITE = {
-  name: "MediaExpres",
-  domain: "mediaexpres.ro",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://mediaexpres.ro",
-  tagline: "Articolul tău în 50 de ziare românești în 24h",
+  name: "Media Chief",
+  domain: "media-chief.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://media-chief.com",
+  tagline: "Your article in 50 U.S. newspapers — one in every state — within 24h",
   description:
-    "Serviciu de distribuție comunicate de presă pe 50 de ziare românești + 37 pagini Facebook. Livrare în 24h, raport PDF, linkuri permanente.",
-  email: "contact@mediaexpres.ro",
-  phone: "+40 700 000 000",
-  address: "București, România",
-  schedule: "Luni – Vineri, 09:00 – 18:00",
+    "Press release distribution service across 50 U.S. newspapers (one in every state) + 37 Facebook pages. 24h delivery, PDF report, permanent links.",
+  email: "contact@media-chief.com",
+  phone: "+1 (555) 000-0000",
+  address: "New York, NY, United States",
+  schedule: "Monday – Friday, 9:00 AM – 6:00 PM ET",
   social: {
-    facebook: "https://facebook.com/mediaexpres",
-    linkedin: "https://linkedin.com/company/mediaexpres",
+    facebook: "https://facebook.com/mediachief",
+    linkedin: "https://linkedin.com/company/mediachief",
   },
 };
 
 export const NAV_LINKS = [
-  { href: "/", label: "Acasă" },
-  { href: "/pachete", label: "Pachete" },
-  { href: "/reteaua-noastra", label: "Rețeaua noastră" },
+  { href: "/", label: "Home" },
+  { href: "/packages", label: "Packages" },
+  { href: "/our-network", label: "Our Network" },
   { href: "/blog", label: "Blog" },
-  { href: "/despre", label: "Despre" },
+  { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
 
 export const FOOTER_LINKS = {
-  servicii: [
-    { href: "/pachete#standard", label: "Pachete Standard" },
-    { href: "/pachete#cazino", label: "Pachete Cazino" },
-    { href: "/pachete#abonamente", label: "Abonamente lunare" },
-    { href: "/oferta", label: "Ofertă advertoriale" },
-    { href: "/comanda", label: "Comandă articol" },
+  services: [
+    { href: "/packages#standard", label: "Standard Packages" },
+    { href: "/packages#casino", label: "Casino Packages" },
+    { href: "/packages#subscriptions", label: "Monthly Subscriptions" },
+    { href: "/offer", label: "Advertorial Offer" },
+    { href: "/order", label: "Order an Article" },
   ],
-  companie: [
-    { href: "/despre", label: "Despre noi" },
+  company: [
+    { href: "/about", label: "About Us" },
     { href: "/blog", label: "Blog" },
     { href: "/contact", label: "Contact" },
-    { href: "/reteaua-noastra", label: "Rețeaua noastră" },
+    { href: "/our-network", label: "Our Network" },
   ],
   legal: [
-    { href: "/legal/termeni", label: "Termeni și condiții" },
-    { href: "/legal/confidentialitate", label: "Politica de confidențialitate" },
-    { href: "/legal/cookies", label: "Politica de cookies" },
-    { href: "/legal/gdpr", label: "GDPR" },
+    { href: "/legal/terms", label: "Terms & Conditions" },
+    { href: "/legal/privacy", label: "Privacy Policy" },
+    { href: "/legal/cookies", label: "Cookie Policy" },
   ],
 };
 
 export const STATS = [
-  { value: "50+", label: "ziare partenere" },
-  { value: "37", label: "pagini Facebook" },
-  { value: "24h", label: "timp de livrare" },
-  { value: "10k+", label: "articole publicate" },
+  { value: "50", label: "partner newspapers" },
+  { value: "37", label: "Facebook pages" },
+  { value: "24h", label: "delivery time" },
+  { value: "10k+", label: "articles published" },
 ];

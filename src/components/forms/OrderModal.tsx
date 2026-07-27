@@ -23,9 +23,9 @@ export function OrderModal({ trigger, defaultPackageId }: OrderModalProps) {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Comandă articol</DialogTitle>
+          <DialogTitle>Order an article</DialogTitle>
           <DialogDescription>
-            Completează formularul și te contactăm în maximum 2 ore. Nu plătești nimic acum.
+            Fill in the form and we&apos;ll contact you within 2 hours. You pay nothing now.
           </DialogDescription>
         </DialogHeader>
         <OrderForm defaultPackageId={defaultPackageId} />

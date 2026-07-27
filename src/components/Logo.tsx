@@ -17,11 +17,11 @@ export function Logo({
   const isOnDark = variant === "white";
   const isMono = variant === "mono";
 
-  // Badge (background) / letterform (foreground) / accent
+  // Badge (background) / insignia (foreground) / accent
   const badge = isMono ? "#111111" : "#c1121f";
-  const letter = "#faf7f2";
+  const insignia = "#faf7f2";
   const wordMediaColor = isOnDark ? "#faf7f2" : "#111111";
-  const wordExpresColor = isOnDark ? "#faf7f2" : "#c1121f";
+  const wordChiefColor = isOnDark ? "#faf7f2" : "#c1121f";
   const taglineColor = isOnDark ? "#e5c892" : "#64748b";
 
   const badgeSize = size === "lg" ? "h-12 w-12" : size === "sm" ? "h-8 w-8" : "h-10 w-10";
@@ -32,9 +32,9 @@ export function Logo({
     <Link
       href="/"
       className={cn("group inline-flex items-center gap-3", className)}
-      aria-label="MediaExpres — acasă"
+      aria-label="Media Chief — home"
     >
-      {/* Tabloid press badge */}
+      {/* Chief insignia badge: star over chevron stripes */}
       <svg
         viewBox="0 0 48 48"
         className={cn(
@@ -43,26 +43,45 @@ export function Logo({
         )}
         aria-hidden="true"
       >
-        {/* Red rounded square base */}
-        <rect width="48" height="48" rx="7" fill={badge} />
-
-        {/* Top masthead bar (newspaper feel) */}
-        <rect x="7" y="9" width="34" height="1.8" fill={letter} />
-        <rect x="7" y="12" width="22" height="0.9" fill={letter} opacity="0.55" />
-
-        {/* Stroke-based M (clean, confident) */}
+        {/* Red shield base */}
         <path
-          d="M11 38 L11 17 L15 17 L24 30 L33 17 L37 17 L37 38"
+          d="M24 2 L44 8 L44 26 C44 36 36 43 24 46 C12 43 4 36 4 26 L4 8 Z"
+          fill={badge}
+        />
+
+        {/* Five-pointed star */}
+        <path
+          d="M24 8.5 L26.4 14.1 L32.5 14.6 L27.9 18.6 L29.3 24.5 L24 21.3 L18.7 24.5 L20.1 18.6 L15.5 14.6 L21.6 14.1 Z"
+          fill={insignia}
+        />
+
+        {/* Chief chevron stripes */}
+        <path
+          d="M13 30 L24 25 L35 30"
           fill="none"
-          stroke={letter}
-          strokeWidth="3.4"
+          stroke={insignia}
+          strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-
-        {/* Bottom masthead bar with a break (signature) */}
-        <rect x="7" y="40" width="26" height="1.6" fill={letter} />
-        <rect x="35" y="40" width="6" height="1.6" fill={letter} opacity="0.7" />
+        <path
+          d="M13 36 L24 31 L35 36"
+          fill="none"
+          stroke={insignia}
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.8"
+        />
+        <path
+          d="M15 41.5 L24 37.5 L33 41.5"
+          fill="none"
+          stroke={insignia}
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.55"
+        />
       </svg>
 
       {/* Wordmark */}
@@ -82,9 +101,9 @@ export function Logo({
               "font-headline font-bold uppercase tracking-[0.01em]",
               wordSize,
             )}
-            style={{ color: wordExpresColor }}
+            style={{ color: wordChiefColor }}
           >
-            Expres
+            Chief
           </span>
         </div>
         {showTagline ? (
@@ -92,7 +111,7 @@ export function Logo({
             className="mt-1 text-[9px] font-headline font-semibold uppercase tracking-[0.28em]"
             style={{ color: taglineColor }}
           >
-            Presă · Distribuție · Impact
+            Press · Distribution · Impact
           </span>
         ) : null}
       </div>

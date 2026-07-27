@@ -8,27 +8,27 @@ export interface Testimonial {
 
 export const TESTIMONIALS: Testimonial[] = [
   {
-    name: "Andrei Pop",
+    name: "Andrew Parker",
     role: "Marketing Manager",
-    company: "TechStart București",
+    company: "TechStart NYC",
     initials: "AP",
     quote:
-      "În 24h aveam articolul pe 50 de site-uri, cu raport PDF complet. Pentru lansarea noastră a fost exact ce aveam nevoie — zero bătaie de cap, maximă vizibilitate.",
+      "Within 24h our article was live on 50 sites, with a complete PDF report. For our launch it was exactly what we needed — zero hassle, maximum visibility.",
   },
   {
-    name: "Elena Marin",
+    name: "Ellen Martin",
     role: "PR Specialist",
-    company: "Clinica MediLife",
+    company: "MediLife Clinic",
     initials: "EM",
     quote:
-      "Am folosit pachetul Național 50 pentru inaugurarea clinicii noastre. Am fost impresionată de rapiditate și de calitatea raportului. Îl folosim constant de atunci.",
+      "We used the National 50 package for our clinic's grand opening. I was impressed by the speed and the quality of the report. We've been using it regularly ever since.",
   },
   {
-    name: "Victor Stoica",
-    role: "Fondator",
-    company: "BetExpert Romania",
+    name: "Victor Stone",
+    role: "Founder",
+    company: "BetExpert USA",
     initials: "VS",
     quote:
-      "Pentru industria de iGaming, pachetele de cazino au fost perfecte. Distribuția pe pagini locale + naționale ne-a adus trafic calificat din primele zile.",
+      "For the iGaming industry, the casino packages were perfect. Distribution across state and national pages brought us qualified traffic from day one.",
   },
 ];

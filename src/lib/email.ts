@@ -6,8 +6,8 @@ function getResend() {
   return new Resend(key);
 }
 
-const FROM = process.env.FROM_EMAIL || "MediaExpres <noreply@mediaexpres.ro>";
-const CONTACT = process.env.CONTACT_EMAIL || "contact@mediaexpres.ro";
+const FROM = process.env.FROM_EMAIL || "Media Chief <noreply@media-chief.com>";
+const CONTACT = process.env.CONTACT_EMAIL || "contact@media-chief.com";
 
 interface SendArgs {
   to: string;
@@ -51,13 +51,13 @@ export function wrapEmail(title: string, body: string) {
 <body style="margin:0;padding:0;background:#F8F5F0;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#0B2545;">
   <div style="max-width:600px;margin:0 auto;padding:32px 24px;">
     <div style="background:#0B2545;color:#F8F5F0;padding:24px;border-radius:12px 12px 0 0;">
-      <h1 style="margin:0;font-size:24px;font-family:Georgia,serif;">Media<span style="color:#E4B363;">Expres</span></h1>
+      <h1 style="margin:0;font-size:24px;font-family:Georgia,serif;">Media<span style="color:#E4B363;">Chief</span></h1>
     </div>
     <div style="background:#fff;padding:32px 24px;border-radius:0 0 12px 12px;border:1px solid #eee;">
       <h2 style="margin:0 0 16px 0;font-family:Georgia,serif;color:#0B2545;">${title}</h2>
       ${body}
     </div>
-    <p style="text-align:center;color:#64748b;font-size:12px;margin-top:24px;">&copy; ${new Date().getFullYear()} MediaExpres • mediaexpres.ro</p>
+    <p style="text-align:center;color:#64748b;font-size:12px;margin-top:24px;">&copy; ${new Date().getFullYear()} Media Chief • media-chief.com</p>
   </div>
 </body>
 </html>`;

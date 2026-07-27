@@ -13,15 +13,15 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "JSON invalid" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
   }
   const parsed = adminLoginSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ ok: false, error: "Credențiale invalide" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Invalid credentials" }, { status: 400 });
   }
   const { username, password } = parsed.data;
   if (!checkAdminCredentials(username, password)) {
-    return NextResponse.json({ ok: false, error: "Utilizator sau parolă greșite" }, { status: 401 });
+    return NextResponse.json({ ok: false, error: "Wrong username or password" }, { status: 401 });
   }
   const token = createSessionToken(username);
   setSessionCookie(token);

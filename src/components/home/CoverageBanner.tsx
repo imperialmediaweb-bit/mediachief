@@ -1,11 +1,11 @@
 import { MapPin } from "lucide-react";
 
 const REGIONS = [
-  { name: "Moldova", counties: 10 },
-  { name: "Transilvania", counties: 11 },
-  { name: "Muntenia + București", counties: 11 },
-  { name: "Banat + Oltenia", counties: 8 },
-  { name: "Rețea națională", counties: 9 },
+  { name: "Northeast", count: 9 },
+  { name: "Midwest", count: 12 },
+  { name: "South", count: 16 },
+  { name: "West", count: 13 },
+  { name: "States covered", count: 50 },
 ];
 
 export function CoverageBanner() {
@@ -15,13 +15,13 @@ export function CoverageBanner() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">
             <MapPin className="h-5 w-5 text-brand-red" />
-            <span className="eyebrow">Acoperire națională</span>
+            <span className="eyebrow">Nationwide coverage</span>
           </div>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
             {REGIONS.map((r) => (
               <div key={r.name} className="flex items-baseline gap-2">
                 <span className="font-serif text-2xl font-bold text-brand-navy">
-                  {r.counties}
+                  {r.count}
                 </span>
                 <span className="text-slate-600">{r.name}</span>
               </div>

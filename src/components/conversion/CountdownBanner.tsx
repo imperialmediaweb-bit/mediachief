@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { Clock, X } from "lucide-react";
 
-const END_KEY = "me_offer_end";
-const DISMISS_KEY = "me_banner_dismissed";
+const END_KEY = "mc_offer_end";
+const DISMISS_KEY = "mc_banner_dismissed";
 const OFFER_DAYS = 3;
 
 function getEndDate(): Date {
@@ -60,13 +60,13 @@ export function CountdownBanner() {
       <div className="container flex items-center justify-center gap-2 py-2 pr-10 text-center">
         <Clock className="h-4 w-4 shrink-0" />
         <span>
-          Ofertă limitată: <strong>{remaining.d}z {remaining.h}h {remaining.m}m {remaining.s}s</strong>
-          {" "}— cere oferta personalizată acum
+          Limited offer: <strong>{remaining.d}d {remaining.h}h {remaining.m}m {remaining.s}s</strong>
+          {" "}— request your custom quote now
         </span>
       </div>
       <button
         type="button"
-        aria-label="Închide"
+        aria-label="Close"
         onClick={() => {
           sessionStorage.setItem(DISMISS_KEY, "1");
           setDismissed(true);
