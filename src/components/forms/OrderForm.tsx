@@ -12,10 +12,25 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { orderSchema, type OrderInput } from "@/lib/validators";
 import { getAllPackages, SUBSCRIPTION_PLANS } from "@/data/packages";
 import { formatPrice } from "@/lib/utils";
+import { trackOrderSubmitted } from "@/lib/analytics";
 
 interface OrderFormProps {
   defaultPackageId?: string;
   onSuccess?: () => void;
+}
+
+// Traduce id-ul din select in nume + valoare, pentru evenimentul de conversie.
+function resolvePackage(packageId: string): { name: string; value?: number } {
+  if (packageId.startsWith("sub-")) {
+    const sub = SUBSCRIPTION_PLANS.find(
+      (s) => s.id === packageId.replace("sub-", ""),
+    );
+    return sub
+      ? { name: `Abonament ${sub.name}`, value: sub.priceStandard }
+      : { name: packageId };
+  }
+  const pkg = getAllPackages().find((p) => p.id === packageId);
+  return pkg ? { name: pkg.name, value: pkg.price } : { name: packageId };
 }
 
 export function OrderForm({ defaultPackageId, onSuccess }: OrderFormProps) {
@@ -47,6 +62,12 @@ export function OrderForm({ defaultPackageId, onSuccess }: OrderFormProps) {
       if (!res.ok || !body.ok) {
         throw new Error(body.error || "Eroare la trimitere");
       }
+      const resolved = resolvePackage(data.packageId);
+      trackOrderSubmitted({
+        packageId: data.packageId,
+        packageName: resolved.name,
+        value: resolved.value,
+      });
       setStatus("success");
       reset();
       onSuccess?.();

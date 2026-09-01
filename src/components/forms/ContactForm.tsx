@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { contactSchema, type ContactInput } from "@/lib/validators";
+import { trackLead } from "@/lib/analytics";
 
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
@@ -35,6 +36,7 @@ export function ContactForm() {
       });
       const body = await res.json();
       if (!res.ok || !body.ok) throw new Error(body.error || "Eroare");
+      trackLead("Formular contact");
       setStatus("success");
       reset();
     } catch (e: unknown) {

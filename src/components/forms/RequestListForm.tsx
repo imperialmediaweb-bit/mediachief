@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { requestListSchema, type RequestListInput } from "@/lib/validators";
+import { trackLead } from "@/lib/analytics";
 
 interface RequestListFormProps {
   successHref?: string;
@@ -40,6 +41,7 @@ export function RequestListForm({ successHref, successCtaLabel }: RequestListFor
       });
       const body = await res.json();
       if (!res.ok || !body.ok) throw new Error(body.error || "Eroare");
+      trackLead("Cerere lista ziare");
       setStatus("success");
       reset();
     } catch (e: unknown) {
