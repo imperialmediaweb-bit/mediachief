@@ -13,8 +13,8 @@ export function StructuredData() {
       email: SITE.email,
       telephone: SITE.phone,
       contactType: "customer service",
-      areaServed: "RO",
-      availableLanguage: ["Romanian"],
+      areaServed: "US",
+      availableLanguage: ["English"],
     },
     sameAs: [SITE.social.facebook, SITE.social.linkedin],
   };
@@ -24,7 +24,7 @@ export function StructuredData() {
     "@type": "WebSite",
     name: SITE.name,
     url: SITE.url,
-    inLanguage: "ro-RO",
+    inLanguage: "en-US",
   };
 
   return (
@@ -58,7 +58,7 @@ export function PackagesStructuredData({
         price: p.price,
         priceCurrency: p.currency,
         availability: "https://schema.org/InStock",
-        url: `${SITE.url}/pachete#${p.id}`,
+        url: `${SITE.url}/packages#${p.id}`,
       },
     })),
   };

@@ -11,73 +11,73 @@ import {
   Sparkles,
 } from "lucide-react";
 
-export default async function ContPage() {
+export default async function AccountPage() {
   const session = await auth();
-  if (!session?.user) redirect("/cont/login");
+  if (!session?.user) redirect("/account/login");
 
   const first = (session.user.name || session.user.email || "").split(" ")[0];
 
   return (
     <section className="container py-12">
       <div className="max-w-5xl">
-        <p className="eyebrow">Contul meu</p>
-        <h1 className="h1 mt-2">Salut, {first}</h1>
+        <p className="eyebrow">My account</p>
+        <h1 className="h1 mt-2">Hi, {first}</h1>
         <p className="lead mt-3 text-slate-600">
-          De aici gestionezi comenzile, abonamentul, articolele si pozele. Accesul la
-          lista ziarelor si upload-ul de continut se activeaza dupa prima plata.
+          From here you manage your orders, subscription, articles and images. Access to the
+          newspaper list and content upload unlocks after your first payment.
         </p>
 
         <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <Card
             icon={ShoppingBag}
-            title="Comenzi"
-            description="Istoricul platilor si al articolelor publicate."
-            href="/cont/comenzi"
+            title="Orders"
+            description="History of your payments and published articles."
+            href="/account/orders"
           />
           <Card
             icon={Repeat}
-            title="Abonament"
-            description="Status abonament, plati viitoare, articole ramase in luna."
-            href="/cont/abonament"
+            title="Subscription"
+            description="Subscription status, upcoming payments, articles left this month."
+            href="/account/subscription"
           />
           <Card
             icon={FileText}
-            title="Articolele mele"
-            description="Draft-uri, articole trimise si articole publicate."
-            href="/cont/articole"
+            title="My articles"
+            description="Drafts, submitted articles and published articles."
+            href="/account/articles"
           />
           <Card
             icon={ImageIcon}
-            title="Poze articol"
-            description="Pana la 3 poze pentru fiecare articol. Se ataseaza automat."
-            href="/cont/articole"
+            title="Article images"
+            description="Up to 3 images per article. Attached automatically."
+            href="/account/articles"
           />
           <Card
             icon={Sparkles}
-            title="Generare articol AI"
-            description="Ai doar o idee? Generam textul conform politicilor noastre."
-            href="/cont/articole/nou"
+            title="AI article generation"
+            description="Only have an idea? We generate the text in line with our policies."
+            href="/account/articles/new"
           />
           <Card
             icon={Download}
-            title="Lista ziarelor (PDF)"
-            description="Disponibila dupa prima plata. Descarcare direct din cont."
-            href="/cont/lista"
+            title="Newspaper list (PDF)"
+            description="Available after your first payment. Download straight from your account."
+            href="/account/list"
           />
         </div>
 
         <div className="mt-12 rounded-2xl border border-dashed border-slate-300 p-8">
-          <h2 className="h2">Prima comanda?</h2>
+          <h2 className="h2">First order?</h2>
           <p className="lead mt-3 text-slate-600">
-            Alege un pachet si plateste cu cardul. Imediat ce plata e confirmata,
-            iti activam accesul la lista, upload-ul de poze si generarea AI.
+            Pick a package and pay by card. As soon as the payment clears, we unlock access to
+            the list, image upload and AI generation.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button variant="accent" size="lg" asChild>
-              <Link href="/pachete">Vezi pachete</Link>
+              <Link href="/packages">View packages</Link>
             </Button>
             <Button variant="outline" size="lg" asChild>
-              <Link href="/oferta">Citeste oferta</Link>
+              <Link href="/offer">Read the offer</Link>
             </Button>
           </div>
         </div>

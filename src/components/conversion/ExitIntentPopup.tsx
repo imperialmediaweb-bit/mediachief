@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { RequestListForm } from "@/components/forms/RequestListForm";
 
-const STORAGE_KEY = "me_exit_intent_shown";
+const STORAGE_KEY = "mc_exit_intent_shown";
 const MOBILE_DELAY_MS = 30000;
 
 export function ExitIntentPopup() {
@@ -43,15 +43,15 @@ export function ExitIntentPopup() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Stai puțin — ai oferta completă gratuit</DialogTitle>
+          <DialogTitle>Wait — get the full offer for free</DialogTitle>
           <DialogDescription>
-            Lista celor 50+ ziare + prețurile detaliate, pe email în 2 minute.
-            Fără obligații, fără spam.
+            The list of all 50 newspapers + detailed pricing, by email in 2 minutes.
+            No obligation, no spam.
           </DialogDescription>
         </DialogHeader>
         <RequestListForm
-          successHref="/pachete"
-          successCtaLabel="Vezi prețurile acum"
+          successHref="/packages"
+          successCtaLabel="See pricing now"
         />
       </DialogContent>
     </Dialog>

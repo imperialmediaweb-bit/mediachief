@@ -12,13 +12,13 @@ import { PackagesStructuredData } from "@/components/seo/StructuredData";
 import { Mail } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Pachete și prețuri — Distribuție pe 50 ziare românești",
+  title: "Packages and pricing — Distribution across 50 U.S. newspapers",
   description:
-    "Pachete MediaExpres: Local (150 lei), Regional (500 lei), Național 50 (1500 lei). Variante Cazino/iGaming și abonamente lunare Bronze/Silver/Gold/Platinum.",
-  alternates: { canonical: "/pachete" },
+    "Media Chief packages: Local ($150), Regional ($500), National 50 ($1,500). Casino/iGaming variants and Bronze/Silver/Gold/Platinum monthly subscriptions.",
+  alternates: { canonical: "/packages" },
 };
 
-export default function PacheteTPage() {
+export default function PackagesPage() {
   return (
     <>
       <PackagesStructuredData
@@ -26,28 +26,28 @@ export default function PacheteTPage() {
           id: p.id,
           name: p.name,
           price: p.price,
-          currency: "RON",
+          currency: "USD",
         }))}
       />
 
       {/* Hero */}
       <section className="bg-brand-navy text-white">
         <div className="container py-20 text-center">
-          <p className="eyebrow text-brand-gold">Prețuri transparente</p>
-          <h1 className="h1 mt-3 text-white">Pachete pentru fiecare nevoie</h1>
+          <p className="eyebrow text-brand-gold">Transparent pricing</p>
+          <h1 className="h1 mt-3 text-white">Packages for every need</h1>
           <p className="lead mx-auto mt-6 max-w-2xl text-white/85">
-            De la un singur articol într-un ziar județean, la publicare națională pe 50 de ziare
-            sau abonamente lunare. Alege pachetul potrivit afacerii tale.
+            From a single article in one state newspaper, to nationwide publication across 50
+            newspapers or monthly subscriptions. Pick the package that fits your business.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Button variant="gold" size="lg" asChild>
-              <a href="#standard">Pachete Standard</a>
+              <a href="#standard">Standard Packages</a>
             </Button>
             <Button variant="outline" size="lg" asChild className="border-white/30 text-white hover:bg-white hover:text-brand-navy">
-              <a href="#cazino">Pachete Cazino</a>
+              <a href="#casino">Casino Packages</a>
             </Button>
             <Button variant="outline" size="lg" asChild className="border-white/30 text-white hover:bg-white hover:text-brand-navy">
-              <a href="#abonamente">Abonamente</a>
+              <a href="#subscriptions">Subscriptions</a>
             </Button>
           </div>
         </div>
@@ -59,26 +59,26 @@ export default function PacheteTPage() {
           <PricingGroup
             packages={STANDARD_PACKAGES}
             id="standard"
-            eyebrow="Pentru toate firmele"
-            title="Pachete Standard"
-            description="Trei opțiuni simple, în funcție de acoperirea dorită: județean, regional sau național."
+            eyebrow="For every business"
+            title="Standard Packages"
+            description="Three simple options based on the coverage you want: single state, regional or nationwide."
           />
 
           <PricingGroup
             packages={CASINO_PACKAGES}
-            id="cazino"
-            eyebrow="iGaming • pariuri • cazino"
-            title="Pachete Cazino"
-            description="Pachete dedicate industriei iGaming, cu verificări de conformitate și publicare pe portaluri care acceptă conținut din această zonă."
+            id="casino"
+            eyebrow="iGaming • betting • casino"
+            title="Casino Packages"
+            description="Packages built for the iGaming industry, with compliance checks and publication on portals that accept this type of content."
           />
 
-          <section id="abonamente" className="scroll-mt-24">
+          <section id="subscriptions" className="scroll-mt-24">
             <div className="max-w-3xl">
-              <p className="eyebrow">Venit recurent — reducere permanentă</p>
-              <h2 className="h2 mt-2">Abonamente lunare</h2>
+              <p className="eyebrow">Recurring revenue — permanent discount</p>
+              <h2 className="h2 mt-2">Monthly subscriptions</h2>
               <p className="lead mt-4">
-                Patru planuri lunare, fiecare cu preț dublu (standard / cazino). Cu cât publici
-                mai des, cu atât prețul per articol scade.
+                Four monthly plans, each with two prices (standard / casino). The more often you
+                publish, the lower your cost per article.
               </p>
             </div>
             <div className="mt-10">
@@ -102,22 +102,22 @@ export default function PacheteTPage() {
             <div className="relative grid gap-8 lg:grid-cols-[1.5fr_1fr] lg:items-center">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-brand-gold/20 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.15em] text-brand-gold">
-                  <Mail className="h-3.5 w-3.5" /> Gratuit • PDF pe email
+                  <Mail className="h-3.5 w-3.5" /> Free • PDF by email
                 </div>
                 <h3 className="mt-5 font-serif text-3xl font-bold sm:text-4xl">
-                  Vrei lista completă a celor 50 de ziare?
+                  Want the full list of all 50 newspapers?
                 </h3>
                 <p className="mt-4 text-white/85 leading-relaxed">
-                  Completează formularul și îți trimitem în maximum 2 minute PDF-ul cu toate
-                  ziarele partenere, regiunile acoperite și detaliile de publicare. Zero obligații,
-                  zero spam.
+                  Fill in the form and within 2 minutes we&apos;ll email you the PDF with every
+                  partner newspaper, the states covered and the publishing details. Zero
+                  obligation, zero spam.
                 </p>
               </div>
               <div className="flex lg:justify-end">
                 <RequestListModal
                   trigger={
                     <Button variant="gold" size="lg" className="whitespace-nowrap">
-                      <Mail className="h-4 w-4" /> Trimite-mi PDF-ul
+                      <Mail className="h-4 w-4" /> Send me the PDF
                     </Button>
                   }
                 />
@@ -128,14 +128,14 @@ export default function PacheteTPage() {
           {/* CTA towards order */}
           <section className="rounded-2xl border-2 border-dashed border-brand-red/30 p-10 text-center">
             <h3 className="font-serif text-2xl font-semibold text-brand-navy">
-              Ai nevoie de ceva custom?
+              Need something custom?
             </h3>
             <p className="mt-3 text-slate-600 max-w-xl mx-auto">
-              Agenții de PR, branduri cu volum mare sau campanii speciale — discutăm un tarif
-              personalizat.
+              PR agencies, high-volume brands or special campaigns — let&apos;s talk about a
+              custom rate.
             </p>
             <Button variant="default" size="lg" asChild className="mt-6">
-              <Link href="/contact">Contactează-ne pentru ofertă personalizată</Link>
+              <Link href="/contact">Contact us for a custom quote</Link>
             </Button>
           </section>
         </div>

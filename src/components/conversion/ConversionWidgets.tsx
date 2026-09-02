@@ -7,13 +7,13 @@ import { CountdownBanner } from "./CountdownBanner";
 
 const COMMERCIAL_PATHS = [
   "/",
-  "/pachete",
-  "/oferta",
-  "/comanda",
-  "/reteaua-noastra",
+  "/packages",
+  "/offer",
+  "/order",
+  "/our-network",
 ];
 
-const BANNER_PATHS = ["/pachete", "/oferta"];
+const BANNER_PATHS = ["/packages", "/offer"];
 
 function matches(pathname: string, paths: string[]): boolean {
   return paths.some((p) => pathname === p || pathname.startsWith(p + "/"));

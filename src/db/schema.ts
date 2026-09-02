@@ -18,7 +18,7 @@ export const users = pgTable("user", {
   email: text("email").unique().notNull(),
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
-  // Billing / company details (pentru factură fiscală)
+  // Billing / company details (for the invoice)
   phone: text("phone"),
   companyName: text("company_name"),
   companyCui: text("company_cui"),
@@ -99,8 +99,8 @@ export const orders = pgTable("order", {
   userId: text("user_id").references(() => users.id, { onDelete: "set null" }),
   email: text("email").notNull(),
   packageId: text("package_id").notNull(),
-  amount: integer("amount").notNull(), // in bani
-  currency: text("currency").notNull().default("ron"),
+  amount: integer("amount").notNull(), // in cents
+  currency: text("currency").notNull().default("usd"),
   status: text("status").notNull().default("pending"), // pending | paid | refunded | canceled
   stripeSessionId: text("stripe_session_id"),
   stripePaymentIntentId: text("stripe_payment_intent_id"),

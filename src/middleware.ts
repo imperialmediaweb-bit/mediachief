@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const COOKIE_NAME = "me_admin_session";
+const COOKIE_NAME = "mc_admin_session";
 
 function verifyToken(token: string | undefined, secret: string): boolean {
   if (!token) return false;

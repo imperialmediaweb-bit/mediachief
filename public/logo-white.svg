@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 60" fill="none">
   <g>
-    <rect x="4" y="10" width="44" height="40" rx="3" fill="#F8F5F0"/>
-    <path d="M4 30 L48 30" stroke="#E4B363" stroke-width="1.5" opacity="0.4"/>
-    <path d="M10 44 L10 18 L18 18 L26 32 L34 18 L42 18 L42 44 L36 44 L36 28 L27 42 L25 42 L16 28 L16 44 Z" fill="#0B2545"/>
-    <path d="M50 14 L56 20 L50 26" stroke="#D7263D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M50 34 L56 40 L50 46" stroke="#D7263D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.65"/>
+    <path d="M26 4 L46 10 L46 27 C46 37 38 44 26 47 C14 44 6 37 6 27 L6 10 Z" fill="#F8F5F0"/>
+    <path d="M26 10.5 L28.4 16.1 L34.5 16.6 L29.9 20.6 L31.3 26.5 L26 23.3 L20.7 26.5 L22.1 20.6 L17.5 16.6 L23.6 16.1 Z" fill="#c1121f"/>
+    <path d="M15 32 L26 27 L37 32" stroke="#0B2545" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M15 38 L26 33 L37 38" stroke="#0B2545" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+    <path d="M17 43 L26 39 L35 43" stroke="#0B2545" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
   </g>
-  <g transform="translate(72 0)">
+  <g transform="translate(64 0)">
     <text x="0" y="38" font-family="Georgia, 'Playfair Display', serif" font-weight="700" font-size="28" fill="#F8F5F0" letter-spacing="-0.5">Media</text>
-    <text x="96" y="38" font-family="-apple-system, 'Inter', sans-serif" font-weight="500" font-size="28" fill="#E4B363" letter-spacing="1">Expres</text>
-    <rect x="0" y="45" width="178" height="2" fill="#E4B363" opacity="0.85"/>
+    <text x="96" y="38" font-family="-apple-system, 'Inter', sans-serif" font-weight="500" font-size="28" fill="#E4B363" letter-spacing="1">Chief</text>
+    <rect x="0" y="45" width="164" height="2" fill="#E4B363" opacity="0.85"/>
   </g>
 </svg>

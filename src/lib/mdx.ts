@@ -33,7 +33,7 @@ function readPostFile(filename: string): Post | null {
     date: String(data.date || new Date().toISOString().slice(0, 10)),
     excerpt: String(data.excerpt || ""),
     cover: data.cover ? String(data.cover) : undefined,
-    author: data.author ? String(data.author) : "Echipa MediaExpres",
+    author: data.author ? String(data.author) : "The Media Chief Team",
     tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
     readingMinutes: Math.max(1, Math.round(stats.minutes)),
     content,

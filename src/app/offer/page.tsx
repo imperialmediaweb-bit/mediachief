@@ -13,85 +13,83 @@ import { Button } from "@/components/ui/button";
 import { RequestListModal } from "@/components/forms/RequestListModal";
 
 export const metadata: Metadata = {
-  title: "Ofertă publicare advertoriale și comunicate",
+  title: "Advertorial and press release publishing offer",
   description:
-    "Publicare advertoriale și comunicate într-o rețea de 50+ ziare online, 41 ziare locale și 9 ziare naționale. Acoperire locală și națională într-un singur plasament.",
-  alternates: { canonical: "/oferta" },
+    "Advertorial and press release publishing across a network of 50 online newspapers — one in every U.S. state. Local and nationwide coverage in a single placement.",
+  alternates: { canonical: "/offer" },
 };
 
 const BENEFITS = [
   {
     icon: Newspaper,
-    title: "Publicare în 50+ ziare online",
+    title: "Publication in 50 online newspapers",
     description:
-      "Advertorial sau comunicat distribuit într-o rețea extinsă, cu audiențe între 10.000 și 40.000 vizitatori unici pe lună per publicație și peste 320.000 total.",
+      "Advertorial or press release distributed across a wide network, with audiences between 10,000 and 40,000 unique monthly visitors per publication and over 320,000 in total.",
   },
   {
     icon: Globe,
-    title: "41 ziare locale — câte unul per județ",
+    title: "50 state newspapers — one per state",
     description:
-      "Acoperire locală reală, cu ziare conectate la comunitățile din toate regiunile țării.",
+      "Real local coverage, with newspapers connected to communities in every state of the country.",
   },
   {
     icon: FileText,
-    title: "9 ziare naționale + 1 pentru diaspora",
+    title: "Coast-to-coast exposure",
     description:
-      "Expunere națională și conectare cu comunitățile românești din afara țării.",
+      "Nationwide reach in a single placement, from the Northeast to the West Coast.",
   },
   {
     icon: Facebook,
-    title: "Distribuire pe paginile de Facebook",
+    title: "Distribution on Facebook pages",
     description:
-      "Fiecare platformă are o pagină Facebook cu 300–10.000 urmăritori, pentru expunere suplimentară pe social media.",
+      "Every platform has a Facebook page with 300–10,000 followers, for extra social media exposure.",
   },
   {
     icon: LinkIcon,
-    title: "Backlink-uri pe platforme cu DA 37+",
+    title: "Backlinks from platforms with DA 37+",
     description:
-      "Linkuri dofollow de pe domenii cu autoritate ridicată — ajută la SEO și la autoritatea brandului.",
+      "Dofollow links from high-authority domains — good for SEO and for brand authority.",
     wide: true,
   },
 ];
 
 const CONDITIONS = [
-  "Articol permanent pe site-ul nostru.",
-  "O zi de expunere pe pagina principală.",
-  "Distribuire pe paginile noastre de Facebook.",
-  "3 poze și 3 linkuri dofollow incluse.",
-  "Servicii de redactare articole — la cerere.",
-  "Acceptăm orice tip de conținut.",
-  "Nu adăugăm eticheta (P) la articole.",
+  "Permanent article on our site.",
+  "One day of exposure on the homepage.",
+  "Distribution on our Facebook pages.",
+  "3 images and 3 dofollow links included.",
+  "Article writing services — on request.",
+  "We accept any type of content.",
+  "We do not add a sponsored tag to articles.",
 ];
 
-export default function OfertaPage() {
+export default function OfferPage() {
   return (
     <>
       {/* Hero */}
       <section className="bg-brand-navy text-white">
         <div className="container py-20 text-center">
-          <p className="eyebrow text-brand-gold">Ofertă publicare</p>
+          <p className="eyebrow text-brand-gold">Publishing offer</p>
           <h1 className="h1 mt-3 text-white">
-            Advertoriale și comunicate în 50+ ziare românești
+            Advertorials and press releases in 50 U.S. newspapers
           </h1>
           <p className="lead mx-auto mt-6 max-w-2xl text-white/85">
-            Rețea de 50+ ziare online, 41 ziare locale (câte unul pentru
-            fiecare județ), 9 ziare naționale și 1 ziar dedicat diasporei.
-            Vizibilitate locală și națională într-un singur plasament.
+            A network of 50 online newspapers — one for every U.S. state. Local
+            and nationwide visibility in a single placement.
           </p>
           <div className="mt-8">
             <RequestListModal
-              successHref="/pachete"
-              successCtaLabel="Vezi prețurile acum"
+              successHref="/packages"
+              successCtaLabel="See pricing now"
               trigger={
                 <Button variant="gold" size="lg">
-                  <Mail className="h-4 w-4" /> Cere lista ziarelor și
-                  prețurile
+                  <Mail className="h-4 w-4" /> Get the newspaper list and pricing
                 </Button>
               }
             />
           </div>
           <p className="mt-4 text-xs text-white/60">
-            PDF gratuit pe email • lista celor 50+ publicații • zero spam
+            Free PDF by email • the list of all 50 publications • zero spam
           </p>
         </div>
       </section>
@@ -102,23 +100,23 @@ export default function OfertaPage() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <StatCard
               icon={Newspaper}
-              value="50+"
-              label="ziare online, 10–40k vizitatori unici/lună, 320k+ total"
+              value="50"
+              label="online newspapers, 10–40k unique visitors/month, 320k+ total"
             />
             <StatCard
               icon={Globe}
-              value="41"
-              label="ziare locale, câte unul pentru fiecare județ"
+              value="50"
+              label="states covered, one newspaper each"
             />
             <StatCard
               icon={FileText}
-              value="9 + 1"
-              label="ziare naționale + ziar dedicat diasporei"
+              value="4"
+              label="regions: Northeast, Midwest, South, West"
             />
             <StatCard
               icon={Facebook}
               value="300–10k"
-              label="urmăritori per pagină Facebook asociată"
+              label="followers per associated Facebook page"
             />
           </div>
         </div>
@@ -128,8 +126,8 @@ export default function OfertaPage() {
       <section className="section bg-slate-50">
         <div className="container">
           <div className="max-w-2xl">
-            <p className="eyebrow">Ce include oferta</p>
-            <h2 className="h2 mt-2">Ce primești la fiecare publicare</h2>
+            <p className="eyebrow">What the offer includes</p>
+            <h2 className="h2 mt-2">What you get with every publication</h2>
           </div>
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             {BENEFITS.map((b) => (
@@ -154,31 +152,31 @@ export default function OfertaPage() {
       <section className="section bg-white">
         <div className="container">
           <div className="max-w-2xl text-center mx-auto">
-            <p className="eyebrow">Pachete de promovare</p>
-            <h2 className="h2 mt-2">Alege acoperirea potrivită</h2>
+            <p className="eyebrow">Promotion packages</p>
+            <h2 className="h2 mt-2">Choose the right coverage</h2>
             <p className="lead mt-4">
-              Două variante simple: un singur portal sau întreaga rețea.
-              Primești tarifele complete și abonamentele lunare în PDF-ul cu
-              lista ziarelor.
+              Two simple options: a single portal or the whole network. You get
+              the complete rates and monthly subscriptions in the PDF with the
+              newspaper list.
             </p>
           </div>
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             <PackageCard
-              eyebrow="Pachet individual"
-              title="Advertorial / comunicat pe un singur portal"
+              eyebrow="Single placement"
+              title="Advertorial / press release on a single portal"
               points={[
-                "Publicare pe un portal online la alegere",
-                "Primești linkul direct către articolul publicat",
-                "Ideal pentru testarea unei publicații",
+                "Publication on one online portal of your choice",
+                "You get the direct link to the published article",
+                "Ideal for testing a publication",
               ]}
             />
             <PackageCard
-              eyebrow="Rețea 50 portaluri"
-              title="Un articol distribuit în toată rețeaua"
+              eyebrow="Network of 50 portals"
+              title="One article distributed across the whole network"
               points={[
-                "Articolul apare în toate cele 50 de portaluri online",
-                "Raport complet cu 50 de linkuri către articolele publicate",
-                "Maximum de vizibilitate dintr-un singur plasament",
+                "Your article appears on all 50 online portals",
+                "Complete report with 50 links to the published articles",
+                "Maximum visibility from a single placement",
               ]}
               highlight
             />
@@ -190,8 +188,8 @@ export default function OfertaPage() {
       <section className="section bg-slate-50">
         <div className="container">
           <div className="max-w-2xl">
-            <p className="eyebrow">Condiții de publicare</p>
-            <h2 className="h2 mt-2">Ce oferim pentru fiecare articol</h2>
+            <p className="eyebrow">Publishing conditions</p>
+            <h2 className="h2 mt-2">What we offer for every article</h2>
           </div>
           <ul className="mt-10 grid gap-4 md:grid-cols-2">
             {CONDITIONS.map((c) => (
@@ -214,12 +212,12 @@ export default function OfertaPage() {
             <div className="flex items-center gap-4">
               <CreditCard className="h-8 w-8 text-brand-red" />
               <h2 className="font-serif text-2xl font-bold text-brand-navy">
-                Modalități de plată
+                Payment methods
               </h2>
             </div>
             <p className="mt-4 text-slate-600">
-              Transfer bancar, cu factură fiscală și contract de prestări
-              servicii — tot ce îți trebuie pentru contabilitate B2B.
+              Card payment or bank transfer, with an invoice and a service
+              agreement — everything you need for B2B accounting.
             </p>
           </div>
         </div>
@@ -230,20 +228,20 @@ export default function OfertaPage() {
         <div className="container py-16 text-center">
           <Mail className="mx-auto h-10 w-10 text-brand-gold" />
           <h2 className="h2 mt-5 text-white">
-            Primește lista celor 50+ ziare și prețurile complete
+            Get the list of all 50 newspapers and the full pricing
           </h2>
           <p className="lead mt-4 mx-auto max-w-2xl text-white/85">
-            PDF gratuit pe email în maximum 2 minute: lista completă a
-            publicațiilor, tarifele pe pachet și abonamentele lunare. Fără
-            obligații, fără spam.
+            Free PDF by email within 2 minutes: the complete list of
+            publications, the rates per package and the monthly subscriptions.
+            No obligation, no spam.
           </p>
           <div className="mt-8">
             <RequestListModal
-              successHref="/pachete"
-              successCtaLabel="Vezi prețurile acum"
+              successHref="/packages"
+              successCtaLabel="See pricing now"
               trigger={
                 <Button variant="gold" size="lg">
-                  <Mail className="h-4 w-4" /> Cere oferta pe email
+                  <Mail className="h-4 w-4" /> Get the offer by email
                 </Button>
               }
             />

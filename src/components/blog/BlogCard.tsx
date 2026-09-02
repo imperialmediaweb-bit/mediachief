@@ -40,7 +40,7 @@ export function BlogCard({ post }: { post: PostMeta }) {
           href={`/blog/${post.slug}`}
           className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-red hover:gap-2 transition-all"
         >
-          Citește articolul <ArrowRight className="h-4 w-4" />
+          Read the article <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
     </article>

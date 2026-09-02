@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   const stripe = getStripe();
   if (!stripe || !STRIPE_WEBHOOK_SECRET) {
     return NextResponse.json(
-      { ok: false, error: "Stripe webhook nu este configurat" },
+      { ok: false, error: "Stripe webhook is not configured" },
       { status: 503 }
     );
   }
@@ -43,40 +43,40 @@ export async function POST(req: NextRequest) {
     const firstName = (session.customer_details?.name || "").split(" ")[0] || "";
 
     const adminHtml = wrapEmail(
-      "Plată primită — Stripe",
+      "Payment received — Stripe",
       `
-      <p>O plată a fost procesată cu succes prin Stripe.</p>
+      <p>A payment was processed successfully through Stripe.</p>
       <table style="width:100%;border-collapse:collapse;">
-        ${kv("Pachet", packageLabel)}
-        ${kv("Sumă", `${amount.toFixed(2)} RON`)}
-        ${kv("Email client", email)}
-        ${kv("Nume client", session.customer_details?.name || "—")}
+        ${kv("Package", packageLabel)}
+        ${kv("Amount", `$${amount.toFixed(2)}`)}
+        ${kv("Client email", email)}
+        ${kv("Client name", session.customer_details?.name || "—")}
         ${kv("Session ID", session.id)}
       </table>
-      <p style="margin-top:16px;color:#64748b;">Contactează clientul pentru detaliile articolului.</p>
+      <p style="margin-top:16px;color:#64748b;">Contact the client for the article details.</p>
     `
     );
 
     await sendEmail({
       to: ADMIN_EMAIL,
-      subject: `[Plata Stripe] ${packageLabel} — ${amount.toFixed(2)} RON`,
+      subject: `[Stripe payment] ${packageLabel} — $${amount.toFixed(2)}`,
       html: adminHtml,
       replyTo: email || undefined,
     });
 
     if (email) {
       const customerHtml = wrapEmail(
-        "Plată confirmată — MediaExpres",
+        "Payment confirmed — Media Chief",
         `
-        <p>Salut${firstName ? " " + firstName : ""},</p>
-        <p>Îiți mulțumim pentru plata efectuată! Am primit <strong>${amount.toFixed(2)} RON</strong> pentru pachetul <strong>${packageLabel}</strong>.</p>
-        <p>Un membru al echipei te va contacta pe email în maximum 2 ore (în timpul programului) cu detaliile de publicare.</p>
-        <p style="margin-top:24px;">Cu respect,<br/><strong>Echipa MediaExpres</strong></p>
+        <p>Hi${firstName ? " " + firstName : ""},</p>
+        <p>Thank you for your payment! We received <strong>$${amount.toFixed(2)}</strong> for the <strong>${packageLabel}</strong> package.</p>
+        <p>A member of our team will email you within 2 hours (during business hours) with the publishing details.</p>
+        <p style="margin-top:24px;">Best regards,<br/><strong>The Media Chief Team</strong></p>
       `
       );
       await sendEmail({
         to: email,
-        subject: "Plată confirmată — MediaExpres",
+        subject: "Payment confirmed — Media Chief",
         html: customerHtml,
       });
     }

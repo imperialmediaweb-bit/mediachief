@@ -17,10 +17,10 @@ export default function AdminLoginPage() {
         </div>
         <div className="rounded-2xl bg-white p-8 shadow-2xl">
           <h1 className="font-serif text-2xl font-bold text-brand-navy text-center">
-            Administrare
+            Administration
           </h1>
           <p className="text-sm text-slate-500 text-center mt-1">
-            Acces restricționat — doar administratori
+            Restricted access — administrators only
           </p>
           <div className="mt-6">
             <Suspense>

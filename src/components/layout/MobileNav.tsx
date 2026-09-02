@@ -15,7 +15,7 @@ export function MobileNav() {
       <button
         onClick={() => setOpen(true)}
         className="inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-slate-100 text-brand-navy"
-        aria-label="Deschide meniul"
+        aria-label="Open menu"
       >
         <Menu className="h-6 w-6" />
       </button>
@@ -35,11 +35,11 @@ export function MobileNav() {
         aria-hidden={!open}
       >
         <div className="flex items-center justify-between border-b border-slate-200 p-4">
-          <span className="font-serif text-xl font-bold text-brand-navy">Meniu</span>
+          <span className="font-serif text-xl font-bold text-brand-navy">Menu</span>
           <button
             onClick={() => setOpen(false)}
             className="inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-slate-100 text-brand-navy"
-            aria-label="Închide meniul"
+            aria-label="Close menu"
           >
             <X className="h-6 w-6" />
           </button>
@@ -63,7 +63,7 @@ export function MobileNav() {
             asChild
             onClick={() => setOpen(false)}
           >
-            <Link href="/comanda">Comandă acum</Link>
+            <Link href="/order">Order now</Link>
           </Button>
         </div>
       </aside>

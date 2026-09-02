@@ -22,7 +22,7 @@ export async function generateMetadata({
   params: { slug: string };
 }): Promise<Metadata> {
   const post = getPostBySlug(params.slug);
-  if (!post) return { title: "Articol" };
+  if (!post) return { title: "Article" };
   return {
     title: post.title,
     description: post.excerpt,
@@ -74,7 +74,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
               href="/blog"
               className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-brand-gold"
             >
-              <ArrowLeft className="h-4 w-4" /> Înapoi la blog
+              <ArrowLeft className="h-4 w-4" /> Back to blog
             </Link>
             <h1 className="mt-6 font-serif text-4xl font-bold leading-tight sm:text-5xl max-w-3xl">
               {post.title}
@@ -84,9 +84,9 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                 <Calendar className="h-4 w-4" /> {formatDate(post.date)}
               </span>
               <span className="inline-flex items-center gap-2">
-                <Clock className="h-4 w-4" /> {post.readingMinutes} min citire
+                <Clock className="h-4 w-4" /> {post.readingMinutes} min read
               </span>
-              {post.author && <span>De {post.author}</span>}
+              {post.author && <span>By {post.author}</span>}
               {post.tags && post.tags.length > 0 && (
                 <div className="flex gap-2">
                   {post.tags.map((t) => (
@@ -129,7 +129,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
       {related.length > 0 && (
         <section className="section bg-newsprint">
           <div className="container">
-            <h2 className="h3 mb-8">Articole similare</h2>
+            <h2 className="h3 mb-8">Related articles</h2>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {related.map((p) => (
                 <BlogCard key={p.slug} post={p} />

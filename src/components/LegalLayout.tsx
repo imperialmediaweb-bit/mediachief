@@ -11,9 +11,9 @@ export function LegalLayout({
     <>
       <section className="bg-brand-navy text-white">
         <div className="container py-16 text-center">
-          <p className="eyebrow text-brand-gold">Document legal</p>
+          <p className="eyebrow text-brand-gold">Legal document</p>
           <h1 className="h1 mt-3 text-white">{title}</h1>
-          <p className="mt-4 text-sm text-white/70">Ultima actualizare: {updated}</p>
+          <p className="mt-4 text-sm text-white/70">Last updated: {updated}</p>
         </div>
       </section>
       <section className="section bg-white">

@@ -23,7 +23,7 @@ export function SubscriptionTable() {
           >
             {plan.featured && (
               <Badge variant="gold" className="absolute -top-3 left-6">
-                Preferat
+                Preferred
               </Badge>
             )}
             <h3 className="font-serif text-2xl font-bold text-brand-navy">{plan.name}</h3>
@@ -35,17 +35,17 @@ export function SubscriptionTable() {
                   Standard
                 </div>
                 <div className="mt-0.5 font-serif text-3xl font-bold text-brand-navy">
-                  {formatPrice(plan.priceStandard)}
-                  <span className="ml-1 text-sm font-medium text-slate-500">lei/lună</span>
+                  ${formatPrice(plan.priceStandard)}
+                  <span className="ml-1 text-sm font-medium text-slate-500">/month</span>
                 </div>
               </div>
               <div className="rounded-md bg-brand-red/5 px-3 py-2">
                 <div className="text-xs font-medium uppercase tracking-wider text-brand-red">
-                  Cazino / iGaming
+                  Casino / iGaming
                 </div>
                 <div className="mt-0.5 font-serif text-2xl font-bold text-brand-red">
-                  {formatPrice(plan.priceCasino)}
-                  <span className="ml-1 text-sm font-medium text-red-500/70">lei/lună</span>
+                  ${formatPrice(plan.priceCasino)}
+                  <span className="ml-1 text-sm font-medium text-red-500/70">/month</span>
                 </div>
               </div>
             </div>
@@ -54,13 +54,13 @@ export function SubscriptionTable() {
               <ul className="space-y-2 text-sm text-slate-600">
                 <li>
                   <strong className="text-brand-navy">{plan.distributionsPerMonth}</strong>{" "}
-                  {plan.distributionsPerMonth === 1 ? "articol" : "articole"} × 50 ziare
+                  {plan.distributionsPerMonth === 1 ? "article" : "articles"} × 50 newspapers
                 </li>
                 <li>
                   <strong className="text-brand-navy">
                     {plan.distributionsPerMonth * plan.newspapersPerDistribution}
                   </strong>{" "}
-                  publicări totale lunar
+                  total publications per month
                 </li>
               </ul>
             </div>
@@ -69,7 +69,7 @@ export function SubscriptionTable() {
               defaultPackageId={`sub-${plan.id}`}
               trigger={
                 <Button variant={plan.featured ? "gold" : "outline"} className="mt-6 w-full">
-                  Alege {plan.name}
+                  Choose {plan.name}
                 </Button>
               }
             />
@@ -78,7 +78,7 @@ export function SubscriptionTable() {
       </div>
 
       <div className="rounded-xl border border-brand-navy/10 bg-white p-6">
-        <p className="eyebrow mb-3">Toate abonamentele includ</p>
+        <p className="eyebrow mb-3">Every subscription includes</p>
         <ul className="grid gap-3 sm:grid-cols-2">
           {SUBSCRIPTION_BENEFITS.map((b) => (
             <li key={b} className="flex items-start gap-2 text-sm text-slate-700">

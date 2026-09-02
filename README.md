@@ -1,14 +1,16 @@
-# MediaExpres
+# Media Chief
 
-Platformă web pentru distribuție comunicate de presă pe 50 de ziare românești + Facebook.
+Web platform for press release distribution across 50 U.S. newspapers — one in every state — plus Facebook.
 
 ## Stack
 
 - Next.js 14 (App Router) + TypeScript
 - Tailwind CSS + shadcn/ui
-- MDX pentru blog
-- react-hook-form + zod pentru formulare
-- Resend pentru email
+- MDX for the blog
+- react-hook-form + zod for forms
+- Resend for email
+- Stripe for payments (USD)
+- Drizzle ORM + Postgres
 - Deploy: Railway
 
 ## Local dev
@@ -16,24 +18,24 @@ Platformă web pentru distribuție comunicate de presă pe 50 de ziare româneș
 ```bash
 npm install
 cp .env.example .env.local
-# completează variabilele din .env.local
+# fill in the variables in .env.local
 npm run dev
 ```
 
-Deschide [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000).
 
-## Deploy Railway
+## Deploy on Railway
 
-1. Conectează repo-ul în Railway dashboard.
-2. Setează variabilele din `.env.example`.
-3. Railway folosește `nixpacks.toml` + `railway.json` pentru build.
-4. Atașează domeniul `mediaexpres.ro` după primul deploy.
+1. Connect the repo in the Railway dashboard.
+2. Set the variables from `.env.example`.
+3. Railway uses `nixpacks.toml` + `railway.json` for the build.
+4. Attach the `media-chief.com` domain after the first deploy.
 
-## Structura
+## Structure
 
-- `src/app/` — rute App Router
-- `src/components/` — componente React
-- `src/data/` — pachete, ziare, testimoniale
-- `src/lib/` — utilitare (email, mdx, validators)
-- `content/blog/` — articole MDX
-- `public/` — assets statice
+- `src/app/` — App Router routes
+- `src/components/` — React components
+- `src/data/` — packages, newspapers, testimonials
+- `src/lib/` — utilities (email, mdx, validators)
+- `content/blog/` — MDX articles
+- `public/` — static assets

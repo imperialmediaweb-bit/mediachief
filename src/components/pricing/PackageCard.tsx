@@ -35,7 +35,7 @@ export function PackageCard({ pkg }: PackageCardProps) {
       <div className="flex items-center gap-2 text-brand-red">
         <Newspaper className="h-5 w-5" />
         <span className="text-xs font-bold uppercase tracking-[0.15em]">
-          {pkg.category === "casino" ? "Cazino / iGaming" : "Standard"}
+          {pkg.category === "casino" ? "Casino / iGaming" : "Standard"}
         </span>
       </div>
 
@@ -44,11 +44,10 @@ export function PackageCard({ pkg }: PackageCardProps) {
 
       <div className="mt-6 flex items-baseline gap-1">
         <span className="font-serif text-5xl font-bold text-brand-navy">
-          {formatPrice(pkg.price)}
+          ${formatPrice(pkg.price)}
         </span>
-        <span className="text-lg font-medium text-slate-500">lei</span>
       </div>
-      <p className="mt-1 text-sm text-slate-500">TVA inclus • plată o singură dată</p>
+      <p className="mt-1 text-sm text-slate-500">One-time payment</p>
 
       <div className="mt-5 rounded-lg bg-brand-ivory px-4 py-3 text-sm">
         <p className="font-semibold text-brand-navy">{pkg.reach}</p>
@@ -72,7 +71,7 @@ export function PackageCard({ pkg }: PackageCardProps) {
               size="lg"
               className="w-full"
             >
-              Comandă {pkg.name}
+              Order {pkg.name}
             </Button>
           }
         />

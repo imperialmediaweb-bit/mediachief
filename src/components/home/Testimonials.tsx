@@ -6,8 +6,8 @@ export function Testimonials() {
     <section className="section bg-brand-ivory">
       <div className="container">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="eyebrow">Ce spun clienții noștri</p>
-          <h2 className="h2 mt-2">Rezultate reale, oameni reali</h2>
+          <p className="eyebrow">What our clients say</p>
+          <h2 className="h2 mt-2">Real results, real people</h2>
         </div>
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {TESTIMONIALS.map((t) => (

@@ -5,7 +5,7 @@ export interface Package {
   name: string;
   tagline: string;
   price: number;
-  currency: "RON";
+  currency: "USD";
   newspapers: number;
   reach: string;
   category: PackageCategory;
@@ -26,119 +26,119 @@ export interface SubscriptionPlan {
 }
 
 const COMMON_HIGHLIGHTS = [
-  "Distribuție automată pe Facebook",
-  "Link-uri livrate în 24h",
-  "Raport PDF cu toate URL-urile",
-  "Publicare permanent online",
+  "Automatic Facebook distribution",
+  "Links delivered within 24h",
+  "PDF report with all URLs",
+  "Published permanently online",
 ];
 
 export const STANDARD_PACKAGES: Package[] = [
   {
     id: "local",
     name: "Local",
-    tagline: "Acoperire județeană",
+    tagline: "Single-state coverage",
     price: 150,
-    currency: "RON",
+    currency: "USD",
     newspapers: 1,
-    reach: "1 ziar județean la alegere",
+    reach: "1 state newspaper of your choice",
     category: "standard",
     highlights: [
-      "1 articol pe 1 ziar județean (la alegerea clientului)",
-      "Distribuție pe pagina de Facebook asociată",
-      "Link livrat în 24h",
-      "Raport cu URL-ul articolului",
-      "Permanent online",
+      "1 article in 1 state newspaper (client's choice)",
+      "Distribution on the associated Facebook page",
+      "Link delivered within 24h",
+      "Report with the article URL",
+      "Permanently online",
     ],
   },
   {
     id: "regional",
     name: "Regional",
-    tagline: "Zonă întreagă acoperită",
+    tagline: "A full region covered",
     price: 500,
-    currency: "RON",
+    currency: "USD",
     newspapers: 10,
-    reach: "10 ziare dintr-o zonă (Moldova / Transilvania / Muntenia / Banat)",
+    reach: "10 newspapers from one region (Northeast / Midwest / South / West)",
     category: "standard",
     highlights: [
-      "1 articol pe 10 ziare dintr-o zonă geografică",
-      "Distribuție pe paginile de Facebook asociate",
-      "Linkuri livrate în 24h",
-      "Raport PDF cu toate URL-urile",
-      "Permanent online",
+      "1 article in 10 newspapers from one region",
+      "Distribution on the associated Facebook pages",
+      "Links delivered within 24h",
+      "PDF report with all URLs",
+      "Permanently online",
     ],
   },
   {
     id: "national",
-    name: "Național 50",
-    tagline: "Cel mai popular — maximă acoperire",
+    name: "National 50",
+    tagline: "Most popular — maximum coverage",
     price: 1500,
-    currency: "RON",
+    currency: "USD",
     newspapers: 50,
-    reach: "41 ziare locale + 9 naționale",
+    reach: "50 newspapers — one in every U.S. state",
     category: "standard",
     featured: true,
-    badge: "Cel mai popular",
+    badge: "Most popular",
     highlights: [
-      "1 articol pe 50 de ziare (41 locale + 9 naționale)",
-      "Distribuție pe 37 pagini Facebook",
-      "Linkuri livrate în 24h",
-      "Raport PDF complet",
-      "Permanent online",
-      "50 backlinks SEO",
+      "1 article in 50 newspapers (one in every state)",
+      "Distribution on 37 Facebook pages",
+      "Links delivered within 24h",
+      "Complete PDF report",
+      "Permanently online",
+      "50 SEO backlinks",
     ],
   },
 ];
 
 export const CASINO_PACKAGES: Package[] = [
   {
-    id: "cazino-local",
-    name: "Cazino Local",
-    tagline: "iGaming • pariuri • local",
+    id: "casino-local",
+    name: "Casino Local",
+    tagline: "iGaming • betting • single state",
     price: 300,
-    currency: "RON",
+    currency: "USD",
     newspapers: 1,
-    reach: "1 ziar județean",
+    reach: "1 state newspaper",
     category: "casino",
     highlights: [
-      "1 articol pe 1 ziar județean",
-      "Distribuție Facebook",
-      "Link livrat în 24h + raport",
-      "Permanent online",
+      "1 article in 1 state newspaper",
+      "Facebook distribution",
+      "Link delivered within 24h + report",
+      "Permanently online",
     ],
   },
   {
-    id: "cazino-regional",
-    name: "Cazino Regional",
-    tagline: "iGaming • pariuri • zonă",
+    id: "casino-regional",
+    name: "Casino Regional",
+    tagline: "iGaming • betting • one region",
     price: 900,
-    currency: "RON",
+    currency: "USD",
     newspapers: 10,
-    reach: "10 ziare dintr-o zonă",
+    reach: "10 newspapers from one region",
     category: "casino",
     highlights: [
-      "1 articol pe 10 ziare",
-      "Distribuție Facebook",
-      "Linkuri livrate în 24h + raport",
-      "Permanent online",
+      "1 article in 10 newspapers",
+      "Facebook distribution",
+      "Links delivered within 24h + report",
+      "Permanently online",
     ],
   },
   {
-    id: "cazino-national",
-    name: "Cazino Național",
-    tagline: "iGaming • pariuri • maximă acoperire",
+    id: "casino-national",
+    name: "Casino National",
+    tagline: "iGaming • betting • maximum coverage",
     price: 2500,
-    currency: "RON",
+    currency: "USD",
     newspapers: 50,
-    reach: "41 locale + 9 naționale",
+    reach: "50 newspapers — one in every state",
     category: "casino",
     featured: true,
-    badge: "Recomandat iGaming",
+    badge: "Recommended for iGaming",
     highlights: [
-      "1 articol pe 50 de ziare",
-      "Distribuție pe 37 pagini Facebook",
-      "Linkuri livrate în 24h",
-      "Raport PDF complet",
-      "Permanent online",
+      "1 article in 50 newspapers",
+      "Distribution on 37 Facebook pages",
+      "Links delivered within 24h",
+      "Complete PDF report",
+      "Permanently online",
     ],
   },
 ];
@@ -151,7 +151,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     newspapersPerDistribution: 50,
     priceStandard: 1300,
     priceCasino: 2300,
-    description: "1 articol × 50 ziare pe lună",
+    description: "1 article × 50 newspapers per month",
   },
   {
     id: "silver",
@@ -160,7 +160,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     newspapersPerDistribution: 50,
     priceStandard: 2400,
     priceCasino: 4400,
-    description: "2 articole × 50 ziare pe lună",
+    description: "2 articles × 50 newspapers per month",
   },
   {
     id: "gold",
@@ -170,7 +170,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     priceStandard: 4500,
     priceCasino: 8500,
     featured: true,
-    description: "4 articole × 50 ziare pe lună",
+    description: "4 articles × 50 newspapers per month",
   },
   {
     id: "platinum",
@@ -179,18 +179,18 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     newspapersPerDistribution: 50,
     priceStandard: 8000,
     priceCasino: 15000,
-    description: "8 articole × 50 ziare pe lună",
+    description: "8 articles × 50 newspapers per month",
   },
 ];
 
 export const PRICING_NOTE =
-  "Raportul include linkurile și screenshot-urile articolelor publicate pe cele 50 de site-uri. Distribuția pe Facebook este inclusă automat în toate pachetele, dar statisticile paginilor de Facebook nu pot fi colectate în raport.";
+  "The report includes the links and screenshots of the articles published on all 50 sites. Facebook distribution is automatically included in every package, but Facebook page statistics cannot be collected in the report.";
 
 export const SUBSCRIPTION_BENEFITS = [
-  "Distribuție Facebook inclusă automat",
-  "Raport PDF lunar consolidat",
-  "Prioritate la publicare",
-  "Suport dedicat pentru abonamente",
+  "Facebook distribution automatically included",
+  "Consolidated monthly PDF report",
+  "Publishing priority",
+  "Dedicated subscription support",
 ];
 
 export function getAllPackages(): Package[] {

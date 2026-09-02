@@ -8,24 +8,24 @@ import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Intra in cont",
+  title: "Sign in",
   robots: { index: false, follow: false },
 };
 
 export default async function LoginPage() {
   const session = await auth();
-  if (session?.user) redirect("/cont");
+  if (session?.user) redirect("/account");
 
   return (
     <section className="container py-16">
       <div className="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-        <p className="eyebrow text-brand-red">Cont MediaExpres</p>
+        <p className="eyebrow text-brand-red">Media Chief account</p>
         <h1 className="font-serif text-3xl font-bold text-brand-navy mt-2">
-          Intra in cont
+          Sign in
         </h1>
         <p className="mt-3 text-sm text-slate-600">
-          Primesti un link magic pe email. Apesi pe link si esti logat — fara
-          parole.
+          We email you a magic link. Click it and you&apos;re signed in — no
+          passwords.
         </p>
 
         <form
@@ -35,7 +35,7 @@ export default async function LoginPage() {
             if (!email) return;
             await signIn("resend", {
               email,
-              redirectTo: "/cont",
+              redirectTo: "/account",
             });
           }}
           className="mt-8 space-y-4"
@@ -46,18 +46,18 @@ export default async function LoginPage() {
               name="email"
               type="email"
               required
-              placeholder="email@firma.ro"
+              placeholder="you@company.com"
             />
           </div>
           <Button type="submit" variant="accent" size="lg" className="w-full">
-            <Mail className="h-4 w-4" /> Trimite link magic
+            <Mail className="h-4 w-4" /> Send magic link
           </Button>
         </form>
 
         <p className="mt-6 text-xs text-slate-500 text-center">
-          Nu ai cont inca? Il cream automat la prima autentificare.{" "}
-          <Link href="/pachete" className="text-brand-red underline">
-            Vezi pachetele
+          No account yet? We create one automatically on your first sign-in.{" "}
+          <Link href="/packages" className="text-brand-red underline">
+            View packages
           </Link>
         </p>
       </div>

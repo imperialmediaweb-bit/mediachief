@@ -34,13 +34,13 @@ export function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-gold opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-gold" />
             </span>
-            Distribuție în 24h
+            Distribution within 24h
           </div>
 
           <h1 className="mt-6 font-serif text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
-            Articolul tău în{" "}
+            Your article in{" "}
             <span className="relative whitespace-nowrap text-brand-gold">
-              50 de ziare
+              50 newspapers
               <svg
                 aria-hidden="true"
                 viewBox="0 0 400 20"
@@ -55,19 +55,19 @@ export function Hero() {
                 />
               </svg>
             </span>{" "}
-            românești în 24h.
+            across all 50 states in 24h.
           </h1>
 
           <p className="mt-8 max-w-xl text-lg leading-relaxed text-white/85">
-            Distribuție rapidă de comunicate de presă pe 50 de ziare și 37 pagini Facebook.
-            Primești raport PDF complet cu linkuri și screenshot-uri. Publicare permanentă,
-            backlinks SEO incluse.
+            Fast press release distribution across 50 U.S. newspapers — one in every state — and
+            37 Facebook pages. You get a complete PDF report with links and screenshots.
+            Permanent publication, SEO backlinks included.
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4">
             <Button variant="accent" size="lg" asChild>
-              <Link href="/pachete">
-                Vezi pachetele <ArrowRight className="h-4 w-4" />
+              <Link href="/packages">
+                View packages <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
             <OrderModal
@@ -77,14 +77,14 @@ export function Hero() {
                   size="lg"
                   className="border-white/30 bg-white/5 text-white hover:bg-white hover:text-brand-navy"
                 >
-                  <Play className="h-4 w-4" /> Comandă acum
+                  <Play className="h-4 w-4" /> Order now
                 </Button>
               }
             />
           </div>
 
           <ul className="mt-12 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-white/80">
-            {["Livrare 24h", "Raport PDF inclus", "Publicare permanentă", "50 backlinks SEO"].map(
+            {["24h delivery", "PDF report included", "Permanent publication", "50 SEO backlinks"].map(
               (item) => (
                 <li key={item} className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-brand-gold" /> {item}
@@ -121,14 +121,14 @@ function HeroVisual() {
           <div className="flex items-center gap-2">
             <Newspaper className="h-4 w-4 text-brand-red" />
             <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
-              Ziar Național
+              State Daily
             </span>
           </div>
-          <span className="text-[10px] text-slate-400">23 APR 2026</span>
+          <span className="text-[10px] text-slate-400">APR 23, 2026</span>
         </div>
 
         <h3 className="mt-4 font-serif text-xl font-bold leading-tight">
-          Compania ta, pe prima pagină a celor mai citite ziare din România
+          Your company, on the front page of newspapers in every U.S. state
         </h3>
 
         <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_0.7fr]">
@@ -144,8 +144,8 @@ function HeroVisual() {
         </div>
 
         <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-3 text-[10px] text-slate-500">
-          <span>Citește mai mult →</span>
-          <span className="font-semibold text-brand-red">Permanent online</span>
+          <span>Read more →</span>
+          <span className="font-semibold text-brand-red">Permanently online</span>
         </div>
       </div>
 
@@ -155,8 +155,8 @@ function HeroVisual() {
           <CheckCircle2 className="h-5 w-5 text-brand-red" />
         </div>
         <div>
-          <div className="text-sm font-bold text-brand-navy">Publicat pe 50 site-uri</div>
-          <div className="text-xs text-slate-500">Raport PDF livrat</div>
+          <div className="text-sm font-bold text-brand-navy">Published on 50 sites</div>
+          <div className="text-xs text-slate-500">PDF report delivered</div>
         </div>
       </div>
     </div>

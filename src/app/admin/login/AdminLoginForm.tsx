@@ -13,7 +13,7 @@ import { adminLoginSchema, type AdminLoginInput } from "@/lib/validators";
 export function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const from = searchParams.get("from") || "/admin/ziare";
+  const from = searchParams.get("from") || "/admin/newspapers";
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const {
@@ -32,24 +32,24 @@ export function AdminLoginForm() {
         body: JSON.stringify(data),
       });
       const body = await res.json();
-      if (!res.ok || !body.ok) throw new Error(body.error || "Credențiale greșite");
+      if (!res.ok || !body.ok) throw new Error(body.error || "Invalid credentials");
       router.push(from);
       router.refresh();
     } catch (e: unknown) {
       setStatus("error");
-      setErrorMsg(e instanceof Error ? e.message : "Eroare");
+      setErrorMsg(e instanceof Error ? e.message : "Something went wrong");
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-1.5">
-        <Label>Utilizator</Label>
+        <Label>Username</Label>
         <Input {...register("username")} autoComplete="username" />
         {errors.username && <p className="text-xs text-red-600">{errors.username.message}</p>}
       </div>
       <div className="space-y-1.5">
-        <Label>Parolă</Label>
+        <Label>Password</Label>
         <Input type="password" {...register("password")} autoComplete="current-password" />
         {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
       </div>
@@ -64,11 +64,11 @@ export function AdminLoginForm() {
       <Button type="submit" className="w-full" disabled={status === "submitting"}>
         {status === "submitting" ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" /> Se autentifică...
+            <Loader2 className="h-4 w-4 animate-spin" /> Signing in...
           </>
         ) : (
           <>
-            <Lock className="h-4 w-4" /> Autentificare
+            <Lock className="h-4 w-4" /> Sign in
           </>
         )}
       </Button>

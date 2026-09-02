@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Contul meu",
+  title: "My account",
   robots: { index: false, follow: false },
 };
 
-export default async function ContLayout({
+export default async function AccountLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -21,36 +21,36 @@ export default async function ContLayout({
       {session?.user && (
         <div className="border-b border-slate-200 bg-white">
           <div className="container flex h-14 items-center justify-between">
-            <nav className="flex gap-6 text-sm font-medium" aria-label="Cont">
+            <nav className="flex gap-6 text-sm font-medium" aria-label="Account">
               <Link
-                href="/cont"
+                href="/account"
                 className="text-brand-navy hover:text-brand-red"
               >
                 Dashboard
               </Link>
               <Link
-                href="/cont/comenzi"
+                href="/account/orders"
                 className="text-brand-navy hover:text-brand-red"
               >
-                Comenzi
+                Orders
               </Link>
               <Link
-                href="/cont/abonament"
+                href="/account/subscription"
                 className="text-brand-navy hover:text-brand-red"
               >
-                Abonament
+                Subscription
               </Link>
               <Link
-                href="/cont/articole"
+                href="/account/articles"
                 className="text-brand-navy hover:text-brand-red"
               >
-                Articole
+                Articles
               </Link>
               <Link
-                href="/cont/profil"
+                href="/account/profile"
                 className="text-brand-navy hover:text-brand-red"
               >
-                Profil
+                Profile
               </Link>
             </nav>
             <div className="flex items-center gap-3">
@@ -64,7 +64,7 @@ export default async function ContLayout({
                 }}
               >
                 <Button type="submit" variant="outline" size="sm">
-                  <LogOut className="h-3.5 w-3.5" /> Iesire
+                  <LogOut className="h-3.5 w-3.5" /> Sign out
                 </Button>
               </form>
             </div>

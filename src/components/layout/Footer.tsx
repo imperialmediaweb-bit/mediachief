@@ -11,8 +11,8 @@ export function Footer() {
           <div>
             <Logo variant="white" showTagline />
             <p className="mt-6 max-w-sm text-sm text-white/70 leading-relaxed">
-              Distribuție de comunicate de presă pe 50 de ziare românești și 37 pagini
-              Facebook. Livrare în 24h, raport PDF complet, linkuri permanente online.
+              Press release distribution across 50 U.S. newspapers — one in every state — and 37
+              Facebook pages. 24h delivery, complete PDF report, permanent links.
             </p>
             <div className="mt-6 flex gap-3">
               <a
@@ -32,8 +32,8 @@ export function Footer() {
             </div>
           </div>
 
-          <FooterColumn title="Servicii" links={FOOTER_LINKS.servicii} />
-          <FooterColumn title="Companie" links={FOOTER_LINKS.companie} />
+          <FooterColumn title="Services" links={FOOTER_LINKS.services} />
+          <FooterColumn title="Company" links={FOOTER_LINKS.company} />
 
           <div>
             <h4 className="mb-5 text-xs font-bold uppercase tracking-[0.2em] text-brand-gold">
@@ -48,7 +48,7 @@ export function Footer() {
               </li>
               <li className="flex items-start gap-3">
                 <Phone className="h-4 w-4 mt-0.5 text-brand-gold" />
-                <a href={`tel:${SITE.phone.replace(/\s/g, "")}`} className="hover:text-white">
+                <a href={`tel:${SITE.phone.replace(/[\s()-]/g, "")}`} className="hover:text-white">
                   {SITE.phone}
                 </a>
               </li>
@@ -66,7 +66,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-8 md:flex-row md:items-center md:justify-between">
           <p className="text-xs text-white/60">
-            &copy; {new Date().getFullYear()} {SITE.name}. Toate drepturile rezervate.
+            &copy; {new Date().getFullYear()} {SITE.name}. All rights reserved.
           </p>
           <ul className="flex flex-wrap gap-6 text-xs">
             {FOOTER_LINKS.legal.map((l) => (

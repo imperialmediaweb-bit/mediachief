@@ -21,20 +21,20 @@ function isRateLimited(ip: string): boolean {
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || req.headers.get("x-real-ip") || "unknown";
   if (isRateLimited(ip)) {
-    return NextResponse.json({ ok: false, error: "Prea multe cereri. Încearcă din nou în câteva minute." }, { status: 429 });
+    return NextResponse.json({ ok: false, error: "Too many requests. Try again in a few minutes." }, { status: 429 });
   }
 
   let body: unknown;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "JSON invalid" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
   }
 
   const parsed = orderSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { ok: false, error: parsed.error.errors[0]?.message || "Date invalide" },
+      { ok: false, error: parsed.error.errors[0]?.message || "Invalid data" },
       { status: 400 }
     );
   }
@@ -51,74 +51,74 @@ export async function POST(req: NextRequest) {
   if (data.packageId.startsWith("sub-")) {
     const sub = SUBSCRIPTION_PLANS.find((s) => s.id === data.packageId.replace("sub-", ""));
     if (sub) {
-      packageLabel = `Abonament ${sub.name} (${sub.description})`;
-      packagePrice = `${formatPrice(sub.priceStandard)} RON/lună (standard) • ${formatPrice(sub.priceCasino)} RON/lună (cazino)`;
+      packageLabel = `${sub.name} subscription (${sub.description})`;
+      packagePrice = `$${formatPrice(sub.priceStandard)}/month (standard) • $${formatPrice(sub.priceCasino)}/month (casino)`;
     }
   } else {
     const pkg = findPackageById(data.packageId);
     if (pkg) {
-      packageLabel = `${pkg.name} (${pkg.category === "casino" ? "Cazino" : "Standard"})`;
-      packagePrice = `${formatPrice(pkg.price)} RON`;
+      packageLabel = `${pkg.name} (${pkg.category === "casino" ? "Casino" : "Standard"})`;
+      packagePrice = `$${formatPrice(pkg.price)}`;
     }
   }
 
   const html = wrapEmail(
-    "Comandă nouă MediaExpres",
+    "New Media Chief order",
     `
-    <p style="margin:0 0 16px;color:#64748b;">O nouă comandă a fost primită prin formularul de pe site.</p>
+    <p style="margin:0 0 16px;color:#64748b;">A new order came in through the website form.</p>
     <table style="width:100%;border-collapse:collapse;margin:16px 0;">
-      ${kv("Pachet", packageLabel)}
-      ${kv("Preț", packagePrice)}
-      ${kv("Nume", data.name)}
+      ${kv("Package", packageLabel)}
+      ${kv("Price", packagePrice)}
+      ${kv("Name", data.name)}
       ${kv("Email", data.email)}
-      ${kv("Telefon", data.phone)}
-      ${kv("Companie", data.company || "—")}
-      ${kv("Titlu articol", data.articleTitle)}
-      ${kv("URL articol existent", data.articleUrl || "—")}
-      ${kv("Observații", data.notes || "—")}
+      ${kv("Phone", data.phone)}
+      ${kv("Company", data.company || "—")}
+      ${kv("Article title", data.articleTitle)}
+      ${kv("Existing article URL", data.articleUrl || "—")}
+      ${kv("Notes", data.notes || "—")}
     </table>
     ${
       data.articleBody
-        ? `<div style="margin-top:20px;padding:16px;background:#F8F5F0;border-radius:8px;"><strong style="color:#0B2545;">Text articol:</strong><pre style="white-space:pre-wrap;font-family:inherit;margin:8px 0 0;color:#334155;font-size:14px;">${data.articleBody.replace(/</g, "&lt;")}</pre></div>`
+        ? `<div style="margin-top:20px;padding:16px;background:#F8F5F0;border-radius:8px;"><strong style="color:#0B2545;">Article text:</strong><pre style="white-space:pre-wrap;font-family:inherit;margin:8px 0 0;color:#334155;font-size:14px;">${data.articleBody.replace(/</g, "&lt;")}</pre></div>`
         : ""
     }
     <p style="margin:24px 0 0;color:#64748b;font-size:13px;">
-      Răspunde direct la acest email pentru a contacta clientul.
+      Reply directly to this email to reach the client.
     </p>
   `
   );
 
   const adminResult = await sendEmail({
     to: ADMIN_EMAIL,
-    subject: `[Comandă] ${packageLabel} — ${data.name}`,
+    subject: `[Order] ${packageLabel} — ${data.name}`,
     html,
     replyTo: data.email,
   });
 
   // Send confirmation to customer
   const customerHtml = wrapEmail(
-    "Comandă primită — MediaExpres",
+    "Order received — Media Chief",
     `
-    <p>Salut ${data.name.split(" ")[0]},</p>
-    <p>Îți mulțumim că ai ales MediaExpres! Comanda ta a fost primită cu succes.</p>
+    <p>Hi ${data.name.split(" ")[0]},</p>
+    <p>Thank you for choosing Media Chief! We received your order successfully.</p>
     <table style="width:100%;border-collapse:collapse;margin:16px 0;">
-      ${kv("Pachet", packageLabel)}
-      ${kv("Preț", packagePrice)}
-      ${kv("Titlu articol", data.articleTitle)}
+      ${kv("Package", packageLabel)}
+      ${kv("Price", packagePrice)}
+      ${kv("Article title", data.articleTitle)}
     </table>
-    <p>Echipa noastră te va contacta în maximum 2 ore (în timpul programului) cu detaliile de facturare și confirmarea publicării.</p>
-    <p style="margin-top:24px;">Cu respect,<br/><strong>Echipa MediaExpres</strong></p>
+    <p>Our team will contact you within 2 hours (during business hours) with the billing details and publication confirmation.</p>
+    <p style="margin-top:24px;">Best regards,<br/><strong>The Media Chief Team</strong></p>
   `
   );
 
   await sendEmail({
     to: data.email,
-    subject: "Am primit comanda ta — MediaExpres",
+    subject: "We received your order — Media Chief",
     html: customerHtml,
   });
 
   if (!adminResult.ok) {
-    return NextResponse.json({ ok: false, error: "Eroare la trimiterea emailului" }, { status: 500 });
+    return NextResponse.json({ ok: false, error: "Failed to send the email" }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });

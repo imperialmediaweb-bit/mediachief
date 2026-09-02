@@ -26,7 +26,7 @@ export function RequestListForm({ successHref, successCtaLabel }: RequestListFor
     reset,
   } = useForm<RequestListInput>({
     resolver: zodResolver(requestListSchema),
-    defaultValues: { gdprConsent: false as unknown as true },
+    defaultValues: { privacyConsent: false as unknown as true },
   });
 
   const onSubmit = async (data: RequestListInput) => {
@@ -39,12 +39,12 @@ export function RequestListForm({ successHref, successCtaLabel }: RequestListFor
         body: JSON.stringify(data),
       });
       const body = await res.json();
-      if (!res.ok || !body.ok) throw new Error(body.error || "Eroare");
+      if (!res.ok || !body.ok) throw new Error(body.error || "Something went wrong");
       setStatus("success");
       reset();
     } catch (e: unknown) {
       setStatus("error");
-      setErrorMsg(e instanceof Error ? e.message : "Eroare");
+      setErrorMsg(e instanceof Error ? e.message : "Something went wrong");
     }
   };
 
@@ -55,16 +55,16 @@ export function RequestListForm({ successHref, successCtaLabel }: RequestListFor
           <Mail className="h-10 w-10 text-green-600" />
         </div>
         <h3 className="font-serif text-2xl font-semibold text-brand-navy">
-          Lista pleacă spre tine!
+          The list is on its way!
         </h3>
         <p className="text-slate-600">
-          Verifică inbox-ul în următoarele 2 minute. Dacă nu primești email, verifică folder-ul
-          de spam sau scrie-ne direct.
+          Check your inbox in the next 2 minutes. If nothing arrives, check your spam folder or
+          write to us directly.
         </p>
         {successHref && (
           <Button variant="accent" size="lg" asChild className="mt-2">
             <Link href={successHref}>
-              {successCtaLabel || "Vezi prețurile acum"}
+              {successCtaLabel || "See pricing now"}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
@@ -78,37 +78,39 @@ export function RequestListForm({ successHref, successCtaLabel }: RequestListFor
       <input type="text" {...register("website")} className="hidden" tabIndex={-1} autoComplete="off" />
 
       <div className="space-y-1.5">
-        <Label>Nume complet *</Label>
-        <Input {...register("name")} placeholder="Ion Popescu" />
+        <Label>Full name *</Label>
+        <Input {...register("name")} placeholder="John Smith" />
         {errors.name && <p className="text-xs text-red-600">{errors.name.message}</p>}
       </div>
       <div className="space-y-1.5">
         <Label>Email *</Label>
-        <Input type="email" {...register("email")} placeholder="ion@firma.ro" />
+        <Input type="email" {...register("email")} placeholder="john@company.com" />
         {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label>Telefon</Label>
-          <Input type="tel" {...register("phone")} placeholder="opțional" />
+          <Label>Phone</Label>
+          <Input type="tel" {...register("phone")} placeholder="optional" />
         </div>
         <div className="space-y-1.5">
-          <Label>Companie</Label>
-          <Input {...register("company")} placeholder="opțional" />
+          <Label>Company</Label>
+          <Input {...register("company")} placeholder="optional" />
         </div>
       </div>
 
       <label className="flex items-start gap-3 text-sm text-slate-700 cursor-pointer">
-        <Checkbox {...register("gdprConsent")} />
+        <Checkbox {...register("privacyConsent")} />
         <span>
-          Accept procesarea datelor conform{" "}
-          <a href="/legal/gdpr" className="text-brand-red font-medium hover:underline">
-            GDPR
+          I accept the processing of my data under the{" "}
+          <a href="/legal/privacy" className="text-brand-red font-medium hover:underline">
+            privacy policy
           </a>
           . *
         </span>
       </label>
-      {errors.gdprConsent && <p className="text-xs text-red-600">{errors.gdprConsent.message}</p>}
+      {errors.privacyConsent && (
+        <p className="text-xs text-red-600">{errors.privacyConsent.message}</p>
+      )}
 
       {status === "error" && errorMsg && (
         <div className="flex items-start gap-2 rounded-md bg-red-50 p-3 text-sm text-red-700">
@@ -120,14 +122,14 @@ export function RequestListForm({ successHref, successCtaLabel }: RequestListFor
       <Button type="submit" variant="accent" size="lg" className="w-full" disabled={status === "submitting"}>
         {status === "submitting" ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" /> Se trimite...
+            <Loader2 className="h-4 w-4 animate-spin" /> Sending...
           </>
         ) : (
-          "Trimite-mi lista completă"
+          "Send me the full list"
         )}
       </Button>
       <p className="text-xs text-slate-500 text-center">
-        Primești PDF-ul pe email, gratuit, fără obligații.
+        You get the PDF by email, free, with no obligation.
       </p>
     </form>
   );

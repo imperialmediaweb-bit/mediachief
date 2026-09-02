@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   const stripe = getStripe();
   if (!stripe) {
     return NextResponse.json(
-      { ok: false, error: "Stripe nu este configurat" },
+      { ok: false, error: "Stripe is not configured" },
       { status: 503 }
     );
   }
@@ -27,38 +27,38 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "JSON invalid" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
   }
   const parsed = checkoutSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ ok: false, error: "Date invalide" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Invalid data" }, { status: 400 });
   }
   const { packageId, mode, email } = parsed.data;
 
   let name: string;
-  let amountInBani: number;
+  let amountInCents: number;
 
   if (mode === "package") {
     const pkg = findPackageById(packageId);
     if (!pkg) {
       return NextResponse.json(
-        { ok: false, error: "Pachet inexistent" },
+        { ok: false, error: "Package not found" },
         { status: 404 }
       );
     }
-    name = `${pkg.name} (${pkg.category === "casino" ? "Cazino" : "Standard"})`;
-    amountInBani = pkg.price * 100;
+    name = `${pkg.name} (${pkg.category === "casino" ? "Casino" : "Standard"})`;
+    amountInCents = pkg.price * 100;
   } else {
     const sub = SUBSCRIPTION_PLANS.find((s) => s.id === packageId);
     if (!sub) {
       return NextResponse.json(
-        { ok: false, error: "Abonament inexistent" },
+        { ok: false, error: "Subscription not found" },
         { status: 404 }
       );
     }
     const isCasino = mode === "subscription-casino";
-    name = `Abonament ${sub.name} (${isCasino ? "Cazino" : "Standard"})`;
-    amountInBani = (isCasino ? sub.priceCasino : sub.priceStandard) * 100;
+    name = `${sub.name} subscription (${isCasino ? "Casino" : "Standard"})`;
+    amountInCents = (isCasino ? sub.priceCasino : sub.priceStandard) * 100;
   }
 
   try {
@@ -69,28 +69,28 @@ export async function POST(req: NextRequest) {
       line_items: [
         {
           price_data: {
-            currency: "ron",
-            unit_amount: amountInBani,
+            currency: "usd",
+            unit_amount: amountInCents,
             product_data: {
               name,
               description:
-                "Publicare advertorial / comunicat pe rețeaua MediaExpres",
+                "Advertorial / press release publication on the Media Chief network",
             },
           },
           quantity: 1,
         },
       ],
       metadata: { packageId, mode },
-      success_url: `${SITE.url}/comanda/multumim?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${SITE.url}/comanda/anulat`,
-      locale: "ro",
+      success_url: `${SITE.url}/order/thank-you?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${SITE.url}/order/cancelled`,
+      locale: "en",
       allow_promotion_codes: true,
     });
     return NextResponse.json({ ok: true, url: session.url });
   } catch (err) {
     console.error("[checkout] Stripe error:", err);
     return NextResponse.json(
-      { ok: false, error: "Eroare la crearea sesiunii de plată" },
+      { ok: false, error: "Failed to create the checkout session" },
       { status: 500 }
     );
   }

@@ -21,7 +21,7 @@ export function ContactForm() {
     reset,
   } = useForm<ContactInput>({
     resolver: zodResolver(contactSchema),
-    defaultValues: { gdprConsent: false as unknown as true },
+    defaultValues: { privacyConsent: false as unknown as true },
   });
 
   const onSubmit = async (data: ContactInput) => {
@@ -34,12 +34,12 @@ export function ContactForm() {
         body: JSON.stringify(data),
       });
       const body = await res.json();
-      if (!res.ok || !body.ok) throw new Error(body.error || "Eroare");
+      if (!res.ok || !body.ok) throw new Error(body.error || "Something went wrong");
       setStatus("success");
       reset();
     } catch (e: unknown) {
       setStatus("error");
-      setErrorMsg(e instanceof Error ? e.message : "Eroare");
+      setErrorMsg(e instanceof Error ? e.message : "Something went wrong");
     }
   };
 
@@ -47,10 +47,10 @@ export function ContactForm() {
     return (
       <div className="flex flex-col items-center gap-4 py-8 text-center">
         <CheckCircle2 className="h-16 w-16 text-green-600" />
-        <h3 className="font-serif text-2xl font-semibold text-brand-navy">Mesaj trimis!</h3>
-        <p className="text-slate-600">Îți răspundem în cel mai scurt timp.</p>
+        <h3 className="font-serif text-2xl font-semibold text-brand-navy">Message sent!</h3>
+        <p className="text-slate-600">We&apos;ll get back to you as soon as possible.</p>
         <Button variant="outline" onClick={() => setStatus("idle")}>
-          Trimite alt mesaj
+          Send another message
         </Button>
       </div>
     );
@@ -62,7 +62,7 @@ export function ContactForm() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label>Nume *</Label>
+          <Label>Name *</Label>
           <Input {...register("name")} />
           {errors.name && <p className="text-xs text-red-600">{errors.name.message}</p>}
         </div>
@@ -74,28 +74,30 @@ export function ContactForm() {
       </div>
 
       <div className="space-y-1.5">
-        <Label>Subiect *</Label>
+        <Label>Subject *</Label>
         <Input {...register("subject")} />
         {errors.subject && <p className="text-xs text-red-600">{errors.subject.message}</p>}
       </div>
 
       <div className="space-y-1.5">
-        <Label>Mesaj *</Label>
+        <Label>Message *</Label>
         <Textarea rows={6} {...register("message")} />
         {errors.message && <p className="text-xs text-red-600">{errors.message.message}</p>}
       </div>
 
       <label className="flex items-start gap-3 text-sm text-slate-700 cursor-pointer">
-        <Checkbox {...register("gdprConsent")} />
+        <Checkbox {...register("privacyConsent")} />
         <span>
-          Accept procesarea datelor personale conform{" "}
-          <a href="/legal/gdpr" className="text-brand-red font-medium hover:underline">
-            politicii GDPR
+          I accept the processing of my personal data under the{" "}
+          <a href="/legal/privacy" className="text-brand-red font-medium hover:underline">
+            privacy policy
           </a>
           . *
         </span>
       </label>
-      {errors.gdprConsent && <p className="text-xs text-red-600">{errors.gdprConsent.message}</p>}
+      {errors.privacyConsent && (
+        <p className="text-xs text-red-600">{errors.privacyConsent.message}</p>
+      )}
 
       {status === "error" && errorMsg && (
         <div className="flex items-start gap-2 rounded-md bg-red-50 p-3 text-sm text-red-700">
@@ -107,10 +109,10 @@ export function ContactForm() {
       <Button type="submit" variant="accent" size="lg" disabled={status === "submitting"}>
         {status === "submitting" ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" /> Se trimite...
+            <Loader2 className="h-4 w-4 animate-spin" /> Sending...
           </>
         ) : (
-          "Trimite mesajul"
+          "Send message"
         )}
       </Button>
     </form>
