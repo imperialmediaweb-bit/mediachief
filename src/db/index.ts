@@ -9,12 +9,19 @@ const globalForPg = globalThis as unknown as {
   __drizzleDb?: Db;
 };
 
+// `next build` imports modules that construct the NextAuth adapter without ever
+// running a query. postgres-js connects lazily, so a placeholder URL lets the
+// build finish, while a real deploy still fails loudly on a missing variable.
+function buildTimePlaceholder(): string {
+  if (process.env.NEXT_PHASE === "phase-production-build") {
+    return "postgres://build:build@127.0.0.1:5432/build";
+  }
+  throw new Error("DATABASE_URL is not set. Configure it in env.");
+}
+
 function getDbInternal(): Db {
   if (globalForPg.__drizzleDb) return globalForPg.__drizzleDb;
-  const url = process.env.DATABASE_URL;
-  if (!url) {
-    throw new Error("DATABASE_URL is not set. Configure it in env.");
-  }
+  const url = process.env.DATABASE_URL || buildTimePlaceholder();
   const client =
     globalForPg.__pgClient ??
     postgres(url, { max: 1, prepare: false });
