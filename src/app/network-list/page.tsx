@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { ExternalLink, Mail } from "lucide-react";
-import { SITE } from "@/data/site";
+import { ExternalLink } from "lucide-react";
 import {
   NEWSPAPERS,
   REGION_COUNTS,
@@ -95,18 +94,6 @@ export default function NetworkListPage() {
           ))}
         </div>
 
-        <div className="mt-14 border-t border-slate-200 pt-6 text-sm text-slate-600">
-          <p className="eyebrow">Contact</p>
-          <p className="mt-2">
-            Questions about the network, or want to talk directly?{" "}
-            <a
-              href={`mailto:${SITE.email}`}
-              className="inline-flex items-center gap-1 font-medium text-brand-red hover:underline"
-            >
-              <Mail className="h-3.5 w-3.5" /> {SITE.email}
-            </a>
-          </p>
-        </div>
       </div>
     </section>
   );
