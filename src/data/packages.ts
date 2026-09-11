@@ -16,7 +16,7 @@ export interface Package {
 
 export interface SubscriptionPlan {
   id: string;
-  name: "Bronze" | "Silver" | "Gold" | "Platinum";
+  name: string;
   distributionsPerMonth: number;
   newspapersPerDistribution: 50;
   priceStandard: number;
@@ -198,5 +198,99 @@ export function getAllPackages(): Package[] {
 }
 
 export function findPackageById(id: string): Package | undefined {
-  return getAllPackages().find((p) => p.id === id);
+  return [...getAllPackages(), ...PROMO_PACKAGES].find((p) => p.id === id);
+}
+
+export function findSubscriptionPlanById(id: string): SubscriptionPlan | undefined {
+  return [...SUBSCRIPTION_PLANS, ...PROMO_SUBSCRIPTION_PLANS].find((p) => p.id === id);
+}
+
+// ---------------------------------------------------------------------------
+// Introductory offer — sold only through the dedicated landing page
+// (/offer-499). These do not appear on /packages next to the full-price tiers.
+// ---------------------------------------------------------------------------
+
+export const PROMO_PRICE = 499;
+export const PROMO_PRICE_CASINO = 999;
+export const PROMO_MONTHLY = 399;
+export const PROMO_MONTHLY_CASINO = 799;
+
+export const PROMO_PACKAGES: Package[] = [
+  {
+    id: "promo-49",
+    name: "Intro offer — the whole network",
+    tagline: "Limited offer — nationwide coverage",
+    price: PROMO_PRICE,
+    currency: "USD",
+    newspapers: 49,
+    reach: "One newspaper in every state we cover",
+    category: "standard",
+    highlights: [
+      "1 article across the whole network",
+      "A unique version on every site — no duplicate content",
+      "Links delivered within 1 business day",
+      "The full list of links, in PDF and Excel",
+      "Permanently online",
+    ],
+  },
+  {
+    id: "promo-49-casino",
+    name: "Intro offer — casino / iGaming",
+    tagline: "Limited offer — iGaming content",
+    price: PROMO_PRICE_CASINO,
+    currency: "USD",
+    newspapers: 49,
+    reach: "One newspaper in every state we cover",
+    category: "casino",
+    highlights: [
+      "1 article across the whole network",
+      "Compliance review for gambling content",
+      "Links delivered within 1 business day",
+      "The full list of links, in PDF and Excel",
+      "Permanently online",
+    ],
+  },
+];
+
+// Cheaper than the one-time price — the reason to subscribe.
+export const PROMO_SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
+  {
+    id: "promo-monthly",
+    name: "Intro Monthly",
+    distributionsPerMonth: 1,
+    newspapersPerDistribution: 50,
+    priceStandard: PROMO_MONTHLY,
+    priceCasino: PROMO_MONTHLY_CASINO,
+    description: "1 article across the whole network, every month — intro price",
+  },
+];
+
+// Rolling deadline for the intro offer: the first one is 25 September (end
+// of day, Eastern), then every 14 days, never past 31 December. The page
+// revalidates hourly, so the label rolls over on its own.
+export const PROMO_ROLLING = {
+  anchorIso: "2026-09-25T23:59:59-04:00",
+  periodDays: 14,
+  hardEndIso: "2026-12-31T23:59:59-05:00",
+};
+
+export function currentPromoDeadline(now: number = Date.now()): Date | null {
+  const anchor = new Date(PROMO_ROLLING.anchorIso).getTime();
+  const hardEnd = new Date(PROMO_ROLLING.hardEndIso).getTime();
+  if (now >= hardEnd) return null;
+  const period = PROMO_ROLLING.periodDays * 86_400_000;
+  let t = anchor;
+  while (t <= now) t += period;
+  return new Date(Math.min(t, hardEnd));
+}
+
+/** "September 25" — the current deadline, or null once the offer has ended. */
+export function promoDeadlineLabel(now: number = Date.now()): string | null {
+  const d = currentPromoDeadline(now);
+  if (!d) return null;
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    timeZone: "America/New_York",
+  }).format(d);
 }

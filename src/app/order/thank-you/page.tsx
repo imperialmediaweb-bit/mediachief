@@ -17,11 +17,14 @@ export default function ThankYouPage() {
         </div>
         <h1 className="h1 mt-6">Thank you — your payment went through!</h1>
         <p className="lead mt-4 mx-auto max-w-xl text-slate-600">
-          A confirmation has been sent to your email. A member of our team will
-          contact you within 2 hours (during business hours) with the publishing
-          details.
+          A receipt has been sent to your email. Send us the article now — or
+          just the topic, and we write it — and we publish within one business
+          day.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Button variant="accent" size="lg" asChild>
+            <Link href="/order?package=promo-49">Send your article now →</Link>
+          </Button>
           <Button variant="default" size="lg" asChild>
             <Link href="/">Back home</Link>
           </Button>

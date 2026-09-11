@@ -1,26 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getStripe } from "@/lib/stripe";
-import { findPackageById, SUBSCRIPTION_PLANS } from "@/data/packages";
+import { findPackageById, findSubscriptionPlanById } from "@/data/packages";
 import { SITE } from "@/data/site";
 
 export const runtime = "nodejs";
 
 const checkoutSchema = z.object({
   packageId: z.string().min(1).max(64),
-  mode: z
-    .enum(["package", "subscription-standard", "subscription-casino"])
-    .default("package"),
+  mode: z.enum(["package", "subscription-standard", "subscription-casino"]).default("package"),
   email: z.string().email().optional(),
 });
 
 export async function POST(req: NextRequest) {
   const stripe = getStripe();
   if (!stripe) {
-    return NextResponse.json(
-      { ok: false, error: "Stripe is not configured" },
-      { status: 503 }
-    );
+    return NextResponse.json({ ok: false, error: "Stripe is not configured" }, { status: 503 });
   }
 
   let body: unknown;
@@ -35,63 +30,84 @@ export async function POST(req: NextRequest) {
   }
   const { packageId, mode, email } = parsed.data;
 
-  let name: string;
-  let amountInCents: number;
-
-  if (mode === "package") {
-    const pkg = findPackageById(packageId);
-    if (!pkg) {
-      return NextResponse.json(
-        { ok: false, error: "Package not found" },
-        { status: 404 }
-      );
-    }
-    name = `${pkg.name} (${pkg.category === "casino" ? "Casino" : "Standard"})`;
-    amountInCents = pkg.price * 100;
-  } else {
-    const sub = SUBSCRIPTION_PLANS.find((s) => s.id === packageId);
-    if (!sub) {
-      return NextResponse.json(
-        { ok: false, error: "Subscription not found" },
-        { status: 404 }
-      );
-    }
-    const isCasino = mode === "subscription-casino";
-    name = `${sub.name} subscription (${isCasino ? "Casino" : "Standard"})`;
-    amountInCents = (isCasino ? sub.priceCasino : sub.priceStandard) * 100;
-  }
+  const successUrl = `${SITE.url}/order/thank-you?session_id={CHECKOUT_SESSION_ID}`;
+  const cancelUrl = `${SITE.url}/order/cancelled`;
 
   try {
+    if (mode === "package") {
+      const pkg = findPackageById(packageId);
+      if (!pkg) {
+        return NextResponse.json({ ok: false, error: "Package not found" }, { status: 404 });
+      }
+      const name = `${pkg.name} (${pkg.category === "casino" ? "Casino" : "Standard"})`;
+      const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        payment_method_types: ["card"],
+        customer_email: email,
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              unit_amount: pkg.price * 100,
+              product_data: {
+                name,
+                description: "Advertorial / press release publication on the Media Chief network",
+              },
+            },
+            quantity: 1,
+          },
+        ],
+        metadata: { packageId, mode, category: pkg.category },
+        billing_address_collection: "required",
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        locale: "en",
+        allow_promotion_codes: true,
+      });
+      return NextResponse.json({ ok: true, url: session.url });
+    }
+
+    const plan = findSubscriptionPlanById(packageId);
+    if (!plan) {
+      return NextResponse.json({ ok: false, error: "Subscription not found" }, { status: 404 });
+    }
+    const isCasino = mode === "subscription-casino";
+    const category = isCasino ? "casino" : "standard";
+    const amount = (isCasino ? plan.priceCasino : plan.priceStandard) * 100;
+    const name = `${plan.name} subscription (${isCasino ? "Casino" : "Standard"})`;
+
     const session = await stripe.checkout.sessions.create({
-      mode: "payment",
+      mode: "subscription",
       payment_method_types: ["card"],
       customer_email: email,
       line_items: [
         {
           price_data: {
             currency: "usd",
-            unit_amount: amountInCents,
-            product_data: {
-              name,
-              description:
-                "Advertorial / press release publication on the Media Chief network",
-            },
+            unit_amount: amount,
+            recurring: { interval: "month" },
+            product_data: { name },
           },
           quantity: 1,
         },
       ],
-      metadata: { packageId, mode },
-      success_url: `${SITE.url}/order/thank-you?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${SITE.url}/order/cancelled`,
+      metadata: { planId: plan.id, category, mode },
+      subscription_data: {
+        metadata: {
+          planId: plan.id,
+          category,
+          articlesIncludedPerMonth: String(plan.distributionsPerMonth),
+        },
+      },
+      billing_address_collection: "required",
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       locale: "en",
       allow_promotion_codes: true,
     });
     return NextResponse.json({ ok: true, url: session.url });
   } catch (err) {
     console.error("[checkout] Stripe error:", err);
-    return NextResponse.json(
-      { ok: false, error: "Failed to create the checkout session" },
-      { status: 500 }
-    );
+    return NextResponse.json({ ok: false, error: "Failed to create the checkout session" }, { status: 500 });
   }
 }

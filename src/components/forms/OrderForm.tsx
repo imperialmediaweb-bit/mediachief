@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { orderSchema, type OrderInput } from "@/lib/validators";
-import { getAllPackages, SUBSCRIPTION_PLANS } from "@/data/packages";
+import { getAllPackages, SUBSCRIPTION_PLANS, PROMO_PACKAGES } from "@/data/packages";
 import { formatPrice } from "@/lib/utils";
 
 interface OrderFormProps {
@@ -102,6 +102,13 @@ export function OrderForm({ defaultPackageId, onSuccess }: OrderFormProps) {
           className="flex h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-brand-navy focus:border-brand-navy"
         >
           <option value="">— choose a package —</option>
+          <optgroup label="Intro offer">
+            {PROMO_PACKAGES.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name} — ${formatPrice(p.price)}
+              </option>
+            ))}
+          </optgroup>
           <optgroup label="Standard">
             {getAllPackages()
               .filter((p) => p.category === "standard")

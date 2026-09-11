@@ -13,6 +13,13 @@ export const SITE = {
     facebook: "https://facebook.com/mediachief",
     linkedin: "https://linkedin.com/company/mediachief",
   },
+  // The company that issues the invoice. Shown next to the final "Order"
+  // button on the offer page — the moment a buyer wants to know who they are
+  // paying. Leave undefined until the US entity is set up; the box then
+  // simply does not render.
+  legal: undefined as
+    | { companyName: string; registration: string; address: string; note?: string }
+    | undefined,
 };
 
 export const NAV_LINKS = [
