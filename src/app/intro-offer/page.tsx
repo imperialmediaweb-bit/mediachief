@@ -231,7 +231,7 @@ const FAQ = [
   },
 ];
 
-export default function Offer499Page() {
+export default function IntroOfferPage() {
   return (
     <div className="bg-white">
       {/* Hero */}

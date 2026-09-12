@@ -207,13 +207,13 @@ export function findSubscriptionPlanById(id: string): SubscriptionPlan | undefin
 
 // ---------------------------------------------------------------------------
 // Introductory offer — sold only through the dedicated landing page
-// (/offer-499). These do not appear on /packages next to the full-price tiers.
+// (/intro-offer) and shown on /packages as a limited offer for new clients.
 // ---------------------------------------------------------------------------
 
-export const PROMO_PRICE = 499;
-export const PROMO_PRICE_CASINO = 999;
-export const PROMO_MONTHLY = 399;
-export const PROMO_MONTHLY_CASINO = 799;
+export const PROMO_PRICE = 299;
+export const PROMO_PRICE_CASINO = 599;
+export const PROMO_MONTHLY = 249;
+export const PROMO_MONTHLY_CASINO = 499;
 
 export const PROMO_PACKAGES: Package[] = [
   {

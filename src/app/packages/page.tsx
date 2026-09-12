@@ -7,7 +7,10 @@ import { PricingNote } from "@/components/pricing/PricingNote";
 import { FAQ } from "@/components/home/FAQ";
 import { CtaBanner } from "@/components/home/CtaBanner";
 import { RequestListModal } from "@/components/forms/RequestListModal";
-import { STANDARD_PACKAGES, CASINO_PACKAGES } from "@/data/packages";
+import { STANDARD_PACKAGES, CASINO_PACKAGES, PROMO_PRICE, promoDeadlineLabel } from "@/data/packages";
+import { TOTAL_NEWSPAPERS } from "@/data/newspapers";
+import { formatPrice } from "@/lib/utils";
+import { Sparkles } from "lucide-react";
 import { PackagesStructuredData } from "@/components/seo/StructuredData";
 import { Mail } from "lucide-react";
 
@@ -17,6 +20,9 @@ export const metadata: Metadata = {
     "Media Chief packages: Local ($150), Regional ($500), National 50 ($1,500). Casino/iGaming variants and Bronze/Silver/Gold/Platinum monthly subscriptions.",
   alternates: { canonical: "/packages" },
 };
+
+const deadline = promoDeadlineLabel();
+const LIST_NATIONAL = STANDARD_PACKAGES.find((p) => p.id === "national")?.price ?? 1500;
 
 export default function PackagesPage() {
   return (
@@ -56,6 +62,37 @@ export default function PackagesPage() {
       {/* Standard */}
       <div className="section bg-white">
         <div className="container space-y-24">
+          {/* Limited intro offer for new clients — a promotion, not a tier. */}
+          <section id="intro-offer" className="scroll-mt-24 overflow-hidden rounded-2xl border-2 border-brand-gold bg-brand-navy text-white">
+            <div className="grid gap-8 p-8 lg:grid-cols-[1.4fr_1fr] lg:items-center lg:p-12">
+              <div>
+                <span className="inline-flex items-center gap-2 rounded-full bg-brand-gold/15 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-brand-gold">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  {deadline ? `New clients only — until ${deadline}` : "New clients only — limited offer"}
+                </span>
+                <h2 className="mt-4 font-serif text-3xl font-bold leading-tight sm:text-4xl">
+                  Your first article in all {TOTAL_NEWSPAPERS} newspapers for{" "}
+                  <span className="text-brand-gold">${formatPrice(PROMO_PRICE)}</span>
+                </h2>
+                <p className="mt-4 text-white/85">
+                  The whole network, once, at a fraction of the National price — so you can test
+                  it at minimal risk. Published within one business day, permanent, with the full
+                  list of links in PDF and Excel. First order per company.
+                </p>
+              </div>
+              <div className="rounded-xl border border-white/15 bg-white/5 p-6 text-center">
+                <p className="text-xs uppercase tracking-wider text-white/50">Regular price</p>
+                <p className="font-serif text-2xl font-bold text-white/40 line-through">${formatPrice(LIST_NATIONAL)}</p>
+                <p className="mt-2 text-xs uppercase tracking-wider text-brand-gold">Intro offer</p>
+                <p className="font-serif text-6xl font-bold text-brand-gold">${formatPrice(PROMO_PRICE)}</p>
+                <Button variant="accent" size="lg" asChild className="mt-5 w-full">
+                  <Link href="/intro-offer">Claim the intro offer</Link>
+                </Button>
+                <p className="mt-3 text-xs text-white/60">Card payment · receipt by email · final price</p>
+              </div>
+            </div>
+          </section>
+
           <PricingGroup
             packages={STANDARD_PACKAGES}
             id="standard"

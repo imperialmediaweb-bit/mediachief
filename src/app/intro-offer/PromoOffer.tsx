@@ -81,7 +81,7 @@ export function PromoOffer({ showPrice = true }: { showPrice?: boolean }) {
     if (loading) return;
     setError(null);
     trackPixelEvent("InitiateCheckout", {
-      content_name: `Offer 499 — ${isCasino ? "casino" : "standard"}${monthly ? " monthly" : ""}`,
+      content_name: `Intro offer — ${isCasino ? "casino" : "standard"}${monthly ? " monthly" : ""}`,
       content_category: "promo",
       value: offer.price,
       currency: "USD",
