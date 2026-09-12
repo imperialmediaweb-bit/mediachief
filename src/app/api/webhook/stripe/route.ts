@@ -42,6 +42,24 @@ export async function POST(req: NextRequest) {
     const packageLabel = session.metadata?.packageId || "—";
     const firstName = (session.customer_details?.name || "").split(" ")[0] || "";
 
+    // Invoice links: Stripe creates the invoice for one-time payments (via
+    // invoice_creation) and for every subscription cycle. Fetch it so the
+    // client gets the PDF in the confirmation email.
+    let invoiceUrl = "";
+    let invoicePdf = "";
+    let invoiceNumber = "";
+    const invoiceId = typeof session.invoice === "string" ? session.invoice : session.invoice?.id;
+    if (invoiceId) {
+      try {
+        const invoice = await stripe.invoices.retrieve(invoiceId);
+        invoiceUrl = invoice.hosted_invoice_url || "";
+        invoicePdf = invoice.invoice_pdf || "";
+        invoiceNumber = invoice.number || "";
+      } catch (err) {
+        console.error("[stripe-webhook] could not load invoice", invoiceId, err);
+      }
+    }
+
     const adminHtml = wrapEmail(
       "Payment received — Stripe",
       `
@@ -51,6 +69,7 @@ export async function POST(req: NextRequest) {
         ${kv("Amount", `$${amount.toFixed(2)}`)}
         ${kv("Client email", email)}
         ${kv("Client name", session.customer_details?.name || "—")}
+        ${kv("Invoice", invoiceNumber ? `${invoiceNumber} — ${invoiceUrl}` : "—")}
         ${kv("Session ID", session.id)}
       </table>
       <p style="margin-top:16px;color:#64748b;">Contact the client for the article details.</p>
@@ -70,6 +89,11 @@ export async function POST(req: NextRequest) {
         `
         <p>Hi${firstName ? " " + firstName : ""},</p>
         <p>Thank you for your payment! We received <strong>$${amount.toFixed(2)}</strong> for the <strong>${packageLabel}</strong> package.</p>
+        ${
+          invoiceUrl
+            ? `<p>Your invoice${invoiceNumber ? ` <strong>${invoiceNumber}</strong>` : ""} is ready: <a href="${invoiceUrl}">view it online</a>${invoicePdf ? ` or <a href="${invoicePdf}">download the PDF</a>` : ""}.</p>`
+            : ""
+        }
         <p>A member of our team will email you within 2 hours (during business hours) with the publishing details.</p>
         <p style="margin-top:24px;">Best regards,<br/><strong>The Media Chief Team</strong></p>
       `
