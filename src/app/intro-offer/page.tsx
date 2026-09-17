@@ -21,6 +21,7 @@ import {
 import { PromoOffer } from "./PromoOffer";
 import { ClientsStrip } from "@/components/ClientsStrip";
 import { NewspaperDirectory } from "@/components/NewspaperDirectory";
+import { CoverageMap } from "@/components/CoverageMap";
 import { CompanyDetails } from "@/components/CompanyDetails";
 import { PROMO_PRICE, PROMO_PRICE_CASINO, STANDARD_PACKAGES, promoDeadlineLabel } from "@/data/packages";
 import { TOTAL_NEWSPAPERS, REGION_COUNTS } from "@/data/newspapers";
@@ -352,6 +353,16 @@ export default function IntroOfferPage() {
               came out today.
             </p>
           </div>
+          <div className="mx-auto mt-10 max-w-3xl rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
+            <p className="text-center text-xs font-bold uppercase tracking-wider text-brand-red">
+              Where your article goes
+            </p>
+            <h3 className="mt-2 text-center font-serif text-2xl font-bold text-brand-navy">
+              One newspaper in {TOTAL_NEWSPAPERS} states
+            </h3>
+            <CoverageMap className="mt-8" />
+          </div>
+
           <div className="mt-10">
             <NewspaperDirectory />
           </div>
