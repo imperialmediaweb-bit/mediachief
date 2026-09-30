@@ -65,8 +65,8 @@ export default function AboutPage() {
                 serious PR budgets. Media Chief changes that.
               </p>
               <p>
-                With a network of 50 partner newspapers — one in every U.S. state — and 37
-                Facebook pages, we give small businesses, clinics, restaurants, startups and
+                With a network of 50 partner newspapers — one in every U.S. state — we give
+                small businesses, clinics, restaurants, startups and
                 marketing agencies access to the visibility that only the big players used to
                 afford.
               </p>

@@ -59,8 +59,8 @@ export function Hero() {
           </h1>
 
           <p className="mt-8 max-w-xl text-lg leading-relaxed text-white/85">
-            Fast press release distribution across 50 U.S. newspapers — one in every state — and
-            37 Facebook pages. You get a complete PDF report with links and screenshots.
+            Fast press release distribution across 50 U.S. newspapers — one in every state.
+            You get a complete PDF report with links and screenshots.
             Permanent publication, SEO backlinks included.
           </p>
 

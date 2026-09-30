@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import {
   Mail,
   Newspaper,
-  Facebook,
+  Search,
   Link as LinkIcon,
   CheckCircle2,
   Globe,
@@ -39,10 +39,10 @@ const BENEFITS = [
       "Nationwide reach in a single placement, from the Northeast to the West Coast.",
   },
   {
-    icon: Facebook,
-    title: "Distribution on Facebook pages",
+    icon: Search,
+    title: "Submitted to the search engines",
     description:
-      "Every platform has a Facebook page with 300–10,000 followers, for extra social media exposure.",
+      "Every address is sent to Google, Bing and Yandex the day the article goes live.",
   },
   {
     icon: LinkIcon,
@@ -56,7 +56,6 @@ const BENEFITS = [
 const CONDITIONS = [
   "Permanent article on our site.",
   "One day of exposure on the homepage.",
-  "Distribution on our Facebook pages.",
   "3 images and 3 dofollow links included.",
   "Article writing services — on request.",
   "We accept any type of content.",
@@ -112,11 +111,6 @@ export default function OfferPage() {
               icon={FileText}
               value="4"
               label="regions: Northeast, Midwest, South, West"
-            />
-            <StatCard
-              icon={Facebook}
-              value="300–10k"
-              label="followers per associated Facebook page"
             />
           </div>
         </div>
@@ -216,7 +210,7 @@ export default function OfferPage() {
               </h2>
             </div>
             <p className="mt-4 text-slate-600">
-              Card payment or bank transfer, with an invoice and a service
+              Card payment, with an invoice and a service
               agreement — everything you need for B2B accounting.
             </p>
           </div>

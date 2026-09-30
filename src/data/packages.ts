@@ -26,7 +26,7 @@ export interface SubscriptionPlan {
 }
 
 const COMMON_HIGHLIGHTS = [
-  "Automatic Facebook distribution",
+  "Submitted to search engines the same day",
   "Links delivered within 24h",
   "PDF report with all URLs",
   "Published permanently online",
@@ -37,14 +37,14 @@ export const STANDARD_PACKAGES: Package[] = [
     id: "local",
     name: "Local",
     tagline: "Single-state coverage",
-    price: 150,
+    price: 40,
     currency: "USD",
     newspapers: 1,
     reach: "1 state newspaper of your choice",
     category: "standard",
     highlights: [
       "1 article in 1 state newspaper (client's choice)",
-      "Distribution on the associated Facebook page",
+      "Submitted to search engines the same day",
       "Link delivered within 24h",
       "Report with the article URL",
       "Permanently online",
@@ -61,7 +61,7 @@ export const STANDARD_PACKAGES: Package[] = [
     category: "standard",
     highlights: [
       "1 article in 10 newspapers from one region",
-      "Distribution on the associated Facebook pages",
+      "Submitted to search engines the same day",
       "Links delivered within 24h",
       "PDF report with all URLs",
       "Permanently online",
@@ -80,7 +80,7 @@ export const STANDARD_PACKAGES: Package[] = [
     badge: "Most popular",
     highlights: [
       "1 article in 50 newspapers (one in every state)",
-      "Distribution on 37 Facebook pages",
+      "Submitted to search engines the same day",
       "Links delivered within 24h",
       "Complete PDF report",
       "Permanently online",
@@ -101,7 +101,7 @@ export const CASINO_PACKAGES: Package[] = [
     category: "casino",
     highlights: [
       "1 article in 1 state newspaper",
-      "Facebook distribution",
+      "Submitted to search engines the same day",
       "Link delivered within 24h + report",
       "Permanently online",
     ],
@@ -117,7 +117,7 @@ export const CASINO_PACKAGES: Package[] = [
     category: "casino",
     highlights: [
       "1 article in 10 newspapers",
-      "Facebook distribution",
+      "Submitted to search engines the same day",
       "Links delivered within 24h + report",
       "Permanently online",
     ],
@@ -135,7 +135,7 @@ export const CASINO_PACKAGES: Package[] = [
     badge: "Recommended for iGaming",
     highlights: [
       "1 article in 50 newspapers",
-      "Distribution on 37 Facebook pages",
+      "Submitted to search engines the same day",
       "Links delivered within 24h",
       "Complete PDF report",
       "Permanently online",
@@ -184,10 +184,10 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
 ];
 
 export const PRICING_NOTE =
-  "The report includes the links and screenshots of the articles published on all 50 sites. Facebook distribution is automatically included in every package, but Facebook page statistics cannot be collected in the report.";
+  "The report includes the links and screenshots of the articles published on all 50 sites.";
 
 export const SUBSCRIPTION_BENEFITS = [
-  "Facebook distribution automatically included",
+  "Every article submitted to search engines",
   "Consolidated monthly PDF report",
   "Publishing priority",
   "Dedicated subscription support",
@@ -210,10 +210,10 @@ export function findSubscriptionPlanById(id: string): SubscriptionPlan | undefin
 // (/intro-offer) and shown on /packages as a limited offer for new clients.
 // ---------------------------------------------------------------------------
 
-export const PROMO_PRICE = 299;
-export const PROMO_PRICE_CASINO = 599;
-export const PROMO_MONTHLY = 249;
-export const PROMO_MONTHLY_CASINO = 499;
+export const PROMO_PRICE = 149;
+export const PROMO_PRICE_CASINO = 299;
+export const PROMO_MONTHLY = 129;
+export const PROMO_MONTHLY_CASINO = 259;
 
 export const PROMO_PACKAGES: Package[] = [
   {
@@ -293,4 +293,34 @@ export function promoDeadlineLabel(now: number = Date.now()): string | null {
     day: "numeric",
     timeZone: "America/New_York",
   }).format(d);
+}
+
+// ---------------------------------------------------------------------------
+// Pick-your-own: the client chooses the newspapers, the price drops as the
+// selection grows, and the whole network is never more than the intro price.
+// The UI shows this and the checkout API recomputes it — the browser is never
+// trusted with a price.
+// ---------------------------------------------------------------------------
+
+export const PICK_FIRST = 40;
+export const PICK_FIRST_CASINO = 80;
+export const PICK_EACH_MORE = 6;
+export const PICK_EACH_MORE_CASINO = 12;
+
+/** What `count` newspapers cost, capped at the whole-network intro price. */
+export function pickPrice(count: number, casino = false): number {
+  const n = Math.max(0, Math.floor(count));
+  if (n === 0) return 0;
+  const first = casino ? PICK_FIRST_CASINO : PICK_FIRST;
+  const step = casino ? PICK_EACH_MORE_CASINO : PICK_EACH_MORE;
+  const cap = casino ? PROMO_PRICE_CASINO : PROMO_PRICE;
+  return Math.min(cap, first + (n - 1) * step);
+}
+
+/** The smallest selection that already costs the whole-network price. */
+export function pickCapAt(casino = false): number {
+  const first = casino ? PICK_FIRST_CASINO : PICK_FIRST;
+  const step = casino ? PICK_EACH_MORE_CASINO : PICK_EACH_MORE;
+  const cap = casino ? PROMO_PRICE_CASINO : PROMO_PRICE;
+  return Math.ceil((cap - first) / step) + 1;
 }

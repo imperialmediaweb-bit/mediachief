@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
-import { MapPin, Newspaper, Facebook, Globe, Mail } from "lucide-react";
+import { MapPin, Newspaper, Globe, Mail } from "lucide-react";
 import { RequestListModal } from "@/components/forms/RequestListModal";
 import { REGION_COUNTS } from "@/data/newspapers";
 
@@ -9,7 +9,7 @@ import { REGION_COUNTS } from "@/data/newspapers";
 export const metadata: Metadata = {
   title: "Our newspaper network",
   description:
-    "Media Chief distributes across a nationwide network of 50 newspapers and 37 Facebook pages.",
+    "Media Chief distributes across a nationwide network of 50 newspapers, one in every state.",
   alternates: { canonical: "/our-network" },
   robots: { index: false, follow: false },
 };
@@ -104,8 +104,8 @@ export default function OurNetworkPage() {
           <p className="eyebrow text-brand-gold">Nationwide coverage</p>
           <h1 className="h1 mt-3 text-white">The Media Chief network</h1>
           <p className="lead mx-auto mt-6 max-w-2xl text-white/85">
-            A solid network of partner newspapers and Facebook pages, built over years to give
-            our clients maximum nationwide visibility.
+            A solid network of partner newspapers, built over years to give our clients
+            maximum nationwide visibility.
           </p>
         </div>
       </section>
@@ -114,7 +114,6 @@ export default function OurNetworkPage() {
         <div className="container">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <StatCard icon={Newspaper} value={`${TOTAL}`} label="partner newspapers" />
-            <StatCard icon={Facebook} value="37" label="associated Facebook pages" />
             <StatCard icon={Globe} value="4" label="regions covered" />
             <StatCard icon={MapPin} value={`${TOTAL}`} label="U.S. states" />
           </div>

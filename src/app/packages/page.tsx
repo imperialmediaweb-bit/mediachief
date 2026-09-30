@@ -7,7 +7,7 @@ import { PricingNote } from "@/components/pricing/PricingNote";
 import { FAQ } from "@/components/home/FAQ";
 import { CtaBanner } from "@/components/home/CtaBanner";
 import { RequestListModal } from "@/components/forms/RequestListModal";
-import { STANDARD_PACKAGES, CASINO_PACKAGES, PROMO_PRICE, promoDeadlineLabel } from "@/data/packages";
+import { STANDARD_PACKAGES, CASINO_PACKAGES, PROMO_PRICE, PICK_FIRST, promoDeadlineLabel } from "@/data/packages";
 import { TOTAL_NEWSPAPERS } from "@/data/newspapers";
 import { formatPrice } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
@@ -89,6 +89,12 @@ export default function PackagesPage() {
                   <Link href="/intro-offer">Claim the intro offer</Link>
                 </Button>
                 <p className="mt-3 text-xs text-white/60">Card payment · receipt by email · final price</p>
+                <p className="mt-4 border-t border-white/10 pt-4 text-xs text-white/60">
+                  Want fewer newspapers?{" "}
+                  <Link href="/choose" className="font-semibold text-brand-gold hover:underline">
+                    Pick them yourself from ${PICK_FIRST}
+                  </Link>
+                </p>
               </div>
             </div>
           </section>

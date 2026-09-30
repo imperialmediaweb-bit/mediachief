@@ -14,13 +14,13 @@ export default function TermsPage() {
       <h2 className="font-serif text-2xl font-bold text-brand-navy">1. Scope of the agreement</h2>
       <p>
         Media Chief provides press release distribution services across a network of partner
-        newspapers and Facebook pages, according to the package chosen by the client.
+        newspapers, according to the package chosen by the client.
       </p>
 
       <h2 className="font-serif text-2xl font-bold text-brand-navy">2. Orders and payment</h2>
       <p>
         Orders are placed through the online form. After the order is confirmed, the client
-        receives an invoice and pays by card or bank transfer. Publication starts once payment is
+        pays by card and receives the invoice by email. Publication starts once payment is
         confirmed.
       </p>
 
@@ -45,9 +45,9 @@ export default function TermsPage() {
 
       <h2 className="font-serif text-2xl font-bold text-brand-navy">6. Publication report</h2>
       <p>
-        The PDF report includes the URLs and screenshots of the published articles. Facebook
-        distribution is automatically included, but Facebook page statistics cannot be collected
-        in the report.
+        The PDF report includes the URLs and screenshots of the published articles. Every
+        address is submitted to the search engines on publication day; whether and when they
+        index it is the search engines&apos; decision and cannot be guaranteed.
       </p>
 
       <h2 className="font-serif text-2xl font-bold text-brand-navy">7. Subscriptions</h2>

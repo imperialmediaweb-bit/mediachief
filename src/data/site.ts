@@ -4,7 +4,7 @@ export const SITE = {
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://media-chief.com",
   tagline: "Your article in 50 U.S. newspapers — one in every state — within 24h",
   description:
-    "Press release distribution service across 50 U.S. newspapers (one in every state) + 37 Facebook pages. 24h delivery, PDF report, permanent links.",
+    "Press release distribution service across 50 U.S. newspapers, one in every state. 24h delivery, PDF report, permanent links.",
   email: "contact@media-chief.com",
   phone: "+1 (555) 000-0000",
   address: "New York, NY, United States",
@@ -54,7 +54,7 @@ export const FOOTER_LINKS = {
 
 export const STATS = [
   { value: "50", label: "partner newspapers" },
-  { value: "37", label: "Facebook pages" },
+  { value: "4", label: "U.S. regions covered" },
   { value: "24h", label: "delivery time" },
   { value: "10k+", label: "articles published" },
 ];

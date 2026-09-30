@@ -3,7 +3,7 @@ import Link from "next/link";
 import {
   Newspaper,
   Globe,
-  Facebook,
+  Search,
   FileText,
   Clock,
   CheckCircle2,
@@ -79,9 +79,9 @@ const INCLUDED = [
     description: `All ${N} addresses by email, in PDF and Excel. Put them on your site under "In the press" or forward them to partners and clients.`,
   },
   {
-    icon: Facebook,
-    title: "Shared on the newspapers' Facebook pages",
-    description: "The publications post the article on their own Facebook pages at no extra cost. You can opt out at checkout if you only want the website placement.",
+    icon: Search,
+    title: "Submitted to the search engines",
+    description: "The day it goes live, every address is sent to Google, Bing and Yandex through their official channels. Whether and when they index it is their decision, not ours.",
   },
   {
     icon: ImageIcon,
@@ -164,8 +164,8 @@ const CONDITIONS = [
     detail: "Send up to 3 images; you pick the one used as the article's featured image.",
   },
   {
-    title: "Facebook sharing — included, optional",
-    detail: "The article is shared on the publications' Facebook pages at no extra cost. If you prefer the website placement only, untick it at checkout.",
+    title: "Submitted for indexing",
+    detail: "Every address is sent to the search engines on publication day. We cannot promise they will index it, or when — that call is theirs.",
   },
   {
     title: "Published as an article, not a banner",
@@ -196,7 +196,7 @@ const FAQ = [
   },
   {
     q: "Are these real newspapers or empty shells?",
-    a: `Each one publishes local news for its state every day — several hundred articles a day across the network — and shares them on its own Facebook page. The easiest check is your own: the full list is above; open any newspaper, read what came out today, and look at its Facebook page.`,
+    a: `Each one publishes local news for its state every day — several hundred articles a day across the network. The easiest check is your own: the full list is above; open any newspaper and read what came out today.`,
   },
   {
     q: "Will it bring visitors to my site?",
@@ -345,8 +345,8 @@ export default function IntroOfferPage() {
             <h2 className="h2 mt-2">These are real newspapers</h2>
             <p className="mt-4 text-slate-600">
               Each one publishes local news for its state every day: city hall, schools, hospitals,
-              sports, events. Your article appears among those stories, and the newspaper shares it
-              on its Facebook page like any other.
+              sports, events. Your article appears among those stories, with its own address, and
+              stays there.
             </p>
             <p className="mt-3 font-semibold text-brand-navy">
               Don&apos;t take our word for it. The list is below — open any newspaper and read what
@@ -501,8 +501,7 @@ export default function IntroOfferPage() {
                   We commit to publishing the article on the {N} publications and to giving you the
                   list of every link — that is it. What you do with the appearances, how good the
                   text is and how sought-after your product is do not depend on us. We promise no
-                  Google rankings, no growth in any SEO metric, no particular number of Facebook
-                  impressions. Every limit is spelled out in the{" "}
+                  Google rankings, no growth in any SEO metric, no particular number of readers. Every limit is spelled out in the{" "}
                   <Link href="/legal/terms" className="font-semibold text-brand-red hover:underline">
                     terms and conditions
                   </Link>

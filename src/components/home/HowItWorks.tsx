@@ -17,7 +17,7 @@ const STEPS = [
     icon: Send,
     title: "We publish on 50 newspapers",
     description:
-      "Within 24h we publish across our network + automatically distribute on 37 Facebook pages.",
+      "Within 24h the article is live on every site, with a unique version on each, and submitted to the search engines the same day.",
   },
   {
     icon: FileCheck2,

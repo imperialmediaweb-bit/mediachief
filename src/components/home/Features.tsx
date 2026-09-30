@@ -1,6 +1,6 @@
 import {
   Newspaper,
-  Facebook,
+  Search,
   Clock,
   FileText,
   Link2,
@@ -14,9 +14,9 @@ const FEATURES = [
     description: "One newspaper in every U.S. state — coverage across all 4 regions.",
   },
   {
-    icon: Facebook,
-    title: "37 Facebook pages",
-    description: "Automatic distribution on the associated pages. Included in every package.",
+    icon: Search,
+    title: "Submitted to search engines",
+    description: "Every article is sent to Google, Bing and Yandex the day it goes live.",
   },
   {
     icon: Clock,
@@ -36,7 +36,7 @@ const FEATURES = [
   {
     icon: Headphones,
     title: "Dedicated support",
-    description: "A PR team you can talk to directly by email, phone or WhatsApp.",
+    description: "A PR team you can talk to directly by email or phone.",
   },
 ];
 
