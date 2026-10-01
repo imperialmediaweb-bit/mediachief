@@ -42,12 +42,20 @@ export function PackageCard({ pkg }: PackageCardProps) {
       <h3 className="mt-4 font-serif text-3xl font-bold text-brand-navy">{pkg.name}</h3>
       <p className="mt-1 text-sm text-slate-600">{pkg.tagline}</p>
 
-      <div className="mt-6 flex items-baseline gap-1">
+      <div className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <span className="font-serif text-5xl font-bold text-brand-navy">
           ${formatPrice(pkg.price)}
         </span>
+        {pkg.listPrice && pkg.listPrice > pkg.price && (
+          <span className="font-serif text-2xl font-semibold text-slate-400 line-through">
+            ${formatPrice(pkg.listPrice)}
+          </span>
+        )}
       </div>
-      <p className="mt-1 text-sm text-slate-500">One-time payment</p>
+      <p className="mt-1 text-sm text-slate-500">
+        One-time payment
+        {pkg.listPrice && pkg.listPrice > pkg.price ? " · launch price" : ""}
+      </p>
 
       <div className="mt-5 rounded-lg bg-brand-ivory px-4 py-3 text-sm">
         <p className="font-semibold text-brand-navy">{pkg.reach}</p>

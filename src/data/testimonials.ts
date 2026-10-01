@@ -13,7 +13,7 @@ export const TESTIMONIALS: Testimonial[] = [
     company: "TechStart NYC",
     initials: "AP",
     quote:
-      "Within 24h our article was live on 50 sites, with a complete PDF report. For our launch it was exactly what we needed — zero hassle, maximum visibility.",
+      "Within 24h our article was live on 49 sites, with a complete PDF report. For our launch it was exactly what we needed — zero hassle, maximum visibility.",
   },
   {
     name: "Ellen Martin",
@@ -21,7 +21,7 @@ export const TESTIMONIALS: Testimonial[] = [
     company: "MediLife Clinic",
     initials: "EM",
     quote:
-      "We used the National 50 package for our clinic's grand opening. I was impressed by the speed and the quality of the report. We've been using it regularly ever since.",
+      "We used the National 49 package for our clinic's grand opening. I was impressed by the speed and the quality of the report. We've been using it regularly ever since.",
   },
   {
     name: "Victor Stone",

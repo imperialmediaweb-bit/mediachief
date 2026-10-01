@@ -7,7 +7,7 @@ import { PricingNote } from "@/components/pricing/PricingNote";
 import { FAQ } from "@/components/home/FAQ";
 import { CtaBanner } from "@/components/home/CtaBanner";
 import { RequestListModal } from "@/components/forms/RequestListModal";
-import { STANDARD_PACKAGES, CASINO_PACKAGES, PROMO_PRICE, PICK_FIRST, promoDeadlineLabel } from "@/data/packages";
+import { STANDARD_PACKAGES, CASINO_PACKAGES, PROMO_PRICE, PICK_FIRST, PICK_EACH_MORE, promoDeadlineLabel } from "@/data/packages";
 import { TOTAL_NEWSPAPERS } from "@/data/newspapers";
 import { formatPrice } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
@@ -15,14 +15,13 @@ import { PackagesStructuredData } from "@/components/seo/StructuredData";
 import { Mail } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Packages and pricing — Distribution across 50 U.S. newspapers",
+  title: "Packages and pricing — Distribution across 49 U.S. newspapers",
   description:
-    "Media Chief packages: Local ($150), Regional ($500), National 50 ($1,500). Casino/iGaming variants and Bronze/Silver/Gold/Platinum monthly subscriptions.",
+    "Media Chief packages: Local ($40), Regional ($94), National 49 ($149). Casino/iGaming variants and Bronze/Silver/Gold/Platinum monthly subscriptions.",
   alternates: { canonical: "/packages" },
 };
 
 const deadline = promoDeadlineLabel();
-const LIST_NATIONAL = STANDARD_PACKAGES.find((p) => p.id === "national")?.price ?? 1500;
 
 export default function PackagesPage() {
   return (
@@ -62,39 +61,38 @@ export default function PackagesPage() {
       {/* Standard */}
       <div className="section bg-white">
         <div className="container space-y-24">
-          {/* Limited intro offer for new clients — a promotion, not a tier. */}
+          {/* Launch pricing banner — the prices below ARE the offer, so no fake
+              struck-through tier here. */}
           <section id="intro-offer" className="scroll-mt-24 overflow-hidden rounded-2xl border-2 border-brand-gold bg-brand-navy text-white">
             <div className="grid gap-8 p-8 lg:grid-cols-[1.4fr_1fr] lg:items-center lg:p-12">
               <div>
                 <span className="inline-flex items-center gap-2 rounded-full bg-brand-gold/15 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-brand-gold">
                   <Sparkles className="h-3.5 w-3.5" />
-                  {deadline ? `New clients only — until ${deadline}` : "New clients only — limited offer"}
+                  {deadline ? `Launch pricing — until ${deadline}` : "Launch pricing"}
                 </span>
                 <h2 className="mt-4 font-serif text-3xl font-bold leading-tight sm:text-4xl">
-                  Your first article in all {TOTAL_NEWSPAPERS} newspapers for{" "}
-                  <span className="text-brand-gold">${formatPrice(PROMO_PRICE)}</span>
+                  Every price below is a launch price
                 </h2>
                 <p className="mt-4 text-white/85">
-                  The whole network, once, at a fraction of the National price — so you can test
-                  it at minimal risk. Published within one business day, permanent, with the full
-                  list of links in PDF and Excel. First order per company.
+                  We opened the network to US clients this autumn, so the prices you see are the
+                  opening ones — the struck-through figure beside each is what the package costs
+                  afterwards. One article in all {TOTAL_NEWSPAPERS} newspapers is{" "}
+                  <strong className="text-brand-gold">${formatPrice(PROMO_PRICE)}</strong> right now.
+                  Published within one business day, permanent, with the full list of links in PDF
+                  and Excel.
                 </p>
               </div>
               <div className="rounded-xl border border-white/15 bg-white/5 p-6 text-center">
-                <p className="text-xs uppercase tracking-wider text-white/50">Regular price</p>
-                <p className="font-serif text-2xl font-bold text-white/40 line-through">${formatPrice(LIST_NATIONAL)}</p>
-                <p className="mt-2 text-xs uppercase tracking-wider text-brand-gold">Intro offer</p>
-                <p className="font-serif text-6xl font-bold text-brand-gold">${formatPrice(PROMO_PRICE)}</p>
-                <Button variant="accent" size="lg" asChild className="mt-5 w-full">
-                  <Link href="/intro-offer">Claim the intro offer</Link>
-                </Button>
-                <p className="mt-3 text-xs text-white/60">Card payment · receipt by email · final price</p>
-                <p className="mt-4 border-t border-white/10 pt-4 text-xs text-white/60">
-                  Want fewer newspapers?{" "}
-                  <Link href="/choose" className="font-semibold text-brand-gold hover:underline">
-                    Pick them yourself from ${PICK_FIRST}
-                  </Link>
+                <p className="text-xs uppercase tracking-wider text-white/50">Pay only for what you need</p>
+                <p className="mt-2 font-serif text-5xl font-bold text-brand-gold">from ${PICK_FIRST}</p>
+                <p className="mt-2 text-sm text-white/70">
+                  Tick the newspapers you want. ${PICK_FIRST} for the first, ${PICK_EACH_MORE} for
+                  each one after, never more than ${formatPrice(PROMO_PRICE)} for the whole network.
                 </p>
+                <Button variant="accent" size="lg" asChild className="mt-5 w-full">
+                  <Link href="/choose">Pick your newspapers</Link>
+                </Button>
+                <p className="mt-3 text-xs text-white/60">Card payment · invoice by email · final price</p>
               </div>
             </div>
           </section>
@@ -148,7 +146,7 @@ export default function PackagesPage() {
                   <Mail className="h-3.5 w-3.5" /> Free • PDF by email
                 </div>
                 <h3 className="mt-5 font-serif text-3xl font-bold sm:text-4xl">
-                  Want the full list of all 50 newspapers?
+                  Want the full list of all 49 newspapers?
                 </h3>
                 <p className="mt-4 text-white/85 leading-relaxed">
                   Fill in the form and within 2 minutes we&apos;ll email you the PDF with every

@@ -7,6 +7,8 @@ export interface Package {
   price: number;
   currency: "USD";
   newspapers: number;
+  /** What this package costs once the launch period ends. Shown struck through. */
+  listPrice?: number;
   reach: string;
   category: PackageCategory;
   featured?: boolean;
@@ -18,9 +20,12 @@ export interface SubscriptionPlan {
   id: string;
   name: string;
   distributionsPerMonth: number;
-  newspapersPerDistribution: 50;
+  newspapersPerDistribution: number;
   priceStandard: number;
   priceCasino: number;
+  /** Post-launch monthly prices, shown struck through. */
+  listStandard?: number;
+  listCasino?: number;
   featured?: boolean;
   description: string;
 }
@@ -37,6 +42,7 @@ export const STANDARD_PACKAGES: Package[] = [
     id: "local",
     name: "Local",
     tagline: "Single-state coverage",
+    listPrice: 79,
     price: 40,
     currency: "USD",
     newspapers: 1,
@@ -54,7 +60,8 @@ export const STANDARD_PACKAGES: Package[] = [
     id: "regional",
     name: "Regional",
     tagline: "A full region covered",
-    price: 500,
+    listPrice: 189,
+    price: 94,
     currency: "USD",
     newspapers: 10,
     reach: "10 newspapers from one region (Northeast / Midwest / South / West)",
@@ -69,22 +76,23 @@ export const STANDARD_PACKAGES: Package[] = [
   },
   {
     id: "national",
-    name: "National 50",
+    name: "National 49",
     tagline: "Most popular — maximum coverage",
-    price: 1500,
+    listPrice: 299,
+    price: 149,
     currency: "USD",
-    newspapers: 50,
-    reach: "50 newspapers — one in every U.S. state",
+    newspapers: 49,
+    reach: "49 newspapers — one in every state we cover",
     category: "standard",
     featured: true,
     badge: "Most popular",
     highlights: [
-      "1 article in 50 newspapers (one in every state)",
+      "1 article in 49 newspapers (one in every state we cover)",
       "Submitted to search engines the same day",
       "Links delivered within 24h",
       "Complete PDF report",
       "Permanently online",
-      "50 SEO backlinks",
+      "49 SEO backlinks",
     ],
   },
 ];
@@ -94,7 +102,8 @@ export const CASINO_PACKAGES: Package[] = [
     id: "casino-local",
     name: "Casino Local",
     tagline: "iGaming • betting • single state",
-    price: 300,
+    listPrice: 159,
+    price: 80,
     currency: "USD",
     newspapers: 1,
     reach: "1 state newspaper",
@@ -110,7 +119,8 @@ export const CASINO_PACKAGES: Package[] = [
     id: "casino-regional",
     name: "Casino Regional",
     tagline: "iGaming • betting • one region",
-    price: 900,
+    listPrice: 379,
+    price: 188,
     currency: "USD",
     newspapers: 10,
     reach: "10 newspapers from one region",
@@ -126,15 +136,16 @@ export const CASINO_PACKAGES: Package[] = [
     id: "casino-national",
     name: "Casino National",
     tagline: "iGaming • betting • maximum coverage",
-    price: 2500,
+    listPrice: 599,
+    price: 299,
     currency: "USD",
-    newspapers: 50,
-    reach: "50 newspapers — one in every state",
+    newspapers: 49,
+    reach: "49 newspapers — one in every state we cover",
     category: "casino",
     featured: true,
     badge: "Recommended for iGaming",
     highlights: [
-      "1 article in 50 newspapers",
+      "1 article in 49 newspapers",
       "Submitted to search engines the same day",
       "Links delivered within 24h",
       "Complete PDF report",
@@ -148,43 +159,51 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     id: "bronze",
     name: "Bronze",
     distributionsPerMonth: 1,
-    newspapersPerDistribution: 50,
-    priceStandard: 1300,
-    priceCasino: 2300,
-    description: "1 article × 50 newspapers per month",
+    newspapersPerDistribution: 49,
+    priceStandard: 129,
+    priceCasino: 259,
+    listStandard: 259,
+    listCasino: 519,
+    description: "1 article × 49 newspapers per month",
   },
   {
     id: "silver",
     name: "Silver",
     distributionsPerMonth: 2,
-    newspapersPerDistribution: 50,
-    priceStandard: 2400,
-    priceCasino: 4400,
-    description: "2 articles × 50 newspapers per month",
+    newspapersPerDistribution: 49,
+    priceStandard: 239,
+    priceCasino: 479,
+    listStandard: 479,
+    listCasino: 959,
+    description: "2 articles × 49 newspapers per month",
   },
   {
     id: "gold",
     name: "Gold",
     distributionsPerMonth: 4,
-    newspapersPerDistribution: 50,
-    priceStandard: 4500,
-    priceCasino: 8500,
+    newspapersPerDistribution: 49,
+    priceStandard: 449,
+    priceCasino: 899,
+    listStandard: 899,
+    listCasino: 1799,
     featured: true,
-    description: "4 articles × 50 newspapers per month",
+    description: "4 articles × 49 newspapers per month",
   },
   {
     id: "platinum",
     name: "Platinum",
     distributionsPerMonth: 8,
-    newspapersPerDistribution: 50,
-    priceStandard: 8000,
-    priceCasino: 15000,
-    description: "8 articles × 50 newspapers per month",
+    newspapersPerDistribution: 49,
+    priceStandard: 799,
+    priceCasino: 1599,
+    listStandard: 1599,
+    listCasino: 3199,
+    description: "8 articles × 49 newspapers per month",
   },
 ];
 
 export const PRICING_NOTE =
-  "The report includes the links and screenshots of the articles published on all 50 sites.";
+  "The report includes the links and screenshots of the articles published on all 49 sites.";
 
 export const SUBSCRIPTION_BENEFITS = [
   "Every article submitted to search engines",

@@ -9,7 +9,7 @@ import { REGION_COUNTS } from "@/data/newspapers";
 export const metadata: Metadata = {
   title: "Our newspaper network",
   description:
-    "Media Chief distributes across a nationwide network of 50 newspapers, one in every state.",
+    "Media Chief distributes across a nationwide network of 49 newspapers, one in every state.",
   alternates: { canonical: "/our-network" },
   robots: { index: false, follow: false },
 };
@@ -153,7 +153,7 @@ export default function OurNetworkPage() {
                 </div>
                 <p className="mt-4 text-sm text-slate-600">
                   Every state gets its own publication, all included in the{" "}
-                  <strong className="text-brand-navy">National 50</strong> package and in every
+                  <strong className="text-brand-navy">National 49</strong> package and in every
                   subscription.
                 </p>
               </div>
@@ -168,7 +168,7 @@ export default function OurNetworkPage() {
             </h3>
             <p className="mx-auto mt-4 max-w-2xl text-white/85">
               Out of respect for our network, and to protect it from SEO abuse, we send the exact
-              names and URLs of the 50 newspapers directly by email after a short form. Free, no
+              names and URLs of the 49 newspapers directly by email after a short form. Free, no
               obligation.
             </p>
             <div className="mt-8">

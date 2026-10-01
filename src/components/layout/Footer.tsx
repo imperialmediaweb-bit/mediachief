@@ -11,7 +11,7 @@ export function Footer() {
           <div>
             <Logo variant="white" showTagline />
             <p className="mt-6 max-w-sm text-sm text-white/70 leading-relaxed">
-              Press release distribution across 50 U.S. newspapers — one in every state.
+              Press release distribution across 49 U.S. newspapers — one in every state.
               24h delivery, complete PDF report, permanent links.
             </p>
             <div className="mt-6 flex gap-3">

@@ -36,6 +36,11 @@ export function SubscriptionTable() {
                 </div>
                 <div className="mt-0.5 font-serif text-3xl font-bold text-brand-navy">
                   ${formatPrice(plan.priceStandard)}
+                  {plan.listStandard && plan.listStandard > plan.priceStandard && (
+                    <span className="ml-2 text-sm font-normal text-slate-400 line-through">
+                      ${formatPrice(plan.listStandard)}
+                    </span>
+                  )}
                   <span className="ml-1 text-sm font-medium text-slate-500">/month</span>
                 </div>
               </div>
@@ -45,6 +50,11 @@ export function SubscriptionTable() {
                 </div>
                 <div className="mt-0.5 font-serif text-2xl font-bold text-brand-red">
                   ${formatPrice(plan.priceCasino)}
+                  {plan.listCasino && plan.listCasino > plan.priceCasino && (
+                    <span className="ml-2 text-sm font-normal text-slate-400 line-through">
+                      ${formatPrice(plan.listCasino)}
+                    </span>
+                  )}
                   <span className="ml-1 text-sm font-medium text-red-500/70">/month</span>
                 </div>
               </div>
@@ -54,7 +64,7 @@ export function SubscriptionTable() {
               <ul className="space-y-2 text-sm text-slate-600">
                 <li>
                   <strong className="text-brand-navy">{plan.distributionsPerMonth}</strong>{" "}
-                  {plan.distributionsPerMonth === 1 ? "article" : "articles"} × 50 newspapers
+                  {plan.distributionsPerMonth === 1 ? "article" : "articles"} × 49 newspapers
                 </li>
                 <li>
                   <strong className="text-brand-navy">

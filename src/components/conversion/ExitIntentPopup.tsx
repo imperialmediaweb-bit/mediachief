@@ -45,7 +45,7 @@ export function ExitIntentPopup() {
         <DialogHeader>
           <DialogTitle>Wait — get the full offer for free</DialogTitle>
           <DialogDescription>
-            The list of all 50 newspapers + detailed pricing, by email in 2 minutes.
+            The list of all 49 newspapers + detailed pricing, by email in 2 minutes.
             No obligation, no spam.
           </DialogDescription>
         </DialogHeader>

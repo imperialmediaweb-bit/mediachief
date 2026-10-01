@@ -6,7 +6,7 @@ import { CtaBanner } from "@/components/home/CtaBanner";
 export const metadata: Metadata = {
   title: "About us — Media Chief",
   description:
-    "Media Chief is a U.S. agency specialized in press release distribution across a network of newspapers covering all 50 states.",
+    "Media Chief is a U.S. agency specialized in press release distribution across a network of newspapers covering 49 states.",
   alternates: { canonical: "/about" },
 };
 
@@ -65,7 +65,7 @@ export default function AboutPage() {
                 serious PR budgets. Media Chief changes that.
               </p>
               <p>
-                With a network of 50 partner newspapers — one in every U.S. state — we give
+                With a network of 49 partner newspapers — one in every U.S. state — we give
                 small businesses, clinics, restaurants, startups and
                 marketing agencies access to the visibility that only the big players used to
                 afford.

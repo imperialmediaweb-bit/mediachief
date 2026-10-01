@@ -15,7 +15,7 @@ const STEPS = [
   },
   {
     icon: Send,
-    title: "We publish on 50 newspapers",
+    title: "We publish on 49 newspapers",
     description:
       "Within 24h the article is live on every site, with a unique version on each, and submitted to the search engines the same day.",
   },
@@ -36,7 +36,7 @@ export function HowItWorks() {
           <h2 className="h2 mt-2">How it works</h2>
           <p className="lead mt-4">
             Simple process, big results. In under 24h you&apos;re on the front page of newspapers
-            across all 50 states.
+            across all 49 states we cover.
           </p>
         </div>
 

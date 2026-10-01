@@ -5,7 +5,7 @@ const REGIONS = [
   { name: "Midwest", count: 12 },
   { name: "South", count: 16 },
   { name: "West", count: 13 },
-  { name: "States covered", count: 50 },
+  { name: "States covered", count: 49 },
 ];
 
 export function CoverageBanner() {

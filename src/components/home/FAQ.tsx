@@ -16,7 +16,7 @@ const FAQS = [
   },
   {
     q: "Can I choose which newspapers I appear in?",
-    a: "For the Local package, yes — you pick the state newspaper you want from a list. For Regional you choose the region (Northeast / Midwest / South / West). For National 50, your article appears in all 50 partner newspapers — one in every state.",
+    a: "For the Local package, yes — you pick the state newspaper you want from a list. For Regional you choose the region (Northeast / Midwest / South / West). For National 49, your article appears in all 49 partner newspapers — one in every state we cover.",
   },
   {
     q: "How long does the article stay online?",
@@ -27,7 +27,7 @@ const FAQS = [
     a: "Publishing iGaming/betting/casino content involves extra legal responsibility, compliance checks and editor acceptance. The price reflects that additional effort.",
   },
   {
-    q: "Can I see the full list of the 50 newspapers?",
+    q: "Can I see the full list of the 49 newspapers?",
     a: "Yes — we send you the full list as a PDF by email, free. Fill in the form on the packages page and you'll receive it within 2 minutes.",
   },
 ];

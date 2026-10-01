@@ -40,7 +40,7 @@ export function Hero() {
           <h1 className="mt-6 font-serif text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
             Your article in{" "}
             <span className="relative whitespace-nowrap text-brand-gold">
-              50 newspapers
+              49 newspapers
               <svg
                 aria-hidden="true"
                 viewBox="0 0 400 20"
@@ -55,11 +55,11 @@ export function Hero() {
                 />
               </svg>
             </span>{" "}
-            across all 50 states in 24h.
+            across all 49 states we cover in 24h.
           </h1>
 
           <p className="mt-8 max-w-xl text-lg leading-relaxed text-white/85">
-            Fast press release distribution across 50 U.S. newspapers — one in every state.
+            Fast press release distribution across 49 U.S. newspapers — one in every state.
             You get a complete PDF report with links and screenshots.
             Permanent publication, SEO backlinks included.
           </p>
@@ -155,7 +155,7 @@ function HeroVisual() {
           <CheckCircle2 className="h-5 w-5 text-brand-red" />
         </div>
         <div>
-          <div className="text-sm font-bold text-brand-navy">Published on 50 sites</div>
+          <div className="text-sm font-bold text-brand-navy">Published on 49 sites</div>
           <div className="text-xs text-slate-500">PDF report delivered</div>
         </div>
       </div>

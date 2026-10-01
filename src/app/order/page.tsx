@@ -43,7 +43,7 @@ export default function OrderPage({ searchParams }: PageProps) {
           <div className="sticky top-24 rounded-2xl bg-brand-navy p-8 text-white">
             <p className="eyebrow text-brand-gold">What you get</p>
             <h2 className="mt-2 font-serif text-2xl font-bold">
-              Visibility in 50 newspapers — one in every state
+              Visibility in 49 newspapers — one in every state
             </h2>
             <ul className="mt-6 space-y-3">
               {BENEFITS.map((b) => (

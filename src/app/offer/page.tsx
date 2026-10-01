@@ -15,14 +15,14 @@ import { RequestListModal } from "@/components/forms/RequestListModal";
 export const metadata: Metadata = {
   title: "Advertorial and press release publishing offer",
   description:
-    "Advertorial and press release publishing across a network of 50 online newspapers — one in every U.S. state. Local and nationwide coverage in a single placement.",
+    "Advertorial and press release publishing across a network of 49 online newspapers — one in every U.S. state. Local and nationwide coverage in a single placement.",
   alternates: { canonical: "/offer" },
 };
 
 const BENEFITS = [
   {
     icon: Newspaper,
-    title: "Publication in 50 online newspapers",
+    title: "Publication in 49 online newspapers",
     description:
       "Advertorial or press release distributed across a wide network, with audiences between 10,000 and 40,000 unique monthly visitors per publication and over 320,000 in total.",
   },
@@ -70,10 +70,10 @@ export default function OfferPage() {
         <div className="container py-20 text-center">
           <p className="eyebrow text-brand-gold">Publishing offer</p>
           <h1 className="h1 mt-3 text-white">
-            Advertorials and press releases in 50 U.S. newspapers
+            Advertorials and press releases in 49 U.S. newspapers
           </h1>
           <p className="lead mx-auto mt-6 max-w-2xl text-white/85">
-            A network of 50 online newspapers — one for every U.S. state. Local
+            A network of 49 online newspapers — one for every U.S. state. Local
             and nationwide visibility in a single placement.
           </p>
           <div className="mt-8">
@@ -88,7 +88,7 @@ export default function OfferPage() {
             />
           </div>
           <p className="mt-4 text-xs text-white/60">
-            Free PDF by email • the list of all 50 publications • zero spam
+            Free PDF by email • the list of all 49 publications • zero spam
           </p>
         </div>
       </section>
@@ -99,12 +99,12 @@ export default function OfferPage() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <StatCard
               icon={Newspaper}
-              value="50"
+              value="49"
               label="online newspapers, 10–40k unique visitors/month, 320k+ total"
             />
             <StatCard
               icon={Globe}
-              value="50"
+              value="49"
               label="states covered, one newspaper each"
             />
             <StatCard
@@ -165,11 +165,11 @@ export default function OfferPage() {
               ]}
             />
             <PackageCard
-              eyebrow="Network of 50 portals"
+              eyebrow="Network of 49 portals"
               title="One article distributed across the whole network"
               points={[
-                "Your article appears on all 50 online portals",
-                "Complete report with 50 links to the published articles",
+                "Your article appears on all 49 online portals",
+                "Complete report with 49 links to the published articles",
                 "Maximum visibility from a single placement",
               ]}
               highlight
@@ -222,7 +222,7 @@ export default function OfferPage() {
         <div className="container py-16 text-center">
           <Mail className="mx-auto h-10 w-10 text-brand-gold" />
           <h2 className="h2 mt-5 text-white">
-            Get the list of all 50 newspapers and the full pricing
+            Get the list of all 49 newspapers and the full pricing
           </h2>
           <p className="lead mt-4 mx-auto max-w-2xl text-white/85">
             Free PDF by email within 2 minutes: the complete list of

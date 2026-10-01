@@ -22,10 +22,10 @@ import { formatPrice } from "@/lib/utils";
 const money = (n: number) => `$${formatPrice(n)}`;
 
 // List prices come from the full-price tiers so the strike-through never drifts.
-const LIST_ONCE = STANDARD_PACKAGES.find((p) => p.id === "national")?.price ?? 1500;
-const LIST_ONCE_CASINO = CASINO_PACKAGES.find((p) => p.id === "casino-national")?.price ?? 2500;
-const LIST_MONTHLY = SUBSCRIPTION_PLANS.find((p) => p.id === "bronze")?.priceStandard ?? 1300;
-const LIST_MONTHLY_CASINO = SUBSCRIPTION_PLANS.find((p) => p.id === "bronze")?.priceCasino ?? 2300;
+const LIST_ONCE = STANDARD_PACKAGES.find((p) => p.id === "national")?.listPrice ?? 299;
+const LIST_ONCE_CASINO = CASINO_PACKAGES.find((p) => p.id === "casino-national")?.listPrice ?? 599;
+const LIST_MONTHLY = SUBSCRIPTION_PLANS.find((p) => p.id === "bronze")?.listStandard ?? 259;
+const LIST_MONTHLY_CASINO = SUBSCRIPTION_PLANS.find((p) => p.id === "bronze")?.listCasino ?? 519;
 
 // Four combinations: (standard | casino) x (once | monthly).
 const OFFERS = {
