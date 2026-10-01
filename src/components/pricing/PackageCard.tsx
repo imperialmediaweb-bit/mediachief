@@ -4,6 +4,7 @@ import { Check, Newspaper } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { OrderModal } from "@/components/forms/OrderModal";
+import { CheckoutButton } from "./CheckoutButton";
 import { formatPrice, cn } from "@/lib/utils";
 import type { Package } from "@/data/packages";
 
@@ -70,19 +71,25 @@ export function PackageCard({ pkg }: PackageCardProps) {
         ))}
       </ul>
 
-      <div className="mt-8">
+      <div className="mt-8 space-y-2">
+        <CheckoutButton
+          packageId={pkg.id}
+          name={pkg.name}
+          price={pkg.price}
+          label={`Pay $${formatPrice(pkg.price)}`}
+          variant={isFeatured ? "accent" : "default"}
+        />
         <OrderModal
           defaultPackageId={pkg.id}
           trigger={
-            <Button
-              variant={isFeatured ? "accent" : "default"}
-              size="lg"
-              className="w-full"
-            >
-              Order {pkg.name}
+            <Button variant="outline" size="lg" className="w-full">
+              Or send the order by email
             </Button>
           }
         />
+        <p className="pt-1 text-center text-xs text-slate-500">
+          Card, PayPal and the other methods Stripe offers at checkout
+        </p>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { Check } from "lucide-react";
 import { OrderModal } from "@/components/forms/OrderModal";
+import { CheckoutButton } from "./CheckoutButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SUBSCRIPTION_PLANS, SUBSCRIPTION_BENEFITS } from "@/data/packages";
@@ -75,14 +76,32 @@ export function SubscriptionTable() {
               </ul>
             </div>
 
-            <OrderModal
-              defaultPackageId={`sub-${plan.id}`}
-              trigger={
-                <Button variant={plan.featured ? "gold" : "outline"} className="mt-6 w-full">
-                  Choose {plan.name}
-                </Button>
-              }
-            />
+            <div className="mt-6 space-y-2">
+              <CheckoutButton
+                packageId={plan.id}
+                mode="subscription-standard"
+                name={`${plan.name} subscription`}
+                price={plan.priceStandard}
+                label={`Subscribe — $${formatPrice(plan.priceStandard)}/mo`}
+                variant={plan.featured ? "gold" : "default"}
+              />
+              <CheckoutButton
+                packageId={plan.id}
+                mode="subscription-casino"
+                name={`${plan.name} subscription (casino)`}
+                price={plan.priceCasino}
+                label={`Casino — $${formatPrice(plan.priceCasino)}/mo`}
+                variant="outline"
+              />
+              <OrderModal
+                defaultPackageId={`sub-${plan.id}`}
+                trigger={
+                  <Button variant="outline" className="w-full">
+                    Ask about {plan.name}
+                  </Button>
+                }
+              />
+            </div>
           </div>
         ))}
       </div>

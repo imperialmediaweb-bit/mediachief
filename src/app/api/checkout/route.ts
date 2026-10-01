@@ -55,7 +55,6 @@ export async function POST(req: NextRequest) {
 
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
-        payment_method_types: ["card"],
         customer_email: email,
         line_items: [
           {
@@ -104,7 +103,6 @@ export async function POST(req: NextRequest) {
       const name = `${pkg.name} (${pkg.category === "casino" ? "Casino" : "Standard"})`;
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
-        payment_method_types: ["card"],
         customer_email: email,
         line_items: [
           {
@@ -153,7 +151,6 @@ export async function POST(req: NextRequest) {
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      payment_method_types: ["card"],
       customer_email: email,
       line_items: [
         {
