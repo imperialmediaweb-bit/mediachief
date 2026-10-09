@@ -1,10 +1,12 @@
 import {
   boolean,
+  index,
   integer,
   pgTable,
   primaryKey,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 
@@ -104,9 +106,20 @@ export const orders = pgTable("order", {
   status: text("status").notNull().default("pending"), // pending | paid | refunded | canceled
   stripeSessionId: text("stripe_session_id"),
   stripePaymentIntentId: text("stripe_payment_intent_id"),
+  // How many articles this order entitles the buyer to, and how many are used.
+  // A one-off package buys one publication run; without this an order could be
+  // spent over and over.
+  articlesIncluded: integer("articles_included").notNull().default(1),
+  articlesUsed: integer("articles_used").notNull().default(0),
+  // "pick" orders carry the chosen states so the operator knows where to publish.
+  newspaperStates: text("newspaper_states"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   paidAt: timestamp("paid_at"),
-});
+}, (t) => ({
+  // Stripe retries webhook deliveries; without this a retry inserts a duplicate.
+  stripeSessionIdx: uniqueIndex("order_stripe_session_id_idx").on(t.stripeSessionId),
+  userIdx: index("order_user_id_idx").on(t.userId),
+}));
 
 export const articles = pgTable("article", {
   id: text("id")
@@ -126,6 +139,7 @@ export const articles = pgTable("article", {
   aiGenerated: boolean("ai_generated").default(false).notNull(),
   status: text("status").notNull().default("draft"), // draft | submitted | published | rejected
   publishedUrls: text("published_urls"), // JSON array string
+  rejectionReason: text("rejection_reason"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   submittedAt: timestamp("submitted_at"),
   publishedAt: timestamp("published_at"),
