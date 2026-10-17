@@ -8,6 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trackPixelEvent } from "@/components/analytics/MetaPixel";
 import { trackGaEvent } from "@/components/analytics/GoogleAnalytics";
+import {
+  CONTENT_DECLARATION,
+  CONTENT_DECLARATION_WARNING,
+} from "@/lib/content-policy";
 
 type ArticleMode = "have" | "write" | "later";
 
@@ -244,20 +248,25 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
         </p>
       </div>
 
-      {/* ---- declaration */}
-      <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
-        <input
-          type="checkbox"
-          checked={agreed}
-          onChange={(e) => setAgreed(e.target.checked)}
-          className="mt-0.5 h-4 w-4 shrink-0 accent-[#c1121f]"
-        />
-        <span>
-          The information is accurate, I hold the rights to the text and photos, and the content is
-          not defamatory, misleading or otherwise unlawful. We publish the article and give you the
-          links — we do not promise traffic, rankings or customers.
-        </span>
-      </label>
+      {/* ---- declaration. One shared text, so it cannot drift between pages. */}
+      <div>
+        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 accent-[#c1121f]"
+          />
+          <span>
+            {CONTENT_DECLARATION} I hold the rights to the text and photos, and the content is not
+            defamatory, misleading or otherwise unlawful.
+          </span>
+        </label>
+        <p className="mt-2 px-1 text-xs leading-relaxed text-slate-500">
+          {CONTENT_DECLARATION_WARNING} We publish the article and give you the links — we do not
+          promise traffic, rankings or customers.
+        </p>
+      </div>
 
       {error && (
         <div className="flex items-start gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-700">

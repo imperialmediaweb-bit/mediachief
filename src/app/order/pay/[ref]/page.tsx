@@ -25,16 +25,22 @@ export default async function PayPage({
   searchParams?: { paid?: string };
 }) {
   const order = await findOrderByRef(params.ref);
-  if (!order) notFound();
 
-  const pkg = findPackageById(order.packageId);
-  const price = Math.round(order.amount / 100);
-  const label =
-    order.packageId === "pick"
+  // Once the card clears, the webhook moves the row onto the real Stripe
+  // session id, so this reference stops resolving. Stripe sends the buyer back
+  // here with ?paid=1, and without this they would land on a 404 having just
+  // paid.
+  if (!order && searchParams?.paid !== "1") notFound();
+
+  const pkg = order ? findPackageById(order.packageId) : undefined;
+  const price = order ? Math.round(order.amount / 100) : 0;
+  const label = !order
+    ? ""
+    : order.packageId === "pick"
       ? `${order.newspaperStates?.split(",").filter(Boolean).length || 0} newspapers of your choice`
       : pkg?.name || order.packageId;
 
-  const paid = order.status === "paid" || searchParams?.paid === "1";
+  const paid = !order || order.status === "paid" || searchParams?.paid === "1";
 
   if (paid) {
     return (
@@ -51,8 +57,16 @@ export default async function PayPage({
               PDF and Excel.
             </p>
             <p className="mt-3 text-sm text-slate-500">
-              Your invoice arrives by email in a few minutes. To follow the order, sign in with{" "}
-              <strong className="text-brand-navy">{order.email}</strong>.
+              Your invoice arrives by email in a few minutes. To follow the order, sign in
+              {order ? (
+                <>
+                  {" "}
+                  with <strong className="text-brand-navy">{order.email}</strong>
+                </>
+              ) : (
+                " with the email address you paid with"
+              )}
+              .
             </p>
             <Link
               href="/account/login"
@@ -66,7 +80,7 @@ export default async function PayPage({
     );
   }
 
-  if (order.status !== PENDING_PAYMENT) notFound();
+  if (!order || order.status !== PENDING_PAYMENT) notFound();
 
   return (
     <div className="bg-slate-50">

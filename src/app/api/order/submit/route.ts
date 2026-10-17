@@ -6,6 +6,9 @@ import { articles, orders, users } from "@/db/schema";
 import { resolveOrder } from "@/lib/order-pricing";
 import { newOrderRef, PENDING_PAYMENT } from "@/lib/order-ref";
 import { createLimiter, ipFromRequest } from "@/lib/rate-limit";
+import { PROHIBITED_MESSAGE, screenContent } from "@/lib/content-policy";
+import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
+import { SITE } from "@/data/site";
 
 export const runtime = "nodejs";
 
@@ -95,6 +98,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Screened here, before a card is ever shown. Stripe's prohibited categories
+  // are refused outright — processing one risks the account the whole business
+  // collects through, and that is not worth a single order.
+  const screening = screenContent(d.title, d.body, d.brief, d.company, d.website);
+  if (screening.blocked) {
+    console.warn("[order/submit] refused:", screening.reason, screening.hits.slice(0, 6));
+    return NextResponse.json({ ok: false, error: PROHIBITED_MESSAGE }, { status: 422 });
+  }
+
   const db = getDb();
   const email = d.email.trim().toLowerCase();
 
@@ -152,6 +164,7 @@ export async function POST(req: NextRequest) {
       d.articleMode === "write" ? d.brief?.trim() || null : null,
       d.website ? `Website: ${d.website.trim()}` : null,
       d.imageUrls?.length ? `Images supplied as links:\n${d.imageUrls.join("\n")}` : null,
+      screening.flagged ? `NEEDS A HUMAN READ — ${screening.reason}` : null,
     ]
       .filter(Boolean)
       .join("\n");
@@ -165,6 +178,33 @@ export async function POST(req: NextRequest) {
       notes: notes || null,
       status: "draft",
     });
+  }
+
+  // Medical claims are not refused, but they must not be published on the
+  // strength of an automatic check. The alert goes out now, while the buyer is
+  // still on the payment page and nothing has been charged.
+  if (screening.flagged) {
+    await sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `[Review before publishing] ${resolved.label} — ${email}`,
+      replyTo: email,
+      html: wrapEmail(
+        "An order needs reading before it is published",
+        `
+        <p>This order passed the payment screen but matched the medical-claims check. Read it
+        before it goes out — the money may already be in.</p>
+        <table style="width:100%;border-collapse:collapse;">
+          ${kv("Why", screening.reason || "—")}
+          ${kv("Matched", screening.hits.slice(0, 10).join(", "))}
+          ${kv("Client", email)}
+          ${kv("Company", d.company || "—")}
+          ${kv("Package", resolved.label)}
+          ${kv("Reference", ref)}
+        </table>
+        <p style="margin-top:16px;"><a href="${SITE.url}/admin/articles">Open the articles page</a></p>
+      `
+      ),
+    }).catch((err) => console.error("[order/submit] review alert failed:", err));
   }
 
   return NextResponse.json({
