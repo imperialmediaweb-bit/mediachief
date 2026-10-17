@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
   // 1) Initial email: network summary + PDF mention
   const customerHtml = wrapEmail(
-    "The full list of our 49 partner newspapers",
+    "The full list of our 50 partner newspapers",
     `
     <p>Hi ${firstName},</p>
     <p>Thank you for your interest in Media Chief! Here is a summary of our network:</p>
@@ -38,10 +38,10 @@ export async function POST(req: NextRequest) {
       ${kv("Midwest", `${REGION_COUNTS.Midwest} newspapers`)}
       ${kv("South", `${REGION_COUNTS.South} newspapers`)}
       ${kv("West", `${REGION_COUNTS.West} newspapers`)}
-      ${kv("States covered", "all 49 states we cover")}
+      ${kv("States covered", "all 50 states")}
       ${kv("Facebook distribution", "37 associated pages")}
     </table>
-    <p>The detailed list with the names and domains of all 49 partner newspapers is available as a PDF document. <strong>To protect our network</strong>, we send the document directly by email after a short conversation — a team member will contact you within 24h.</p>
+    <p>The detailed list with the names and domains of all 50 partner newspapers is available as a PDF document. <strong>To protect our network</strong>, we send the document directly by email after a short conversation — a team member will contact you within 24h.</p>
     <p>If you'd like to move faster, just reply to this email with a short description of your project.</p>
     <p style="margin-top:24px;">Best regards,<br/><strong>The Media Chief Team</strong></p>
   `

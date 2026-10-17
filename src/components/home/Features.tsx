@@ -10,7 +10,7 @@ import {
 const FEATURES = [
   {
     icon: Newspaper,
-    title: "49 partner newspapers",
+    title: "50 partner newspapers",
     description: "One newspaper in every U.S. state — coverage across all 4 regions.",
   },
   {

@@ -65,7 +65,7 @@ export function SubscriptionTable() {
               <ul className="space-y-2 text-sm text-slate-600">
                 <li>
                   <strong className="text-brand-navy">{plan.distributionsPerMonth}</strong>{" "}
-                  {plan.distributionsPerMonth === 1 ? "article" : "articles"} × 49 newspapers
+                  {plan.distributionsPerMonth === 1 ? "article" : "articles"} × 50 newspapers
                 </li>
                 <li>
                   <strong className="text-brand-navy">

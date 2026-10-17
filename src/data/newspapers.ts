@@ -9,8 +9,8 @@ export interface Newspaper {
 // The live network. Edit this file to add, remove or rename a paper — every
 // page that shows the network reads from here.
 //
-// Illinois is the one state without a site yet. Add it below once the domain
-// is live and it appears everywhere automatically.
+// Every U.S. state is covered. A state added here appears everywhere
+// automatically — the counts and the map all read from this array.
 export const NEWSPAPERS: Newspaper[] = [
   // ---------------- Northeast (9) ----------------
   { name: "Connecticut Express", region: "Northeast", type: "local", state: "Connecticut", url: "https://www.connecticut-express.com" },
@@ -23,7 +23,8 @@ export const NEWSPAPERS: Newspaper[] = [
   { name: "New York Express", region: "Northeast", type: "local", state: "New York", url: "https://newyork-express.com" },
   { name: "Pennsylvania Express", region: "Northeast", type: "local", state: "Pennsylvania", url: "https://www.pennsylvaniaexpres.com" },
 
-  // ---------------- Midwest (11) ----------------
+  // ---------------- Midwest (12) ----------------
+  { name: "Illinois Express", region: "Midwest", type: "local", state: "Illinois", url: "https://www.illinoiseexpres.com" },
   { name: "Indiana Express", region: "Midwest", type: "local", state: "Indiana", url: "https://www.indianaexpres.com" },
   { name: "Michigan Express", region: "Midwest", type: "local", state: "Michigan", url: "https://michigan-express.com" },
   { name: "Ohio Express", region: "Midwest", type: "local", state: "Ohio", url: "https://www.ohioexpres.com" },
@@ -49,7 +50,7 @@ export const NEWSPAPERS: Newspaper[] = [
   { name: "Kentucky Express", region: "South", type: "local", state: "Kentucky", url: "https://kentucky-express.com" },
   { name: "Mississippi Express", region: "South", type: "local", state: "Mississippi", url: "https://mississippi-express.com" },
   { name: "Tennessee Express", region: "South", type: "local", state: "Tennessee", url: "https://www.tennesseeexpres.com" },
-  { name: "Arkansas Express", region: "South", type: "local", state: "Arkansas", url: "https://arkansas-expres.com" },
+  { name: "Arkansas Express", region: "South", type: "local", state: "Arkansas", url: "https://arkansas-express.com" },
   { name: "Louisiana Express", region: "South", type: "local", state: "Louisiana", url: "https://louisiana-express.com" },
   { name: "Oklahoma Express", region: "South", type: "local", state: "Oklahoma", url: "https://oklahoma-express.com" },
   { name: "Texas Express", region: "South", type: "local", state: "Texas", url: "https://www.texasexpres.com" },
@@ -80,4 +81,4 @@ export const REGION_COUNTS = {
 export const TOTAL_NEWSPAPERS = NEWSPAPERS.length;
 
 /** States with no site yet — shown as gaps rather than quietly omitted. */
-export const UNCOVERED_STATES = ["Illinois"];
+export const UNCOVERED_STATES: string[] = [];

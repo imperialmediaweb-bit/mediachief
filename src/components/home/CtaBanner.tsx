@@ -21,7 +21,7 @@ export function CtaBanner() {
             Ready to publish your article?
           </h2>
           <p className="mt-6 text-lg text-white/90">
-            Pick a package, send us your article, and within 24h you&apos;re in 49 newspapers.
+            Pick a package, send us your article, and within 24h you&apos;re in 50 newspapers.
             You don&apos;t pay anything until we confirm publishing capacity.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">

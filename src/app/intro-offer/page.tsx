@@ -56,7 +56,7 @@ const INCLUDED = [
   {
     icon: Newspaper,
     title: `${N} publications, one order`,
-    description: `One newspaper in every state we cover, across the Northeast, Midwest, South and West. One article, sent once.`,
+    description: `One newspaper in every state, across the Northeast, Midwest, South and West. One article, sent once.`,
   },
   {
     icon: Award,

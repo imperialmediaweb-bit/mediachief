@@ -90,7 +90,7 @@ export default function OfferFbPage() {
             <TrustCard
               number={`${TOTAL_NEWSPAPERS}`}
               label="news sites"
-              subline="one in every state we cover"
+              subline="one in every state"
             />
             <TrustCard
               number="2 years"

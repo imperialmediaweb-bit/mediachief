@@ -15,9 +15,9 @@ import { PackagesStructuredData } from "@/components/seo/StructuredData";
 import { Mail } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Packages and pricing — Distribution across 49 U.S. newspapers",
+  title: "Packages and pricing — Distribution across 50 U.S. newspapers",
   description:
-    "Media Chief packages: Local ($40), Regional ($94), National 49 ($149). Casino/iGaming variants and Bronze/Silver/Gold/Platinum monthly subscriptions.",
+    "Media Chief packages: Local ($40), Regional ($94), National 50 ($149). Casino/iGaming variants and Bronze/Silver/Gold/Platinum monthly subscriptions.",
   alternates: { canonical: "/packages" },
 };
 
@@ -146,7 +146,7 @@ export default function PackagesPage() {
                   <Mail className="h-3.5 w-3.5" /> Free • PDF by email
                 </div>
                 <h3 className="mt-5 font-serif text-3xl font-bold sm:text-4xl">
-                  Want the full list of all 49 newspapers?
+                  Want the full list of all 50 newspapers?
                 </h3>
                 <p className="mt-4 text-white/85 leading-relaxed">
                   Fill in the form and within 2 minutes we&apos;ll email you the PDF with every
