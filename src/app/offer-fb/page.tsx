@@ -11,7 +11,7 @@ const TO = formatPrice(Math.max(...prices));
 
 export const metadata: Metadata = {
   title: `Get published in ${TOTAL_NEWSPAPERS} US newspapers — Special offer`,
-  description: `Press release distribution across ${TOTAL_NEWSPAPERS} US news sites. PDF report with screenshots within 24h. From $${FROM}.`,
+  description: `Press release distribution across ${TOTAL_NEWSPAPERS} US news sites. PDF report with every link within 24h. From $${FROM}.`,
   robots: { index: false, follow: false },
 };
 
@@ -31,7 +31,7 @@ export default function OfferFbPage() {
             </h1>
             <p className="mt-4 text-lg text-slate-600">
               Your press release published across the Media Chief network — {TOTAL_NEWSPAPERS}{" "}
-              online newspapers with real, Google-indexed traffic. PDF report with screenshots
+              online newspapers submitted to Google on publication day. PDF report with every link
               within 24h.
             </p>
             <ul className="mt-6 space-y-3 text-sm">
@@ -52,7 +52,7 @@ export default function OfferFbPage() {
               <li className="flex items-start gap-3">
                 <ShieldCheck className="mt-0.5 h-5 w-5 flex-shrink-0 text-brand-red" />
                 <span>
-                  <strong className="text-brand-navy">PDF report</strong> with screenshots and
+                  <strong className="text-brand-navy">PDF report</strong> with every link and
                   verifiable links
                 </span>
               </li>
@@ -121,7 +121,7 @@ export default function OfferFbPage() {
           />
           <FaqItem
             q="How do I get proof it was published?"
-            a="Within 24h of confirmation you receive a PDF report with the URL of every published article, plus screenshots."
+            a="Within 24h of confirmation you receive a PDF report with the URL of every published article, and the same list in a file Excel opens."
           />
           <FaqItem
             q="Can I write the article myself?"

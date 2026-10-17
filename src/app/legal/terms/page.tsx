@@ -45,7 +45,7 @@ export default function TermsPage() {
 
       <h2 className="font-serif text-2xl font-bold text-brand-navy">6. Publication report</h2>
       <p>
-        The PDF report includes the URLs and screenshots of the published articles. Every
+        The PDF report lists the URL of every published article and can also be downloaded in a spreadsheet format. Every
         address is submitted to the search engines on publication day; whether and when they
         index it is the search engines&apos; decision and cannot be guaranteed.
       </p>

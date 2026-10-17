@@ -203,7 +203,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
 ];
 
 export const PRICING_NOTE =
-  "The report includes the links and screenshots of the articles published on all 49 sites.";
+  "The report lists every published link and downloads as a PDF or as a file Excel opens.";
 
 export const SUBSCRIPTION_BENEFITS = [
   "Every article submitted to search engines",

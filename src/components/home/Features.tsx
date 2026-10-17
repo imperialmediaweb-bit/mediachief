@@ -26,7 +26,7 @@ const FEATURES = [
   {
     icon: FileText,
     title: "Complete PDF report",
-    description: "URLs + screenshots for every published article.",
+    description: "Every published link, in PDF and in a file Excel opens.",
   },
   {
     icon: Link2,

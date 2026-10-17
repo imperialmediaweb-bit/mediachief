@@ -23,7 +23,7 @@ const STEPS = [
     icon: FileCheck2,
     title: "You get a PDF report",
     description:
-      "Complete report with the URLs and screenshots of every publication. Permanently online.",
+      "Every published link, in PDF and in a file Excel opens. The articles stay online permanently.",
   },
 ];
 

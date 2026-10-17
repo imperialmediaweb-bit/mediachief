@@ -8,6 +8,7 @@ import { articles, orders, users } from "@/db/schema";
 import { findPackageById } from "@/data/packages";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { StatusBadge } from "@/components/account/StatusBadge";
+import { NewOrderForm } from "@/components/admin/NewOrderForm";
 
 export const metadata: Metadata = {
   title: "Admin • Orders",
@@ -53,6 +54,8 @@ export default async function AdminOrdersPage() {
 
   return (
     <AdminShell title="Orders" description="Every payment, and whether the article has arrived.">
+      <NewOrderForm />
+
       <div className="mb-6 flex flex-wrap gap-4">
         <div className="rounded-xl border border-slate-200 bg-white px-6 py-4">
           <p className="text-xs uppercase tracking-wider text-slate-500">Collected</p>

@@ -148,6 +148,29 @@ export default async function AdminArticlePage({ params }: { params: { id: strin
           </div>
 
           <ArticleActions articleId={a.id} status={a.status} publishedUrls={publishedUrls} />
+
+          {a.status === "published" && (
+            <div className="rounded-2xl border border-slate-200 bg-white p-6">
+              <h2 className="font-semibold text-brand-navy">Client report</h2>
+              <p className="mt-1 text-sm text-slate-600">
+                The same two files the client can download from their account.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <a
+                  href={`/api/articles/${a.id}/report?format=pdf`}
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-brand-navy hover:bg-slate-50"
+                >
+                  PDF
+                </a>
+                <a
+                  href={`/api/articles/${a.id}/report?format=csv`}
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-brand-navy hover:bg-slate-50"
+                >
+                  Excel (CSV)
+                </a>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </AdminShell>

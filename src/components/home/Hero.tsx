@@ -60,7 +60,7 @@ export function Hero() {
 
           <p className="mt-8 max-w-xl text-lg leading-relaxed text-white/85">
             Fast press release distribution across 49 U.S. newspapers — one in every state.
-            You get a complete PDF report with links and screenshots.
+            You get a complete PDF report with every link.
             Permanent publication, SEO backlinks included.
           </p>
 

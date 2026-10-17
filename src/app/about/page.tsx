@@ -72,7 +72,7 @@ export default function AboutPage() {
               </p>
               <p>
                 All with fixed, transparent pricing, 24h delivery and a complete PDF report —
-                documented with links and screenshots.
+                documented with every published link.
               </p>
             </div>
           </div>

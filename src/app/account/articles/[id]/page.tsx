@@ -7,7 +7,8 @@ import { articles, uploads } from "@/db/schema";
 import { aiConfigured } from "@/lib/ai";
 import { ArticleEditor } from "@/components/account/ArticleEditor";
 import { StatusBadge } from "@/components/account/StatusBadge";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, FileDown, Sheet } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
@@ -58,7 +59,20 @@ export default async function ArticlePage({ params }: { params: { id: string } }
             <p className="mt-1 text-sm text-slate-600">
               Every link below is permanent. Copy them into your own site or send them to clients.
             </p>
-            <ul className="mt-4 space-y-2">
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Button variant="accent" asChild>
+                <a href={`/api/articles/${article.id}/report?format=pdf`}>
+                  <FileDown className="h-4 w-4" /> Download the PDF report
+                </a>
+              </Button>
+              <Button variant="outline" asChild>
+                <a href={`/api/articles/${article.id}/report?format=csv`}>
+                  <Sheet className="h-4 w-4" /> Download for Excel
+                </a>
+              </Button>
+            </div>
+
+            <ul className="mt-5 space-y-2">
               {publishedUrls.map((url) => (
                 <li key={url}>
                   <a
