@@ -1,75 +1,114 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { OrderForm } from "@/components/forms/OrderForm";
-import { CheckCircle2 } from "lucide-react";
+import { notFound } from "next/navigation";
+import { FileText, CreditCard, Newspaper } from "lucide-react";
+import { OrderIntakeForm } from "./OrderIntakeForm";
+import { resolveOrder } from "@/lib/order-pricing";
+import { NEWSPAPERS } from "@/data/newspapers";
 import { SITE } from "@/data/site";
 
 export const metadata: Metadata = {
   title: "Order an article — Media Chief",
-  description: "Fill in the order form and the Media Chief team will contact you within 2 hours.",
+  description: "Send us your article, then pay by card. We publish within one business day.",
   alternates: { canonical: "/order" },
   robots: { index: false, follow: false },
 };
 
-interface PageProps {
-  searchParams?: { package?: string };
-}
-
-const BENEFITS = [
-  "Article delivered within 24h",
-  "PDF report with all URLs",
-  "Permanently published online",
-  "Dedicated support by email & phone",
+const STEPS = [
+  {
+    icon: FileText,
+    title: "1. Send your article",
+    text: "Your text and photos, or we write it for you. Nothing charged at this step.",
+  },
+  {
+    icon: CreditCard,
+    title: "2. Pay by card",
+    text: "Card payment through Stripe. Your invoice is emailed automatically.",
+  },
+  {
+    icon: Newspaper,
+    title: "3. We publish in 24h",
+    text: "Every link emailed to you, with the report in PDF and Excel.",
+  },
 ];
 
+interface PageProps {
+  searchParams?: { package?: string; states?: string; casino?: string };
+}
+
+/**
+ * The order in its natural sequence: first what gets published, then payment.
+ * It used to go straight to Stripe and ask for the article afterwards, which
+ * meant the buyer paid for a promise before giving us anything to publish.
+ */
 export default function OrderPage({ searchParams }: PageProps) {
-  const defaultPackageId = searchParams?.package;
+  const packageId = searchParams?.package || "national";
+  // Full state names, as the newspaper picker passes them.
+  const states = (searchParams?.states || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const casino = searchParams?.casino === "1";
+
+  const resolved = resolveOrder({ packageId, states, casino });
+  if (!resolved) notFound();
+
+  const count =
+    resolved.packageId === "pick"
+      ? resolved.newspapers
+      : resolved.newspapers ?? NEWSPAPERS.length;
+
   return (
-    <section className="bg-white">
-      <div className="container grid gap-12 py-16 lg:grid-cols-[1.3fr_1fr] lg:py-20">
-        <div className="order-2 lg:order-1">
-          <h1 className="h1">Order an article</h1>
-          <p className="lead mt-4">
-            Fill in the form and a consultant will contact you within 2 hours. We never store
-            card details — invoicing happens after we confirm publication.
+    <div className="bg-slate-50">
+      <section className="bg-brand-navy text-white">
+        <div className="container py-12 text-center">
+          <h1 className="font-serif text-3xl font-bold md:text-4xl">Order an article</h1>
+          <p className="mx-auto mt-3 max-w-2xl text-white/85">
+            {resolved.label} — <strong className="text-brand-gold">${resolved.amount}</strong>, final
+            price. Send us the article first, pay on the next page.
           </p>
-          <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-            <Suspense>
-              <OrderForm defaultPackageId={defaultPackageId} />
-            </Suspense>
-          </div>
         </div>
-        <aside className="order-1 lg:order-2">
-          <div className="sticky top-24 rounded-2xl bg-brand-navy p-8 text-white">
-            <p className="eyebrow text-brand-gold">What you get</p>
-            <h2 className="mt-2 font-serif text-2xl font-bold">
-              Visibility in 49 newspapers — one in every state
-            </h2>
-            <ul className="mt-6 space-y-3">
-              {BENEFITS.map((b) => (
-                <li key={b} className="flex items-start gap-3 text-sm text-white/90">
-                  <CheckCircle2 className="h-5 w-5 shrink-0 text-brand-gold mt-0.5" />
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-8 rounded-lg bg-white/5 p-5 border border-white/10">
-              <p className="text-xs font-bold uppercase tracking-wider text-brand-gold">
-                Not sure which package to pick?
-              </p>
-              <p className="mt-2 text-sm text-white/80">
-                Email us and we&apos;ll recommend the right package for you, free of charge.
-              </p>
-              <a
-                href={`mailto:${SITE.email}`}
-                className="mt-3 inline-block text-sm font-semibold text-brand-gold hover:underline"
-              >
-                {SITE.email} →
-              </a>
+      </section>
+
+      <section className="container max-w-3xl py-10">
+        <div className="grid gap-4 sm:grid-cols-3">
+          {STEPS.map(({ icon: Icon, title, text }) => (
+            <div key={title} className="rounded-xl border border-slate-200 bg-white p-4">
+              <Icon className="h-5 w-5 text-[#c1121f]" />
+              <p className="mt-2 font-serif text-sm font-bold text-brand-navy">{title}</p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-600">{text}</p>
             </div>
+          ))}
+        </div>
+
+        <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
+          <div className="mb-6 flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-100 pb-4">
+            <div>
+              <p className="font-serif text-lg font-bold text-brand-navy">{resolved.label}</p>
+              <p className="text-sm text-slate-600">
+                {resolved.description}
+                {count ? ` — ${count} newspaper${count === 1 ? "" : "s"}` : ""}
+              </p>
+            </div>
+            <p className="font-serif text-2xl font-bold text-[#c1121f]">${resolved.amount}</p>
           </div>
-        </aside>
-      </div>
-    </section>
+
+          <OrderIntakeForm
+            packageId={resolved.packageId}
+            label={resolved.label}
+            price={resolved.amount}
+            states={resolved.packageId === "pick" ? states : undefined}
+            casino={casino}
+          />
+        </div>
+
+        <p className="mt-6 text-center text-sm text-slate-500">
+          Questions before you order? Write to{" "}
+          <a href={`mailto:${SITE.email}`} className="font-semibold text-brand-navy hover:underline">
+            {SITE.email}
+          </a>
+          .
+        </p>
+      </section>
+    </div>
   );
 }

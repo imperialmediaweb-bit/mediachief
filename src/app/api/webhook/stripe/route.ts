@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { getStripe, STRIPE_WEBHOOK_SECRET } from "@/lib/stripe";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
 import { getDb } from "@/db";
-import { orders, subscriptions, users } from "@/db/schema";
+import { articles, orders, subscriptions, users } from "@/db/schema";
 import { findPackageById, findSubscriptionPlanById } from "@/data/packages";
 import { SITE } from "@/data/site";
+import { PENDING_PAYMENT } from "@/lib/order-ref";
 
 export const runtime = "nodejs";
 
@@ -159,29 +160,97 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
 
   const mode = session.metadata?.mode || session.mode;
 
+  // Set when the article arrived with the order, before payment — the client
+  // then has nothing left to send and the emails must not ask for it.
+  let articleOnFile = false;
+
   if (session.mode === "payment") {
     const packageId = session.metadata?.packageId || "unknown";
-    // "pick" orders buy one run across the states the buyer selected; a normal
-    // package buys one run too. Subscriptions are handled separately below.
-    await db
-      .insert(orders)
-      .values({
-        userId,
-        email: email || "unknown@media-chief.com",
-        packageId,
-        amount: session.amount_total ?? 0,
-        currency: session.currency ?? "usd",
-        status: "paid",
-        stripeSessionId: session.id,
-        stripePaymentIntentId:
-          typeof session.payment_intent === "string" ? session.payment_intent : null,
-        articlesIncluded: 1,
-        articlesUsed: 0,
-        newspaperStates: session.metadata?.states ?? null,
-        paidAt: new Date(),
-      })
-      // The unique index on stripe_session_id makes a Stripe retry a no-op.
-      .onConflictDoNothing({ target: orders.stripeSessionId });
+    const orderRef = session.metadata?.orderRef || null;
+    const paymentIntentId =
+      typeof session.payment_intent === "string" ? session.payment_intent : null;
+
+    // An order placed through /order already exists, saved before payment with
+    // the article attached. Move that row onto the real Stripe session instead
+    // of inserting a second one.
+    let linkedOrderId: string | null = null;
+    if (orderRef) {
+      const linked = await db
+        .update(orders)
+        .set({
+          status: "paid",
+          stripeSessionId: session.id,
+          stripePaymentIntentId: paymentIntentId,
+          amount: session.amount_total ?? 0,
+          ...(userId ? { userId } : {}),
+          paidAt: new Date(),
+        })
+        .where(and(eq(orders.stripeSessionId, orderRef), eq(orders.status, PENDING_PAYMENT)))
+        .returning({ id: orders.id });
+      linkedOrderId = linked[0]?.id ?? null;
+
+      if (!linkedOrderId) {
+        // Either a Stripe retry, which already moved the row, or a reference
+        // that never had an order behind it.
+        const already = await db
+          .select({ id: orders.id })
+          .from(orders)
+          .where(eq(orders.stripeSessionId, session.id));
+        linkedOrderId = already[0]?.id ?? null;
+        if (!linkedOrderId) {
+          console.error("[stripe-webhook] orderRef with no pending order:", orderRef);
+        }
+      }
+    }
+
+    if (linkedOrderId) {
+      const waiting = await db
+        .select({ id: articles.id, status: articles.status })
+        .from(articles)
+        .where(eq(articles.orderId, linkedOrderId))
+        .limit(1);
+      articleOnFile = Boolean(waiting[0]);
+
+      // Hand the article to the editors and spend the order's single slot. The
+      // status guard makes a webhook retry a no-op, so one payment can never
+      // buy a second publication from the account pages.
+      if (waiting[0]) {
+        const submitted = await db
+          .update(articles)
+          .set({ status: "submitted", submittedAt: new Date() })
+          .where(and(eq(articles.id, waiting[0].id), eq(articles.status, "draft")))
+          .returning({ id: articles.id });
+        if (submitted[0]) {
+          await db
+            .update(orders)
+            .set({
+              articlesUsed: sql`LEAST(${orders.articlesUsed} + 1, ${orders.articlesIncluded})`,
+            })
+            .where(eq(orders.id, linkedOrderId));
+        }
+      }
+    } else {
+      // A payment that did not come through the order form: the buyer pays
+      // first and sends the article from their account afterwards.
+      await db
+        .insert(orders)
+        .values({
+          userId,
+          email: email || "unknown@media-chief.com",
+          packageId,
+          amount: session.amount_total ?? 0,
+          currency: session.currency ?? "usd",
+          status: "paid",
+          stripeSessionId: session.id,
+          stripePaymentIntentId: paymentIntentId,
+          articlesIncluded: 1,
+          articlesUsed: 0,
+          newspaperStates: session.metadata?.states ?? null,
+          paidAt: new Date(),
+        })
+        // The unique index on stripe_session_id makes a Stripe retry a no-op.
+        .onConflictDoNothing({ target: orders.stripeSessionId });
+    }
   }
 
   if (session.mode === "subscription" && session.subscription) {
@@ -191,7 +260,7 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
     await upsertSubscription(sub, userId);
   }
 
-  await sendConfirmationEmails(stripe, session, mode);
+  await sendConfirmationEmails(stripe, session, mode, articleOnFile);
 }
 
 async function upsertSubscription(sub: Stripe.Subscription, userIdHint: string | null) {
@@ -281,7 +350,9 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 async function sendConfirmationEmails(
   stripe: Stripe,
   session: Stripe.Checkout.Session,
-  mode: string
+  mode: string,
+  /** The article came in with the order, so there is nothing left to ask for. */
+  articleOnFile = false
 ) {
   const email = (session.customer_details?.email || session.customer_email || "").trim();
   const amount = (session.amount_total || 0) / 100;
@@ -321,10 +392,11 @@ async function sendConfirmationEmails(
         ${kv("Client email", email)}
         ${kv("Client name", session.customer_details?.name || "—")}
         ${kv("Newspapers", session.metadata?.states || "—")}
+        ${kv("Article", articleOnFile ? "Already submitted with the order — ready to publish" : "Not yet — the client sends it from their account")}
         ${kv("Invoice", invoiceNumber ? `${invoiceNumber} — ${invoiceUrl}` : "—")}
         ${kv("Session ID", session.id)}
       </table>
-      <p style="margin-top:16px;"><a href="${SITE.url}/admin/orders">Open the orders page</a></p>
+      <p style="margin-top:16px;"><a href="${SITE.url}/admin/${articleOnFile ? "articles" : "orders"}">Open the ${articleOnFile ? "articles" : "orders"} page</a></p>
     `
     ),
   });
@@ -344,13 +416,18 @@ async function sendConfirmationEmails(
           ? `<p>Your invoice${invoiceNumber ? ` <strong>${invoiceNumber}</strong>` : ""} is ready: <a href="${invoiceUrl}">view it online</a>${invoicePdf ? ` or <a href="${invoicePdf}">download the PDF</a>` : ""}.</p>`
           : ""
       }
-      <p><strong>Next step: send us your article.</strong></p>
+      ${
+        articleOnFile
+          ? `<p><strong>We already have your article — there is nothing left for you to send.</strong> It is with our editors now. We publish within one business day and email you every link, together with the report in PDF and Excel.</p>
+      <p>Want to follow it or add photos? Sign in at <a href="${SITE.url}/account/login">${SITE.domain}/account/login</a> with this same address — <strong>${email}</strong>. We email you a link; there is no password.</p>`
+          : `<p><strong>Next step: send us your article.</strong></p>
       <ol>
         <li>Go to <a href="${SITE.url}/account/login">${SITE.domain}/account/login</a> and enter this same email address — <strong>${email}</strong>.</li>
         <li>We email you a sign-in link. No password to remember.</li>
         <li>Inside, open <em>New article</em>, paste your text and add up to three photos. No text ready? Give us the topic and we write it.</li>
       </ol>
-      <p>We publish within one business day of receiving it and email you every link.</p>
+      <p>We publish within one business day of receiving it and email you every link.</p>`
+      }
       <p style="margin-top:24px;">Best regards,<br/><strong>The Media Chief Team</strong></p>
     `
     ),

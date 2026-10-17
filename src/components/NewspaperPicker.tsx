@@ -75,27 +75,16 @@ export function NewspaperPicker() {
     });
     trackGaEvent("begin_checkout", { value: price, currency: "USD", items: count });
 
-    try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          packageId: "pick",
-          mode: "pick",
-          email,
-          states: Array.from(selected),
-          casino,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.ok || !data.url) {
-        throw new Error(data.error || "Could not start the checkout.");
-      }
-      window.location.href = data.url;
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
-      setBusy(false);
-    }
+    // The selection goes to the order form, where the article is written; the
+    // card comes after that. The price is recomputed from these states on the
+    // server at both steps, so nothing here sets the amount.
+    const params = new URLSearchParams({
+      package: "pick",
+      states: Array.from(selected).join(","),
+      email,
+    });
+    if (casino) params.set("casino", "1");
+    window.location.href = `/order?${params.toString()}`;
   }
 
   return (

@@ -21,9 +21,12 @@ interface CheckoutButtonProps {
 }
 
 /**
- * Sends the buyer straight to Stripe Checkout. Stripe collects the email,
- * billing address and tax id, and the price is recomputed server-side from
- * the id, so nothing here can set its own amount.
+ * A one-off package goes to /order first: the buyer writes the article, then
+ * pays. Paying up front and being asked for the article afterwards meant
+ * paying for a promise, and the article often never arrived.
+ *
+ * A subscription still opens Stripe directly — there is no single article to
+ * collect, the allowance refills every month.
  */
 export function CheckoutButton({
   packageId,
@@ -42,6 +45,12 @@ export function CheckoutButton({
     setError(null);
     trackPixelEvent("InitiateCheckout", { content_name: name, value: price, currency: "USD" });
     trackGaEvent("begin_checkout", { value: price, currency: "USD", items: 1 });
+
+    if (mode === "package") {
+      window.location.href = `/order?package=${encodeURIComponent(packageId)}`;
+      return;
+    }
+
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
@@ -64,7 +73,8 @@ export function CheckoutButton({
       <Button variant={variant} size="lg" className="w-full" disabled={busy} onClick={go}>
         {busy ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" /> Opening checkout…
+            <Loader2 className="h-4 w-4 animate-spin" />{" "}
+            {mode === "package" ? "Opening the order form…" : "Opening checkout…"}
           </>
         ) : (
           <>
