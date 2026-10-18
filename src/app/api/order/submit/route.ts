@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
-import { articles, orders, users } from "@/db/schema";
+import { articles, orders, uploads, users } from "@/db/schema";
+import { folderFor } from "@/lib/cloudinary";
+import { screenshotSite } from "@/lib/site-screenshot";
 import { resolveOrder } from "@/lib/order-pricing";
 import { newOrderRef, PENDING_PAYMENT } from "@/lib/order-ref";
 import { createLimiter, ipFromRequest } from "@/lib/rate-limit";
@@ -169,7 +171,7 @@ export async function POST(req: NextRequest) {
       .filter(Boolean)
       .join("\n");
 
-    await db.insert(articles).values({
+    const [article] = await db.insert(articles).values({
       userId,
       orderId,
       title: d.title?.trim() || (d.articleMode === "write" ? "To be written by Media Chief" : "Untitled"),
@@ -177,7 +179,27 @@ export async function POST(req: NextRequest) {
       existingUrl: null,
       notes: notes || null,
       status: "draft",
-    });
+    }).returning({ id: articles.id });
+
+    // No photos but a website: screenshot it as the article image, like
+    // MediaExpres. Runs in the background so the buyer is not kept waiting.
+    if (article && !d.imageUrls?.length && d.website?.trim()) {
+      const articleId = article.id;
+      void screenshotSite(d.website, folderFor(userId, articleId))
+        .then((shot) =>
+          shot
+            ? db.insert(uploads).values({
+                articleId,
+                userId,
+                cloudinaryPublicId: shot.publicId,
+                url: shot.url,
+                kind: "image",
+                bytes: shot.bytes,
+              })
+            : null
+        )
+        .catch((e) => console.warn("[order/submit] screenshot", e));
+    }
   }
 
   // Medical claims are not refused, but they must not be published on the

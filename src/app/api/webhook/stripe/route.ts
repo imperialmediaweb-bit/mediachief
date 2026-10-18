@@ -7,6 +7,7 @@ import { getDb } from "@/db";
 import { articles, orders, subscriptions, users } from "@/db/schema";
 import { findPackageById, findSubscriptionPlanById } from "@/data/packages";
 import { SITE } from "@/data/site";
+import { reportUrl } from "@/lib/report-link";
 import { PENDING_PAYMENT } from "@/lib/order-ref";
 
 export const runtime = "nodejs";
@@ -163,6 +164,7 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
   // Set when the article arrived with the order, before payment — the client
   // then has nothing left to send and the emails must not ask for it.
   let articleOnFile = false;
+  let reportArticleId: string | null = null;
 
   if (session.mode === "payment") {
     const packageId = session.metadata?.packageId || "unknown";
@@ -210,6 +212,7 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
         .where(eq(articles.orderId, linkedOrderId))
         .limit(1);
       articleOnFile = Boolean(waiting[0]);
+      reportArticleId = waiting[0]?.id ?? null;
 
       // Hand the article to the editors and spend the order's single slot. The
       // status guard makes a webhook retry a no-op, so one payment can never
@@ -260,7 +263,7 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
     await upsertSubscription(sub, userId);
   }
 
-  await sendConfirmationEmails(stripe, session, mode, articleOnFile);
+  await sendConfirmationEmails(stripe, session, mode, articleOnFile, reportArticleId);
 }
 
 async function upsertSubscription(sub: Stripe.Subscription, userIdHint: string | null) {
@@ -352,7 +355,9 @@ async function sendConfirmationEmails(
   session: Stripe.Checkout.Session,
   mode: string,
   /** The article came in with the order, so there is nothing left to ask for. */
-  articleOnFile = false
+  articleOnFile = false,
+  /** Article to link the live report to, when it came in with the order. */
+  reportArticleId: string | null = null
 ) {
   const email = (session.customer_details?.email || session.customer_email || "").trim();
   const amount = (session.amount_total || 0) / 100;
@@ -419,6 +424,12 @@ async function sendConfirmationEmails(
       ${
         articleOnFile
           ? `<p><strong>We already have your article — there is nothing left for you to send.</strong> It is with our editors now. We publish within one business day and email you every link, together with the report in PDF and Excel.</p>
+      ${
+        reportArticleId
+          ? `<p style="margin:20px 0;"><a href="${reportUrl(reportArticleId)}" style="display:inline-block;background:#c1121f;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;">Follow your publication live</a></p>
+      <p style="color:#64748b;font-size:13px;">That page shows every newspaper and link as soon as it goes live. Keep it — the link is permanent.</p>`
+          : ""
+      }
       <p>Want to follow it or add photos? Sign in at <a href="${SITE.url}/account/login">${SITE.domain}/account/login</a> with this same address — <strong>${email}</strong>. We email you a link; there is no password.</p>`
           : `<p><strong>Next step: send us your article.</strong></p>
       <ol>
