@@ -69,9 +69,48 @@ function transcriptHtml(messages: { role: string; content: string }[]): string {
     .join("");
 }
 
+type Turn = { role: "user" | "assistant"; content: string };
+
+async function replyWithClaude(key: string, convo: Turn[]): Promise<string> {
+  const client = new Anthropic({ apiKey: key });
+  const res = await client.beta.messages.create({
+    model: process.env.ANTHROPIC_MODEL || "claude-opus-5-5",
+    max_tokens: 1500,
+    output_config: { effort: "low" },
+    betas: ["server-side-fallback-2026-07-01"],
+    fallbacks: "default",
+    system: systemPrompt(),
+    messages: convo,
+  });
+  return res.content
+    .filter((b): b is Anthropic.Beta.BetaTextBlock => b.type === "text")
+    .map((b) => b.text)
+    .join("")
+    .trim();
+}
+
+// Used when only an OpenAI key is set on the service.
+async function replyWithOpenAI(key: string, convo: Turn[]): Promise<string> {
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+    body: JSON.stringify({
+      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+      temperature: 0.4,
+      max_tokens: 400,
+      messages: [{ role: "system", content: systemPrompt() }, ...convo],
+    }),
+    signal: AbortSignal.timeout(45_000),
+  });
+  if (!res.ok) throw new Error(`OpenAI ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  const data = await res.json();
+  return String(data?.choices?.[0]?.message?.content || "").trim();
+}
+
 export async function POST(req: NextRequest) {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) {
+  const claudeKey = process.env.ANTHROPIC_API_KEY;
+  const openaiKey = process.env.OPENAI_API_KEY;
+  if (!claudeKey && !openaiKey) {
     return NextResponse.json(
       { ok: false, error: `Chat is offline — email us at ${SITE.email}.` },
       { status: 503 }
@@ -106,25 +145,14 @@ export async function POST(req: NextRequest) {
     note = `\n\n[System note: the full newspaper list was just emailed to ${email}. Confirm this to the visitor in one sentence.]`;
   }
 
+  const convo = messages.map((m, i) =>
+    i === messages.length - 1 ? { role: m.role, content: m.content + note } : m
+  );
   let reply: string;
   try {
-    const client = new Anthropic({ apiKey: key });
-    const res = await client.beta.messages.create({
-      model: process.env.ANTHROPIC_MODEL || "claude-opus-5-5",
-      max_tokens: 1500,
-      output_config: { effort: "low" },
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default",
-      system: systemPrompt(),
-      messages: messages.map((m, i) =>
-        i === messages.length - 1 ? { role: m.role, content: m.content + note } : m
-      ),
-    });
-    reply = res.content
-      .filter((b): b is Anthropic.Beta.BetaTextBlock => b.type === "text")
-      .map((b) => b.text)
-      .join("")
-      .trim();
+    reply = claudeKey
+      ? await replyWithClaude(claudeKey, convo)
+      : await replyWithOpenAI(openaiKey!, convo);
   } catch (err) {
     console.error("[chat]", err);
     return NextResponse.json(
@@ -134,8 +162,8 @@ export async function POST(req: NextRequest) {
   }
   if (!reply) reply = `Thanks! The team will get back to you by email — or write to ${SITE.email}.`;
 
-  // Every reply after the visitor has left an email updates the owner, so he
-  // sees the whole conversation and can answer in person.
+  // Every reply after the visitor has left an email updates the owner, so they
+  // see the whole conversation and can answer in person.
   if (captured) {
     const all = [...messages, { role: "assistant" as const, content: reply }];
     await sendEmail({
