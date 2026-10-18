@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertCircle, FileText, Loader2, PenLine, Clock, ArrowRight } from "lucide-react";
+import { AlertCircle, FileText, Loader2, PenLine, Clock, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,13 @@ import {
 } from "@/lib/content-policy";
 
 type ArticleMode = "have" | "write" | "later";
+type ArticleKind = "press_release" | "sponsored" | "seo";
+
+const KINDS: { id: ArticleKind; label: string }[] = [
+  { id: "press_release", label: "Press release" },
+  { id: "sponsored", label: "Sponsored article" },
+  { id: "seo", label: "SEO article" },
+];
 
 const MODES: { id: ArticleMode; icon: typeof FileText; title: string; text: string }[] = [
   {
@@ -26,7 +33,7 @@ const MODES: { id: ArticleMode; icon: typeof FileText; title: string; text: stri
     id: "write",
     icon: PenLine,
     title: "Write it for me",
-    text: "Tell us what it should say, or just give us your website. Included, no extra cost.",
+    text: "Give us your website — we draft it on the spot, you read and edit it. Included, no extra cost.",
   },
   {
     id: "later",
@@ -59,11 +66,52 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
   const [body, setBody] = useState("");
   const [brief, setBrief] = useState("");
   const [images, setImages] = useState("");
+  const [kind, setKind] = useState<ArticleKind>("press_release");
+  const [keyword, setKeyword] = useState("");
+  const [links, setLinks] = useState("");
+  const [drafting, setDrafting] = useState(false);
+  // Once a draft is on screen the order goes out as a ready article, like "have".
+  const [drafted, setDrafted] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const words = body.trim() ? body.trim().split(/\s+/).length : 0;
+  const sendsArticle = mode === "have" || (mode === "write" && drafted && body.trim().length > 0);
+
+  // Without an instant draft the team writes it, so pass on everything given.
+  function briefWithExtras(): string {
+    return [
+      brief,
+      `Type: ${KINDS.find((k) => k.id === kind)?.label}`,
+      keyword ? `Keyword: ${keyword}` : "",
+      links ? `Links:\n${links}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+  }
+
+  async function draft() {
+    setError(null);
+    setDrafting(true);
+    try {
+      const res = await fetch("/api/order/draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ website, brief, companyName: company, kind, keyword, links }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || "Could not draft the article.");
+      setTitle(data.title);
+      setBody(data.body);
+      setDrafted(true);
+      trackPixelEvent("ViewContent", { content_name: "article_draft" });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong.");
+    } finally {
+      setDrafting(false);
+    }
+  }
 
   async function submit() {
     setError(null);
@@ -89,10 +137,10 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
           name: name || undefined,
           company: company || undefined,
           website: website || undefined,
-          articleMode: mode,
+          articleMode: sendsArticle ? "have" : mode,
           title: title || undefined,
-          body: mode === "have" ? body : undefined,
-          brief: mode === "write" ? brief : undefined,
+          body: sendsArticle ? body : undefined,
+          brief: mode === "write" && !drafted ? briefWithExtras() : undefined,
           imageUrls: imageUrls.length ? imageUrls : undefined,
           agreed,
         }),
@@ -112,7 +160,7 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
     Boolean(email) &&
     agreed &&
     (mode === "later" ||
-      (mode === "have" && body.trim().length > 0) ||
+      (sendsArticle && body.trim().length > 0) ||
       (mode === "write" && (brief.trim().length > 0 || website.trim().length > 0)));
 
   return (
@@ -168,18 +216,111 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
       {mode === "write" && (
         <div className="space-y-4">
           <div>
-            <Label>What should the article say? *</Label>
+            <Label>What kind of article?</Label>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {KINDS.map((k) => (
+                <button
+                  key={k.id}
+                  type="button"
+                  onClick={() => setKind(k.id)}
+                  className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                    kind === k.id
+                      ? "border-[#c1121f] bg-red-50/60 text-brand-navy ring-1 ring-[#c1121f]"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                  }`}
+                >
+                  {k.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <Label>Your website *</Label>
+            <Input
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              placeholder="yourcompany.com"
+            />
+            <p className="mt-1 text-xs text-slate-500">We read it so the article uses your real facts.</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label>Keywords</Label>
+              <Input
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                placeholder="e.g. roofing contractor Dallas — optional"
+              />
+            </div>
+            <div>
+              <Label>Company name</Label>
+              <Input
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                placeholder="optional"
+              />
+            </div>
+          </div>
+          <div>
+            <Label>Links in the article</Label>
             <Textarea
-              rows={6}
-              value={brief}
-              onChange={(e) => setBrief(e.target.value)}
-              placeholder="What you do, what you want announced, what makes you different. A few lines are enough."
+              rows={2}
+              value={links}
+              onChange={(e) => setLinks(e.target.value)}
+              placeholder={"phrase -> https://… (one per line) — optional"}
             />
           </div>
-          <p className="rounded-lg bg-slate-50 p-3 text-xs leading-relaxed text-slate-600">
-            We write the draft and email it to you before anything is published. Nothing goes out
-            without your approval.
-          </p>
+          <div>
+            <Label>Anything specific to say?</Label>
+            <Textarea
+              rows={3}
+              value={brief}
+              onChange={(e) => setBrief(e.target.value)}
+              placeholder="A launch, an offer, what makes you different — optional, the website is enough."
+            />
+          </div>
+
+          <Button
+            type="button"
+            variant={drafted ? "outline" : "accent"}
+            className="w-full"
+            disabled={drafting || (!website.trim() && brief.trim().length < 10)}
+            onClick={draft}
+          >
+            {drafting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" /> Writing your article… about 30 seconds
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4" /> {drafted ? "Write another version" : "Write my article now"}
+              </>
+            )}
+          </Button>
+
+          {drafted ? (
+            <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#c1121f]">
+                Your draft — edit anything you like
+              </p>
+              <div>
+                <Label>Headline</Label>
+                <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+              </div>
+              <div>
+                <Label>Article text</Label>
+                <Textarea rows={14} value={body} onChange={(e) => setBody(e.target.value)} />
+                <p className="mt-1 text-xs text-slate-500">
+                  {words} word{words === 1 ? "" : "s"}. This exact text is what we publish.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <p className="rounded-lg bg-slate-50 p-3 text-xs leading-relaxed text-slate-600">
+              Prefer not to wait? Continue without a draft — we write it and email it to you
+              before anything is published. Nothing goes out without your approval.
+            </p>
+          )}
         </div>
       )}
 
@@ -225,22 +366,26 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
             <Label>Your name</Label>
             <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="optional" />
           </div>
-          <div>
-            <Label>Company</Label>
-            <Input
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              placeholder="optional"
-            />
-          </div>
-          <div>
-            <Label>Website</Label>
-            <Input
-              value={website}
-              onChange={(e) => setWebsite(e.target.value)}
-              placeholder="https://… optional"
-            />
-          </div>
+          {mode !== "write" && (
+            <>
+              <div>
+                <Label>Company</Label>
+                <Input
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  placeholder="optional"
+                />
+              </div>
+              <div>
+                <Label>Website</Label>
+                <Input
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                  placeholder="https://… optional"
+                />
+              </div>
+            </>
+          )}
         </div>
         <p className="mt-3 text-xs text-slate-500">
           Billing details and your tax ID are collected on the payment page, so the invoice comes

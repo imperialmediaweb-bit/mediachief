@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requestListSchema } from "@/lib/validators";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
-import { REGION_COUNTS } from "@/data/newspapers";
+import { PICK_FIRST } from "@/data/packages";
+import { sendNetworkList } from "@/lib/network-list-email";
 import { SITE } from "@/data/site";
 
 export const runtime = "nodejs";
@@ -27,31 +28,8 @@ export async function POST(req: NextRequest) {
 
   const firstName = data.name.split(" ")[0];
 
-  // 1) Initial email: network summary + PDF mention
-  const customerHtml = wrapEmail(
-    "The full list of our 50 partner newspapers",
-    `
-    <p>Hi ${firstName},</p>
-    <p>Thank you for your interest in Media Chief! Here is a summary of our network:</p>
-    <table style="width:100%;border-collapse:collapse;margin:20px 0;">
-      ${kv("Northeast", `${REGION_COUNTS.Northeast} newspapers`)}
-      ${kv("Midwest", `${REGION_COUNTS.Midwest} newspapers`)}
-      ${kv("South", `${REGION_COUNTS.South} newspapers`)}
-      ${kv("West", `${REGION_COUNTS.West} newspapers`)}
-      ${kv("States covered", "all 50 states")}
-      ${kv("Facebook distribution", "37 associated pages")}
-    </table>
-    <p>The detailed list with the names and domains of all 50 partner newspapers is available as a PDF document. <strong>To protect our network</strong>, we send the document directly by email after a short conversation — a team member will contact you within 24h.</p>
-    <p>If you'd like to move faster, just reply to this email with a short description of your project.</p>
-    <p style="margin-top:24px;">Best regards,<br/><strong>The Media Chief Team</strong></p>
-  `
-  );
-
-  await sendEmail({
-    to: data.email,
-    subject: "The Media Chief network — details for you",
-    html: customerHtml,
-  });
+  // 1) The list itself, right away.
+  await sendNetworkList(data.email, data.name);
 
   // 2) Admin notification — new lead
   const adminHtml = wrapEmail(
@@ -63,7 +41,7 @@ export async function POST(req: NextRequest) {
       ${kv("Phone", data.phone || "—")}
       ${kv("Company", data.company || "—")}
     </table>
-    <p style="margin-top:20px;color:#64748b;">Contact this lead within 24h to send the detailed list and start the sale.</p>
+    <p style="margin-top:20px;color:#64748b;">The full list was emailed to them automatically. A personal reply helps close the sale.</p>
   `
   );
   await sendEmail({
@@ -84,7 +62,7 @@ export async function POST(req: NextRequest) {
       "Test the network with a small article",
       `
       <p>Hi ${firstName},</p>
-      <p>A few days ago you requested the Media Chief network list. If you'd like to test it risk-free, the <strong>Local ($150)</strong> package publishes your article in a state newspaper of your choice — you get the link within 24h.</p>
+      <p>A few days ago you requested the Media Chief network list. If you'd like to test it risk-free, the <strong>Local ($${PICK_FIRST})</strong> package publishes your article in a state newspaper of your choice — you get the link within 24h.</p>
       <p style="margin:24px 0;"><a href="${SITE.url}/packages#standard" style="display:inline-block;background:#c1121f;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;">See the Local package</a></p>
       <p>If you want different coverage (10 newspapers / the whole network / a subscription), just reply to this email and I'll make the right recommendation.</p>
       <p style="margin-top:24px;">Best regards,<br/><strong>The Media Chief Team</strong></p>
