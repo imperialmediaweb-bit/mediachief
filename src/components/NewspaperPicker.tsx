@@ -238,7 +238,7 @@ export function NewspaperPicker() {
             )}
           </Button>
           <p className="mt-3 text-center text-xs text-white/50">
-            Card payment · invoice by email · final price
+            Card payment · receipt by email · final price
           </p>
         </div>
       </div>

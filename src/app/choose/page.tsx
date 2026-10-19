@@ -63,7 +63,7 @@ export default function ChoosePage() {
             <ol className="mt-6 space-y-3 text-left text-sm text-slate-600">
               <li>
                 <strong className="text-brand-navy">1.</strong> You pay by card and the receipt
-                and invoice arrive by email straight away.
+                arrives by email straight away.
               </li>
               <li>
                 <strong className="text-brand-navy">2.</strong> You send us the article, or just

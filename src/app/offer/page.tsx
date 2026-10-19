@@ -210,8 +210,8 @@ export default function OfferPage() {
               </h2>
             </div>
             <p className="mt-4 text-slate-600">
-              Card payment, with an invoice and a service
-              agreement — everything you need for B2B accounting.
+              Card payment, with a receipt by email and a
+              service agreement.
             </p>
           </div>
         </div>
