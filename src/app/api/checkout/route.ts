@@ -76,17 +76,9 @@ export async function POST(req: NextRequest) {
           newspapers: String(chosen.length),
           states: abbrs,
         },
-        billing_address_collection: "required",
         customer_creation: "always",
-        tax_id_collection: { enabled: true },
-        invoice_creation: {
-          enabled: true,
-          invoice_data: {
-            description: `Publication in ${label} on the ${SITE.name} network`,
-            footer: "Service delivered electronically. Thank you for your order.",
-            metadata: { packageId: "pick", newspapers: String(chosen.length) },
-          },
-        },
+        // No invoice on Media Chief: the buyer gets Stripe's card receipt.
+        payment_intent_data: { receipt_email: email },
         success_url: successUrl,
         cancel_url: cancelUrl,
         locale: "en",
@@ -118,20 +110,9 @@ export async function POST(req: NextRequest) {
           },
         ],
         metadata: { packageId, mode, category: pkg.category },
-        billing_address_collection: "required",
-        // Stripe issues the invoice (PDF + hosted page) with the business
-        // details from the Stripe account, so the site never has to generate
-        // one. Buyers can add their company name and tax ID at checkout.
         customer_creation: "always",
-        tax_id_collection: { enabled: true },
-        invoice_creation: {
-          enabled: true,
-          invoice_data: {
-            description: `${name} — publication on the ${SITE.name} network (${pkg.newspapers} newspapers)`,
-            footer: "Service delivered electronically. Thank you for your order.",
-            metadata: { packageId, category: pkg.category },
-          },
-        },
+        // No invoice on Media Chief: the buyer gets Stripe's card receipt.
+        payment_intent_data: { receipt_email: email },
         success_url: successUrl,
         cancel_url: cancelUrl,
         locale: "en",
@@ -164,8 +145,6 @@ export async function POST(req: NextRequest) {
         },
       ],
       metadata: { planId: plan.id, category, mode },
-      // Subscriptions are invoiced by Stripe every month automatically.
-      tax_id_collection: { enabled: true },
       subscription_data: {
         description: `${name} — ${plan.distributionsPerMonth} article/month across the ${SITE.name} network`,
         metadata: {
@@ -174,7 +153,6 @@ export async function POST(req: NextRequest) {
           articlesIncludedPerMonth: String(plan.distributionsPerMonth),
         },
       },
-      billing_address_collection: "required",
       success_url: successUrl,
       cancel_url: cancelUrl,
       locale: "en",

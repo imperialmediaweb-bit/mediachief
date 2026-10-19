@@ -83,11 +83,10 @@ export async function POST(req: NextRequest) {
       payment_intent_data: {
         description: `${name} — ${order.email}`,
         metadata: { orderRef: ref },
+        // No invoice on Media Chief: the buyer gets Stripe's card receipt.
+        receipt_email: order.email,
       },
-      billing_address_collection: "required",
       customer_creation: "always",
-      invoice_creation: { enabled: true },
-      tax_id_collection: { enabled: true },
       allow_promotion_codes: true,
       success_url: `${SITE.url}/order/pay/${ref}?paid=1`,
       cancel_url: `${SITE.url}/order/pay/${ref}`,
