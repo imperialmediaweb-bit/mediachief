@@ -46,12 +46,14 @@ export function Footer() {
                   {SITE.email}
                 </a>
               </li>
-              <li className="flex items-start gap-3">
-                <Phone className="h-4 w-4 mt-0.5 text-brand-gold" />
-                <a href={`tel:${SITE.phone.replace(/[\s()-]/g, "")}`} className="hover:text-white">
-                  {SITE.phone}
-                </a>
-              </li>
+              {SITE.phone && (
+                <li className="flex items-start gap-3">
+                  <Phone className="h-4 w-4 mt-0.5 text-brand-gold" />
+                  <a href={`tel:${SITE.phone.replace(/[\s()-]/g, "")}`} className="hover:text-white">
+                    {SITE.phone}
+                  </a>
+                </li>
+              )}
               <li className="flex items-start gap-3">
                 <MapPin className="h-4 w-4 mt-0.5 text-brand-gold" />
                 <span>{SITE.address}</span>

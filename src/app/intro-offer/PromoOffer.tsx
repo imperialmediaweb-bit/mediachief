@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { CreditCard, Loader2, RefreshCw, ChevronDown, Newspaper, ShieldCheck } from "lucide-react";
 import { trackPixelEvent } from "@/components/analytics/MetaPixel";
 import { trackGaEvent } from "@/components/analytics/GoogleAnalytics";
-import { CONTENT_DECLARATION, CONTENT_DECLARATION_ERROR, CONTENT_DECLARATION_WARNING } from "@/lib/content-policy";
+import { CONTENT_DECLARATION, CONTENT_DECLARATION_ERROR } from "@/lib/content-policy";
 import { FormError } from "@/components/forms/FormError";
 import {
   PROMO_PRICE,
@@ -87,6 +87,13 @@ export function PromoOffer({ showPrice = true }: { showPrice?: boolean }) {
       currency: "USD",
     });
     trackGaEvent("begin_checkout", { value: offer.price, currency: "USD" });
+    // One-time orders go through /order: the buyer sends the article first and
+    // pays at the end. Paying $149 up front to a site they just met lost
+    // everyone (85 visits from the ads, nobody reached the card).
+    if (!monthly) {
+      window.location.href = `/order?package=${offer.packageId}`;
+      return;
+    }
     setAskEmail(true);
   }
 
@@ -213,20 +220,19 @@ export function PromoOffer({ showPrice = true }: { showPrice?: boolean }) {
             </span>
           </label>
 
-          <label className="mt-4 flex items-start gap-2.5 rounded-lg border border-amber-300/40 bg-amber-400/10 p-3 text-left">
+          <label className="mt-3 flex items-start gap-2 text-left">
             <input
               type="checkbox"
               name="contentDeclaration"
               checked={declared}
               onChange={(ev) => setDeclared(ev.target.checked)}
-              className="mt-0.5 h-4 w-4 shrink-0 accent-brand-gold"
+              className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-brand-gold"
             />
-            <span className="text-xs leading-relaxed text-white/85">
+            <span className="text-[11px] leading-snug text-white/60">
               {CONTENT_DECLARATION}{" "}
-              <a href="/legal/terms" target="_blank" rel="noreferrer" className="font-semibold text-brand-gold underline">
+              <a href="/legal/terms" target="_blank" rel="noreferrer" className="underline">
                 Content rules
               </a>
-              <span className="mt-1 block text-white/60">{CONTENT_DECLARATION_WARNING}</span>
             </span>
           </label>
 
@@ -279,21 +285,21 @@ export function PromoOffer({ showPrice = true }: { showPrice?: boolean }) {
         </div>
       )}
 
-      {/* What happens after payment, said before payment. */}
+      {/* How the order goes, said before anything is asked. */}
       <div className="mt-5 rounded-xl border border-white/15 bg-white/5 p-4 text-left">
-        <p className="text-xs font-bold uppercase tracking-wider text-brand-gold">What happens after payment</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-brand-gold">How it works</p>
         <ol className="mt-2 space-y-1.5 text-sm text-white/85">
           <li>
-            <strong className="text-white">1.</strong> You come back to a short form where you send the article and up to 3 images.
+            <strong className="text-white">1.</strong> Send your article and up to 3 images — nothing is charged yet.
           </li>
           <li>
-            <strong className="text-white">2.</strong> No article yet? <strong className="text-white">We write it</strong> — give us your website and a sentence or two. You read it and can change it before it goes live.
+            <strong className="text-white">2.</strong> No article? <strong className="text-white">We write it on the spot</strong> from your website — you read it and edit it before paying.
           </li>
           <li>
-            <strong className="text-white">3.</strong> We publish within 1 business day on every newspaper. Orders placed in the evening or at the weekend go live the next business day.
+            <strong className="text-white">3.</strong> Pay by card ({money(offer.price)}{offer.suffix}). We publish within 1 business day on every newspaper.
           </li>
           <li>
-            <strong className="text-white">4.</strong> You get the list of all {TOTAL_NEWSPAPERS} links by email, in PDF and Excel — the document you forward to whoever needs it.
+            <strong className="text-white">4.</strong> You get a live report link and the list of all {TOTAL_NEWSPAPERS} links, in PDF and Excel.
           </li>
         </ol>
       </div>

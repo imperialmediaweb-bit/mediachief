@@ -6,7 +6,9 @@ export const SITE = {
   description:
     "Press release distribution service across 50 U.S. newspapers, one in every state. 24h delivery, PDF report, permanent links.",
   email: "contact@media-chief.com",
-  phone: "+1 (555) 000-0000",
+  // No US line yet: a placeholder number read as fake to every US visitor.
+  // Empty hides the phone everywhere; email and the site chat are the contact.
+  phone: "",
   address: "New York, NY, United States",
   schedule: "Monday – Friday, 9:00 AM – 6:00 PM ET",
   social: {

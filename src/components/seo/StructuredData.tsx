@@ -11,7 +11,7 @@ export function StructuredData() {
     contactPoint: {
       "@type": "ContactPoint",
       email: SITE.email,
-      telephone: SITE.phone,
+      telephone: SITE.phone || undefined,
       contactType: "customer service",
       areaServed: "US",
       availableLanguage: ["English"],

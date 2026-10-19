@@ -34,14 +34,16 @@ export default function ContactPage() {
                     {SITE.email}
                   </a>
                 </InfoRow>
-                <InfoRow icon={Phone} label="Phone">
-                  <a
-                    href={`tel:${SITE.phone.replace(/[\s()-]/g, "")}`}
-                    className="text-brand-navy hover:text-brand-red"
-                  >
-                    {SITE.phone}
-                  </a>
-                </InfoRow>
+                {SITE.phone && (
+                  <InfoRow icon={Phone} label="Phone">
+                    <a
+                      href={`tel:${SITE.phone.replace(/[\s()-]/g, "")}`}
+                      className="text-brand-navy hover:text-brand-red"
+                    >
+                      {SITE.phone}
+                    </a>
+                  </InfoRow>
+                )}
                 <InfoRow icon={MapPin} label="Office">
                   {SITE.address}
                 </InfoRow>

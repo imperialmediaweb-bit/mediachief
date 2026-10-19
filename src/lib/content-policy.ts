@@ -7,9 +7,7 @@
  * cannot drift from page to page.
  */
 export const CONTENT_DECLARATION =
-  "I confirm the article does not present causes, treatments or cures for diseases " +
-  "(cancer, chronic or serious conditions) and does not promote medicines, supplements " +
-  "or therapies as an alternative to medical treatment.";
+  "I confirm the article makes no medical claims (no causes, treatments or cures of diseases).";
 
 export const CONTENT_DECLARATION_ERROR =
   "Tick the content declaration to continue.";
