@@ -92,7 +92,7 @@ export default function PackagesPage() {
                 <Button variant="accent" size="lg" asChild className="mt-5 w-full">
                   <Link href="/choose">Pick your newspapers</Link>
                 </Button>
-                <p className="mt-3 text-xs text-white/60">Card payment · invoice by email · final price</p>
+                <p className="mt-3 text-xs text-white/60">Card payment · receipt by email · final price</p>
               </div>
             </div>
           </section>

@@ -57,7 +57,7 @@ export default async function PayPage({
               PDF and Excel.
             </p>
             <p className="mt-3 text-sm text-slate-500">
-              Your invoice arrives by email in a few minutes. To follow the order, sign in
+              Your receipt arrives by email in a few minutes. To follow the order, sign in
               {order ? (
                 <>
                   {" "}
@@ -122,7 +122,7 @@ export default async function PayPage({
             </li>
             <li className="flex items-start gap-2">
               <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              Your billing details and tax ID are collected by Stripe, so the invoice is correct.
+              Secure card payment through Stripe — the receipt comes by email.
             </li>
           </ul>
 

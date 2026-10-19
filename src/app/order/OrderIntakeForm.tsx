@@ -388,8 +388,7 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
           )}
         </div>
         <p className="mt-3 text-xs text-slate-500">
-          Billing details and your tax ID are collected on the payment page, so the invoice comes
-          out right.
+          You pay on the next page, by card. The receipt comes by email.
         </p>
       </div>
 

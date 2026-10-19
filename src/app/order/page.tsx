@@ -22,7 +22,7 @@ const STEPS = [
   {
     icon: CreditCard,
     title: "2. Pay by card",
-    text: "Card payment through Stripe. Your invoice is emailed automatically.",
+    text: "Card payment through Stripe. Your receipt is emailed automatically.",
   },
   {
     icon: Newspaper,
