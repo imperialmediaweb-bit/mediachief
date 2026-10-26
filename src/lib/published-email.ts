@@ -2,6 +2,7 @@ import { SITE } from "@/data/site";
 import { sendEmail, wrapEmail } from "@/lib/email";
 import { newspaperNameFor } from "@/lib/newspaper-name";
 import { reportToken, reportUrl } from "@/lib/report-link";
+import { buildCsv, buildPdf } from "@/lib/report";
 
 function escapeHtml(value: string): string {
   return value
@@ -19,6 +20,9 @@ interface PublishedEmailArgs {
   title: string;
   /** Every address the article went live on, as the network recorded them. */
   urls: string[];
+  /** For the attached report. */
+  publishedAt?: Date | null;
+  company?: string | null;
 }
 
 /**
@@ -37,6 +41,7 @@ export function buildPublishedEmail(args: PublishedEmailArgs): {
   to: string;
   subject: string;
   html: string;
+  slug: string;
 } {
   const first = (args.name || "").trim().split(" ")[0];
   const token = reportToken(args.articleId);
@@ -55,6 +60,7 @@ export function buildPublishedEmail(args: PublishedEmailArgs): {
     .join("");
 
   return {
+    slug: slugFor(args.title),
     to: args.to,
     subject: `Your article is live on ${args.urls.length} newspaper${args.urls.length === 1 ? "" : "s"} — ${args.title}`,
     html: wrapEmail(
@@ -66,7 +72,7 @@ export function buildPublishedEmail(args: PublishedEmailArgs): {
       <p style="margin:24px 0;">
         <a href="${reportUrl(args.articleId)}" style="background:#c1121f;color:#fff;padding:13px 22px;border-radius:6px;text-decoration:none;display:inline-block;font-weight:600;">Open your publication report</a>
       </p>
-      <p style="font-size:13px;color:#64748b;margin-top:-12px;">No sign-in needed and the link never expires — share it with your team. Download it as
+      <p style="font-size:13px;color:#64748b;margin-top:-12px;">The report is attached to this email as a PDF and a spreadsheet. The link above needs no sign-in and never expires — share it with your team. You can also download it as
         <a href="${SITE.url}/api/report/${token}?format=pdf" style="color:#c1121f;">PDF</a> or
         <a href="${SITE.url}/api/report/${token}?format=csv" style="color:#c1121f;">Excel</a>.</p>
 
@@ -79,7 +85,53 @@ export function buildPublishedEmail(args: PublishedEmailArgs): {
   };
 }
 
-/** Builds it, then sends it. The admin previews with the builder first. */
+/** A filename a client can keep: the headline, not an id. */
+function slugFor(title: string): string {
+  return (
+    title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "")
+      .slice(0, 60) || "report"
+  );
+}
+
+/**
+ * Builds it, attaches the report and sends it.
+ *
+ * The report goes as files, not only as a link. A link is a promise that a
+ * server will still be there; the PDF in somebody's inbox is the thing they
+ * forward to a publisher two years from now.
+ */
 export async function sendPublishedEmail(args: PublishedEmailArgs) {
-  return sendEmail(buildPublishedEmail(args));
+  const mail = buildPublishedEmail(args);
+  const data = {
+    articleTitle: args.title,
+    clientName: args.company || args.name || null,
+    publishedAt: args.publishedAt ?? null,
+    urls: args.urls,
+  };
+
+  const attachments: { filename: string; content: Buffer }[] = [];
+  try {
+    attachments.push({
+      filename: `media-chief-${mail.slug}.pdf`,
+      content: Buffer.from(await buildPdf(data)),
+    });
+    attachments.push({
+      filename: `media-chief-${mail.slug}.csv`,
+      // The BOM is what makes Excel read the UTF-8 correctly on Windows.
+      content: Buffer.from("\ufeff" + buildCsv(data), "utf8"),
+    });
+  } catch (err) {
+    // A report that will not render is not a reason to withhold the links.
+    console.error("[published-email] could not build the report:", err);
+  }
+
+  return sendEmail({
+    to: mail.to,
+    subject: mail.subject,
+    html: mail.html,
+    ...(attachments.length ? { attachments } : {}),
+  });
 }

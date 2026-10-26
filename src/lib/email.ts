@@ -14,7 +14,13 @@ interface SendArgs {
   subject: string;
   html: string;
   replyTo?: string;
-  attachments?: { filename: string; path: string }[];
+  /**
+   * Files to attach. `content` is the file itself; `path` a URL Resend fetches.
+   *
+   * This field existed before and was never passed on to Resend, so every
+   * caller that attached something sent a bare email and nobody could see why.
+   */
+  attachments?: { filename: string; content?: Buffer | string; path?: string }[];
   // ISO string; Resend schedules the send at this time instead of now.
   scheduledAt?: string;
 }
@@ -32,6 +38,9 @@ export async function sendEmail(args: SendArgs) {
     html: args.html,
     replyTo: args.replyTo,
   };
+  if (args.attachments?.length) {
+    payload.attachments = args.attachments as NonNullable<typeof payload.attachments>;
+  }
   if (args.scheduledAt) {
     (payload as unknown as { scheduledAt: string }).scheduledAt = args.scheduledAt;
   }
@@ -42,7 +51,10 @@ export async function sendEmail(args: SendArgs) {
   }
   // A send that logs nothing cannot be checked afterwards, and "did the client
   // get it?" is the question that actually gets asked.
-  console.log(`[email] SENT to ${args.to} — "${args.subject}" — resend id ${data?.id}`);
+  const files = args.attachments?.length
+    ? ` — attached ${args.attachments.map((a) => a.filename).join(", ")}`
+    : "";
+  console.log(`[email] SENT to ${args.to} — "${args.subject}" — resend id ${data?.id}${files}`);
   return { ok: true, id: data?.id };
 }
 
