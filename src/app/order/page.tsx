@@ -22,7 +22,7 @@ const STEPS = [
   {
     icon: CreditCard,
     title: "2. Pay by card",
-    text: "Card payment through Stripe. Your receipt is emailed automatically.",
+    text: "Your card is only authorized through Stripe — you're charged when your article is published. No publication within 72 hours, no charge.",
   },
   {
     icon: Newspaper,

@@ -255,6 +255,15 @@ export function PromoOffer({ showPrice = true }: { showPrice?: boolean }) {
           <p className="mt-3 text-center text-xs text-white/60">
             {money(offer.price)}{offer.suffix} · receipt by email · published within 1 business day
           </p>
+          {/* 26.10.2026 — reserved payment (lib/reserved-payment.ts); not for the monthly plan. */}
+          {!offer.suffix && (
+            <p className="mt-3 rounded-lg bg-emerald-500/15 p-3 text-center text-sm text-white/90">
+              🔒 <strong className="text-white">You pay only after your article is live.</strong> At checkout
+              your card is only authorized, not charged. The payment is captured when your article is
+              published and you receive your report. If we don&apos;t publish within 72 hours, the hold is
+              released automatically.
+            </p>
+          )}
         </form>
       ) : (
         <div className="mt-6 flex flex-col items-center gap-3">
