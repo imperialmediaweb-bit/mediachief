@@ -10,6 +10,7 @@ import {
   createCampaign,
   getCampaign,
   networkConfigured,
+  patchCampaign,
   publishCampaign,
   reportUrlFor,
   urlsFrom,
@@ -21,7 +22,7 @@ export const maxDuration = 300;
 
 const schema = z.object({
   articleId: z.string().min(1).max(64),
-  action: z.enum(["create", "publish", "refresh"]),
+  action: z.enum(["create", "publish", "refresh", "identical"]),
   /** Required on create: every placement links back to it. */
   clientUrl: z.string().url().max(500).optional(),
   /** An image for the placements when the client sent no photo of their own. */
@@ -180,6 +181,17 @@ export async function POST(req: NextRequest) {
       { ok: false, error: "This order has not been sent to the network yet." },
       { status: 409 }
     );
+  }
+
+  // Stop rewriting: from here the client's own words go out unchanged.
+  if (action === "identical") {
+    const patched = await patchCampaign(order.networkOrderId, { identicalText: true });
+    if (patched.state !== "ok") {
+      const reason = patched.state === "not-configured" ? "Network not configured" : patched.message;
+      console.error("[admin/network] identical failed:", reason);
+      return NextResponse.json({ ok: false, error: reason }, { status: 200 });
+    }
+    return NextResponse.json({ ok: true, identicalText: true });
   }
 
   if (action === "publish") {

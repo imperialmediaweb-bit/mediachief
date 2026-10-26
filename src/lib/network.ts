@@ -184,6 +184,22 @@ export async function publishCampaign(
   );
 }
 
+/**
+ * Changes fields on an existing campaign. identicalText is the one that
+ * matters here: with it set, the network stops rewriting and publishes the
+ * client's own words on every paper — which is what a client who wrote the
+ * text themselves is buying.
+ */
+export async function patchCampaign(
+  networkOrderId: number,
+  fields: Record<string, unknown>
+): Promise<NetworkResult<Record<string, unknown>>> {
+  return call("/api/admin/orders", {
+    method: "PATCH",
+    body: JSON.stringify({ id: networkOrderId, ...fields }),
+  });
+}
+
 /** The client's report page — public, no password. */
 export function reportUrlFor(token: string | null | undefined): string | null {
   return token && NETWORK_URL ? `${NETWORK_URL}/report/${token}` : null;
