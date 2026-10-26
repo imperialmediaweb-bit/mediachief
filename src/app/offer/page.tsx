@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   Mail,
   Newspaper,
@@ -8,9 +9,11 @@ import {
   Globe,
   FileText,
   CreditCard,
+  ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RequestListModal } from "@/components/forms/RequestListModal";
+import { TOTAL_NEWSPAPERS } from "@/data/newspapers";
 
 export const metadata: Metadata = {
   title: "Advertorial and press release publishing offer",
@@ -200,6 +203,58 @@ export default function OfferPage() {
       </section>
 
       {/* Payment */}
+      {/* What the client actually receives, and one campaign that used it */}
+      <section className="section bg-slate-50">
+        <div className="container">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="eyebrow">Proof, not promises</p>
+            <h2 className="h2 mt-2">See the report before you buy</h2>
+            <p className="lead mt-4">
+              Every campaign ends with a page listing each newspaper by name and a direct link to
+              your article on it. It updates while publication is in progress, it opens without a
+              sign-in, and the link never expires — so you can send it to anyone.
+            </p>
+            <Link
+              href="/sample-report"
+              className="mt-6 inline-flex items-center gap-2 rounded-lg border-2 border-brand-navy px-6 py-3 font-semibold text-brand-navy transition hover:bg-brand-navy hover:text-white"
+            >
+              Look at an example report <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="mx-auto mt-12 max-w-3xl rounded-2xl border border-slate-200 bg-white p-8">
+            <p className="text-xs font-semibold uppercase tracking-widest text-brand-red">
+              A campaign we ran this week
+            </p>
+            <h3 className="mt-2 font-serif text-xl font-bold text-brand-navy">
+              The Mesopotamian — a novel by Fazle Chowdhury
+            </h3>
+            <p className="mt-3 text-slate-600">
+              A book announcement, published on all {TOTAL_NEWSPAPERS} newspapers in the network in
+              a single day, in the author&apos;s own words. Three of the fifty, live right now:
+            </p>
+            <ul className="mt-4 space-y-2 text-sm">
+              {[
+                ["New York Express", "https://newyork-express.com/business/a-novel-where-the-past-is-as-dangerous-as-the-enemy-ny"],
+                ["Texas Express", "https://texasexpres.com/business/a-novel-where-the-past-is-as-dangerous-as-the-enemy-tx"],
+                ["Illinois Express", "https://illinoiseexpres.com/business/the-mesopotamian-a-thriller-about-secrets-power-and-the-cost-of-the-past-il"],
+              ].map(([name, href]) => (
+                <li key={href}>
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener"
+                    className="font-medium text-brand-red hover:underline"
+                  >
+                    {name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section className="section bg-white">
         <div className="container">
           <div className="rounded-2xl border border-slate-200 p-10">
