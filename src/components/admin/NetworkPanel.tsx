@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { paceLabel } from "@/data/publishing-pace";
 
-type Action = "create" | "publish" | "refresh" | "identical" | "email" | "preview";
+type Action = "create" | "publish" | "refresh" | "identical" | "email" | "preview" | "repair";
 
 /**
  * The publishing network, from the admin.
@@ -70,7 +70,12 @@ export function NetworkPanel({
         setPreview(data.preview);
         return;
       }
-      if (action === "create") setNote("Campaign created. Publish it in runs.");
+      if (action === "repair") {
+        setNote(
+          `${data.repaired} articles rewritten with the client's own text — links unchanged.` +
+            (data.failed ? ` ${data.failed} failed.` : "")
+        );
+      } else if (action === "create") setNote("Campaign created. Publish it in runs.");
       else if (action === "identical") setNote("The client's own words go out from now on, unchanged.");
       else if (action === "email") {
         setPreview(null);
@@ -179,6 +184,19 @@ export function NetworkPanel({
           >
             {label("identical", "Use the client's text as-is", "Saving…")}
           </Button>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => run("repair")}
+            disabled={busy !== null}
+          >
+            {label("repair", "Fix the live articles", "Fixing…")}
+          </Button>
+          <p className="text-xs text-slate-500">
+            <strong>Fix the live articles</strong> puts the client&apos;s own title and text, in
+            proper paragraphs, on every page already published — without changing a single
+            address, so a report they already have keeps working.
+          </p>
           <p className="text-xs text-slate-500">
             The network keeps going at the pace above without anyone here. Press{" "}
             <strong>Publish the next run</strong> only to push it along — each run picks up where

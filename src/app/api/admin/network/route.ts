@@ -14,6 +14,7 @@ import {
   getCampaign,
   networkConfigured,
   patchCampaign,
+  repairCampaign,
   publishCampaign,
   reportUrlFor,
   urlsFrom,
@@ -25,7 +26,7 @@ export const maxDuration = 300;
 
 const schema = z.object({
   articleId: z.string().min(1).max(64),
-  action: z.enum(["create", "publish", "refresh", "identical", "email", "preview"]),
+  action: z.enum(["create", "publish", "refresh", "identical", "email", "preview", "repair"]),
   /** Required on create: every placement links back to it. */
   clientUrl: z.string().url().max(500).optional(),
   /** An image for the placements when the client sent no photo of their own. */
@@ -246,6 +247,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: reason }, { status: 200 });
     }
     return NextResponse.json({ ok: true, identicalText: true });
+  }
+
+  if (action === "repair") {
+    const fixed = await repairCampaign(order.networkOrderId);
+    if (fixed.state !== "ok") {
+      const reason = fixed.state === "not-configured" ? "Network not configured" : fixed.message;
+      console.error("[admin/network] repair failed:", reason);
+      return NextResponse.json({ ok: false, error: reason }, { status: 200 });
+    }
+    return NextResponse.json({
+      ok: true,
+      repaired: fixed.data.repaired,
+      failed: fixed.data.failed,
+      title: fixed.data.title,
+    });
   }
 
   if (action === "publish") {

@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/account/StatusBadge";
 import { ensureNetworkColumns } from "@/lib/network-schema";
 import { ArticleActions } from "@/components/admin/ArticleActions";
 import { NetworkPanel } from "@/components/admin/NetworkPanel";
+import { ClientMessage } from "@/components/admin/ClientMessage";
 import { paceLabel } from "@/data/publishing-pace";
 import { reportToken, reportUrl } from "@/lib/report-link";
 
@@ -160,6 +161,8 @@ export default async function AdminArticlePage({ params }: { params: { id: strin
           </div>
 
           <ArticleActions articleId={a.id} status={a.status} publishedUrls={publishedUrls} />
+
+          <ClientMessage articleId={a.id} />
 
           <NetworkPanel
             articleId={a.id}

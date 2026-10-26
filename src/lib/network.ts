@@ -217,3 +217,19 @@ export function urlsFrom(placements: Placement[]): string[] {
     .map((p) => p.url)
     .filter((u): u is string => typeof u === "string" && /^https?:\/\//.test(u));
 }
+
+/**
+ * Rewrites the order's live articles in place: the client's own title and
+ * copy, as paragraphs, on every site it already went out on.
+ *
+ * The addresses do not change, which is the whole point — once the client is
+ * holding a report full of links, republishing would break every one of them.
+ */
+export async function repairCampaign(
+  networkOrderId: number
+): Promise<NetworkResult<{ ok: boolean; repaired: number; failed: number; title: string }>> {
+  return call("/api/admin/orders/repair", {
+    method: "POST",
+    body: JSON.stringify({ orderId: networkOrderId }),
+  });
+}
