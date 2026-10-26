@@ -24,6 +24,8 @@ const schema = z.object({
   action: z.enum(["create", "publish", "refresh"]),
   /** Required on create: every placement links back to it. */
   clientUrl: z.string().url().max(500).optional(),
+  /** An image for the placements when the client sent no photo of their own. */
+  imageUrl: z.string().url().max(600).optional(),
   perRun: z.number().int().min(1).max(50).optional(),
 });
 
@@ -65,7 +67,7 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-  const { articleId, action, clientUrl, perRun } = parsed.data;
+  const { articleId, action, clientUrl, imageUrl, perRun } = parsed.data;
 
   // Before the first query that reads them — see network-schema.ts.
   await ensureNetworkColumns();
@@ -143,7 +145,9 @@ export async function POST(req: NextRequest) {
       price: order.amount / 100,
       title: article.title,
       material,
-      images: images.map((i) => i.url),
+      // The operator's image first: a client who uploaded nothing still ends up
+      // with their own cover or logo on the placements rather than nothing.
+      images: [...(imageUrl ? [imageUrl] : []), ...images.map((i) => i.url)],
       notes: article.notes,
     });
 

@@ -58,11 +58,29 @@ async function call<T>(
 ): Promise<NetworkResult<T>> {
   if (!networkConfigured()) return { state: "not-configured" };
 
+  // The key travels three ways on purpose. The network checks the body first,
+  // then the query string, then the Authorization header — and a CDN in front
+  // of it is free to drop or rewrite that header, which looks from here
+  // exactly like a wrong key. Belt and braces costs nothing and removes a
+  // whole class of "Unauthorized" that is not about the key at all.
+  const url = new URL(`${NETWORK_URL}${path}`);
+  url.searchParams.set("key", NETWORK_KEY);
+
+  let body = init.body;
+  if (body) {
+    try {
+      body = JSON.stringify({ ...JSON.parse(body), key: NETWORK_KEY });
+    } catch {
+      // Not JSON: leave it, the query string and the header still carry it.
+    }
+  }
+
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
   try {
-    const res = await fetch(`${NETWORK_URL}${path}`, {
+    const res = await fetch(url.toString(), {
       ...init,
+      body,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${NETWORK_KEY}`,
