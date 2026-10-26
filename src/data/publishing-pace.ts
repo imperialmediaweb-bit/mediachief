@@ -1,21 +1,25 @@
 /**
- * How fast an order is published across the network.
+ * How long until the whole network has the article.
  *
- * The buyer chooses it, because the ends of the range serve different aims:
- * everything inside half an hour is the loudest possible moment, and a few
- * papers a day reads like coverage building on its own and keeps the story
- * turning up in search for weeks.
+ * The buyer picks a duration, not a rate: "everything within the hour" is what
+ * somebody buying publicity actually has an opinion about, while "five a day"
+ * is our side of the arithmetic. Both ends of the range are real choices —
+ * everything at once is the loudest possible moment, and two weeks reads like
+ * the press finding the story on its own and keeps it surfacing in search long
+ * after a single day would have gone quiet.
  *
- * Two numbers, not one: the same fifty newspapers are sold both as "inside
- * half an hour" and as "five a day for ten days", and those differ in the gap
- * between runs, not in the size of a run. The network stores the same pair and
- * its cron walks due orders, so the pace runs without anybody pressing a
- * button — which is what makes it a service rather than a promise.
+ * Stored as two numbers: newspapers in one run, and minutes before the next.
+ * The network keeps the same pair and its cron advances due orders, so the
+ * choice is what happens rather than what was promised.
+ *
+ * Every gap is a multiple of five, because the cron is the heartbeat and it
+ * ticks every five minutes. A gap of six would wait for the tick at ten, and
+ * the hour the buyer was promised would quietly become an hour and a half.
  */
 export interface PaceOption {
-  /** Newspapers in one run. */
+  /** Newspapers in one run. Twelve is the most a single run finishes safely. */
   perRun: number;
-  /** Minutes to wait before the next run. */
+  /** Minutes before the next run. A multiple of 5. */
   everyMinutes: number;
   label: string;
   text: string;
@@ -23,52 +27,55 @@ export interface PaceOption {
 
 export const PACES: PaceOption[] = [
   {
-    perRun: 10,
+    perRun: 12,
     everyMinutes: 5,
-    label: "Inside 30 minutes",
-    text: "All fifty newspapers within half an hour. The loudest possible moment, and the right choice when the news has a date on it: a launch, an award, a funding round.",
+    label: "Right now — about 20 minutes",
+    text: "As fast as the network goes. Everything is live inside half an hour, which is what you want when the news has a date on it: a launch, an award, a funding round.",
   },
   {
     perRun: 5,
-    everyMinutes: 6,
-    label: "Over one hour",
-    text: "Spread across the hour. Still a single news event, with the papers arriving one after another rather than all in the same minute.",
+    everyMinutes: 5,
+    label: "Within the hour",
+    text: "All fifty inside an hour, arriving a few at a time instead of in one burst. Still a single news event, but it builds while people are watching.",
   },
   {
     perRun: 5,
-    everyMinutes: 12,
-    label: "Over two hours",
-    text: "A morning of coverage. Reads like the story travelling rather than like fifty papers publishing at once.",
-  },
-  {
-    perRun: 5,
-    everyMinutes: 18,
+    everyMinutes: 20,
     label: "Over three hours",
-    text: "Half a working day. The most natural of the same-day options — nobody looking at it would guess the timing was bought.",
-  },
-  {
-    perRun: 10,
-    everyMinutes: 60 * 24,
-    label: "10 a day — about 5 days",
-    text: "A steady week. Loud enough to notice, spread enough that it does not look like one afternoon's work.",
+    text: "Half a working day. The most natural of the same-day options — nobody looking at the timing would guess it was bought.",
   },
   {
     perRun: 5,
-    everyMinutes: 60 * 24,
-    label: "5 a day — about 10 days",
-    text: "Reads like the press picking the story up on its own, and keeps you surfacing in search results for longer.",
+    everyMinutes: 160,
+    label: "Over one day",
+    text: "A full day of coverage, a few papers every couple of hours. Reads like the story travelling rather than like an announcement being distributed.",
+  },
+  {
+    perRun: 5,
+    everyMinutes: 320,
+    label: "Over two days",
+    text: "Two days, which is how a story that genuinely interests editors tends to spread. Good when you would rather look found than placed.",
+  },
+  {
+    perRun: 2,
+    everyMinutes: 840,
+    label: "Over two weeks",
+    text: "Two papers every half a day for a fortnight. The slowest and the longest-lived: you stay in search results for weeks instead of peaking once.",
   },
 ];
 
 export const DEFAULT_PACE = PACES[0]!;
 
+/** Roughly how long from the first run to the last, in minutes. */
+export function paceTotalMinutes(perRun: number, everyMinutes: number): number {
+  return Math.max(0, Math.ceil(50 / perRun) - 1) * everyMinutes;
+}
+
 export function paceFor(
   perRun: number | null | undefined,
   everyMinutes: number | null | undefined
 ): PaceOption {
-  return (
-    PACES.find((p) => p.perRun === perRun && p.everyMinutes === everyMinutes) || DEFAULT_PACE
-  );
+  return PACES.find((p) => p.perRun === perRun && p.everyMinutes === everyMinutes) || DEFAULT_PACE;
 }
 
 /** True when this pair is one we offer, rather than a number someone invented. */
@@ -85,11 +92,18 @@ export function paceLabel(
   everyMinutes: number | null | undefined
 ): string {
   if (!perRun || !everyMinutes) return "By hand — no pace chosen";
+
   const known = PACES.find((p) => p.perRun === perRun && p.everyMinutes === everyMinutes);
   if (known) return known.label;
 
-  const totalMinutes = Math.ceil(50 / perRun) * everyMinutes;
-  if (totalMinutes < 90) return `${perRun} at a time, every ${everyMinutes} min`;
-  if (totalMinutes < 60 * 36) return `${perRun} at a time, over about ${Math.round(totalMinutes / 60)} hours`;
-  return `${perRun} at a time, over about ${Math.round(totalMinutes / (60 * 24))} days`;
+  // A pace from an older order, or one set by hand. Say what it means rather
+  // than printing two numbers nobody can read at a glance.
+  const total = paceTotalMinutes(perRun, everyMinutes);
+  const span =
+    total < 90
+      ? `${total} minutes`
+      : total < 60 * 36
+        ? `${Math.round(total / 60)} hours`
+        : `${Math.round(total / (60 * 24))} days`;
+  return `${perRun} at a time, over about ${span}`;
 }

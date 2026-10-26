@@ -362,9 +362,9 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
 
       {/* ---- how fast it goes out */}
       <div>
-        <h2 className="font-serif text-lg font-bold text-brand-navy">Publishing pace</h2>
+        <h2 className="font-serif text-lg font-bold text-brand-navy">How fast do you want it out?</h2>
         <p className="mt-1 text-sm text-slate-600">
-          Same 50 newspapers either way — this is only how the days are spread.
+          All 50 newspapers either way — this only changes how long it takes to get there.
         </p>
         <div className="mt-4 space-y-2">
           {PACES.map((option) => (
