@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { orderSchema } from "@/lib/validators";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
 import { findPackageById, SUBSCRIPTION_PLANS } from "@/data/packages";
+import { sourceFromRequest, sourceLabel } from "@/lib/source";
 import { formatPrice } from "@/lib/utils";
 
 export const runtime = "nodejs";
@@ -71,6 +72,7 @@ export async function POST(req: NextRequest) {
       ${kv("Price", packagePrice)}
       ${kv("Name", data.name)}
       ${kv("Email", data.email)}
+      ${kv("Came from", sourceLabel(sourceFromRequest(req)))}
       ${kv("Phone", data.phone)}
       ${kv("Company", data.company || "—")}
       ${kv("Article title", data.articleTitle)}

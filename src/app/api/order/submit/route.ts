@@ -10,9 +10,9 @@ import { newOrderRef, PENDING_PAYMENT } from "@/lib/order-ref";
 import { createLimiter, ipFromRequest } from "@/lib/rate-limit";
 import { PROHIBITED_MESSAGE, screenContent } from "@/lib/content-policy";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
-import { sourceFromRequest } from "@/lib/source";
 import { SITE } from "@/data/site";
 import { ensureNetworkColumns } from "@/lib/network-schema";
+import { sourceFromRequest, sourceLabel } from "@/lib/source";
 import { DEFAULT_PACE, isOfferedPace } from "@/data/publishing-pace";
 
 export const runtime = "nodejs";
@@ -235,6 +235,7 @@ export async function POST(req: NextRequest) {
           ${kv("Why", screening.reason || "—")}
           ${kv("Matched", screening.hits.slice(0, 10).join(", "))}
           ${kv("Client", email)}
+          ${kv("Came from", sourceLabel(sourceFromRequest(req)))}
           ${kv("Company", d.company || "—")}
           ${kv("Package", resolved.label)}
           ${kv("Reference", ref)}

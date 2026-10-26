@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { contactSchema } from "@/lib/validators";
+import { sourceFromRequest, sourceLabel } from "@/lib/source";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
 
 export const runtime = "nodejs";
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
     <table style="width:100%;border-collapse:collapse;">
       ${kv("Name", data.name)}
       ${kv("Email", data.email)}
+      ${kv("Came from", sourceLabel(sourceFromRequest(req)))}
       ${kv("Subject", data.subject)}
     </table>
     <div style="margin-top:20px;padding:16px;background:#F8F5F0;border-radius:8px;">
