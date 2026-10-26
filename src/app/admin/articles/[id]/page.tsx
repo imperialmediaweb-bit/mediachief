@@ -8,7 +8,9 @@ import { articles, orders, uploads, users } from "@/db/schema";
 import { findPackageById } from "@/data/packages";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { StatusBadge } from "@/components/account/StatusBadge";
+import { ensureNetworkColumns } from "@/lib/network-schema";
 import { ArticleActions } from "@/components/admin/ArticleActions";
+import { NetworkPanel } from "@/components/admin/NetworkPanel";
 
 export const metadata: Metadata = {
   title: "Admin • Article",
@@ -21,6 +23,10 @@ export default async function AdminArticlePage({ params }: { params: { id: strin
   const session = getSession();
   if (!session) redirect(`/admin/login?from=/admin/articles/${params.id}`);
 
+  // This page reads the network columns, and the deploy's own migration step
+  // does not apply them — see network-schema.ts.
+  await ensureNetworkColumns();
+
   const db = getDb();
   const rows = await db
     .select({
@@ -32,6 +38,7 @@ export default async function AdminArticlePage({ params }: { params: { id: strin
       orderPackage: orders.packageId,
       orderStates: orders.newspaperStates,
       orderAmount: orders.amount,
+      networkOrderId: orders.networkOrderId,
     })
     .from(articles)
     .leftJoin(users, eq(users.id, articles.userId))
@@ -148,6 +155,12 @@ export default async function AdminArticlePage({ params }: { params: { id: strin
           </div>
 
           <ArticleActions articleId={a.id} status={a.status} publishedUrls={publishedUrls} />
+
+          <NetworkPanel
+            articleId={a.id}
+            inNetwork={Boolean(row.networkOrderId)}
+            publishedCount={publishedUrls.length}
+          />
 
           {a.status === "published" && (
             <div className="rounded-2xl border border-slate-200 bg-white p-6">

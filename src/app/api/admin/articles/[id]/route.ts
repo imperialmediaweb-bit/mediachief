@@ -6,7 +6,7 @@ import { getDb } from "@/db";
 import { articles, users } from "@/db/schema";
 import { sendEmail, wrapEmail, kv } from "@/lib/email";
 import { SITE } from "@/data/site";
-import { reportUrl } from "@/lib/report-link";
+import { sendPublishedEmail } from "@/lib/published-email";
 
 export const runtime = "nodejs";
 
@@ -73,23 +73,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       .where(eq(articles.id, article.id));
 
     if (article.email) {
-      await sendEmail({
+      await sendPublishedEmail({
         to: article.email,
-        subject: `Your article is live — ${article.title}`,
-        html: wrapEmail(
-          "Your article is published",
-          `
-          <p>Hi${firstName ? " " + firstName : ""},</p>
-          <p><strong>${escapeHtml(article.title)}</strong> is now live on ${urls.length} newspaper${urls.length === 1 ? "" : "s"}. Every link below is permanent.</p>
-          <ul style="padding-left:18px;">
-            ${urls.map((u) => `<li style="margin-bottom:6px;"><a href="${u}">${escapeHtml(u)}</a></li>`).join("")}
-          </ul>
-          <p style="margin-top:20px;"><a href="${reportUrl(article.id)}" style="background:#c1121f;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none;display:inline-block;">Open your full report</a></p>
-          <p style="margin-top:8px;font-size:13px;color:#64748b;">The report lists every newspaper with its link. No sign-in needed, and the link is permanent — share it with your team.</p>
-          <p style="margin-top:12px;">Download the report: <a href="${SITE.url}/api/articles/${article.id}/report?format=pdf">PDF</a> · <a href="${SITE.url}/api/articles/${article.id}/report?format=csv">Excel</a> — sign in with this address first.</p>
-          <p style="margin-top:20px;color:#64748b;font-size:13px;">We publish the article and give you the links. Whether it brings visitors or customers is not something we promise.</p>
-        `
-        ),
+        name: article.name,
+        articleId: article.id,
+        title: article.title,
+        urls,
       });
     }
 

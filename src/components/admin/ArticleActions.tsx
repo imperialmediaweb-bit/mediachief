@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, CheckCircle2, Loader2, Send, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { newspaperNameFor } from "@/lib/newspaper-name";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
@@ -64,10 +65,21 @@ export function ArticleActions({
         <p className="flex items-center gap-2 font-semibold text-green-800">
           <CheckCircle2 className="h-5 w-5" /> Published and the client has the links
         </p>
-        <ul className="mt-3 space-y-1 font-mono text-xs text-slate-600">
+        <p className="mt-1 text-sm text-green-800">
+          {publishedUrls.length} newspaper{publishedUrls.length === 1 ? "" : "s"}
+        </p>
+        <ul className="mt-4 space-y-2 text-sm">
           {publishedUrls.map((u) => (
-            <li key={u} className="break-all">
-              {u}
+            <li key={u} className="border-b border-green-100 pb-2 last:border-0">
+              <span className="font-semibold text-brand-navy">{newspaperNameFor(u)}</span>
+              <a
+                href={u}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-0.5 block break-all font-mono text-xs text-green-700 hover:underline"
+              >
+                {u}
+              </a>
             </li>
           ))}
         </ul>

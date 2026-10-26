@@ -6,6 +6,7 @@ import { getDb } from "@/db";
 import { articles, orders, uploads, users } from "@/db/schema";
 import { findPackageById } from "@/data/packages";
 import { ensureNetworkColumns } from "@/lib/network-schema";
+import { sendPublishedEmail } from "@/lib/published-email";
 import {
   createCampaign,
   getCampaign,
@@ -22,7 +23,7 @@ export const maxDuration = 300;
 
 const schema = z.object({
   articleId: z.string().min(1).max(64),
-  action: z.enum(["create", "publish", "refresh", "identical"]),
+  action: z.enum(["create", "publish", "refresh", "identical", "email"]),
   /** Required on create: every placement links back to it. */
   clientUrl: z.string().url().max(500).optional(),
   /** An image for the placements when the client sent no photo of their own. */
@@ -175,6 +176,35 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // ---- tell the client, from the links already on the article
+  if (action === "email") {
+    if (!row.clientEmail) {
+      return NextResponse.json(
+        { ok: false, error: "This order has no client email address on it." },
+        { status: 409 }
+      );
+    }
+    const stored = storedUrls(article.publishedUrls);
+    if (!stored.length) {
+      return NextResponse.json(
+        { ok: false, error: "Nothing is published yet, so there are no links to send." },
+        { status: 409 }
+      );
+    }
+    const sent = await sendPublishedEmail({
+      to: row.clientEmail,
+      name: row.clientCompany || row.clientName,
+      articleId: article.id,
+      title: article.title,
+      urls: stored,
+    });
+    if (!sent.ok) {
+      console.error("[admin/network] publication email failed:", sent.error);
+      return NextResponse.json({ ok: false, error: sent.error }, { status: 200 });
+    }
+    return NextResponse.json({ ok: true, emailed: row.clientEmail, urls: stored.length });
+  }
+
   // ---- publish and refresh both need the campaign to exist
   if (!order.networkOrderId) {
     return NextResponse.json(
@@ -214,7 +244,9 @@ export async function POST(req: NextRequest) {
 
   // The report the client downloads is built from these, so write them back
   // whichever action we came in on.
+  let emailed: string | null = null;
   if (urls.length) {
+    const firstTime = article.status !== "published";
     await db
       .update(articles)
       .set({
@@ -223,6 +255,21 @@ export async function POST(req: NextRequest) {
         publishedAt: article.publishedAt ?? new Date(),
       })
       .where(eq(articles.id, article.id));
+
+    // The client hears it once, when the article first goes live — a later
+    // refresh that only adds placements must not mail them again. Use the
+    // "email" action to send it by hand after that.
+    if (firstTime && row.clientEmail) {
+      const sent = await sendPublishedEmail({
+        to: row.clientEmail,
+        name: row.clientCompany || row.clientName,
+        articleId: article.id,
+        title: article.title,
+        urls,
+      });
+      if (sent.ok) emailed = row.clientEmail;
+      else console.error("[admin/network] publication email failed:", sent.error);
+    }
   }
 
   return NextResponse.json({
@@ -231,5 +278,17 @@ export async function POST(req: NextRequest) {
     reportUrl: reportUrlFor(campaign.data.order?.token || order.networkReportToken),
     placed: placements.length,
     urls,
+    emailed,
   });
+}
+
+/** The addresses already written onto the article, however they got there. */
+function storedUrls(raw: string | null): string[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((u): u is string => typeof u === "string") : [];
+  } catch {
+    return [];
+  }
 }

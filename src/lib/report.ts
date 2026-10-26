@@ -1,5 +1,6 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { SITE } from "@/data/site";
+import { newspaperNameFor } from "@/lib/newspaper-name";
 
 /**
  * The link report a client gets once their article is published: the document
@@ -35,21 +36,6 @@ function csvCell(value: string): string {
   // Quote whenever the value could break the row, and double any inner quote.
   if (/[",\r\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
   return value;
-}
-
-/** Best-effort publication name from the address, for the human-readable column. */
-function newspaperNameFor(url: string): string {
-  try {
-    const host = new URL(url).hostname.replace(/^www\./, "");
-    const base = host.split(".")[0];
-    return base
-      .split(/[-_]/)
-      .filter(Boolean)
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join(" ");
-  } catch {
-    return "";
-  }
 }
 
 export async function buildPdf(data: ReportData): Promise<Uint8Array> {
