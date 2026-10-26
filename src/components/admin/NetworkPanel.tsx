@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { paceLabel } from "@/data/publishing-pace";
 
-type Action = "create" | "publish" | "refresh" | "identical" | "email";
+type Action = "create" | "publish" | "refresh" | "identical" | "email" | "preview";
 
 /**
  * The publishing network, from the admin.
@@ -37,6 +37,11 @@ export function NetworkPanel({
   const [busy, setBusy] = useState<Action | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  // What is about to go out, shown before it does. Nothing leaves this panel
+  // without the operator having read it first.
+  const [preview, setPreview] = useState<{ to: string; subject: string; html: string } | null>(
+    null
+  );
 
   async function run(action: Action) {
     setError(null);
@@ -61,9 +66,19 @@ export function NetworkPanel({
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || "That did not work.");
 
+      if (action === "preview") {
+        setPreview(data.preview);
+        return;
+      }
       if (action === "create") setNote("Campaign created. Publish it in runs.");
       else if (action === "identical") setNote("The client's own words go out from now on, unchanged.");
-      else if (action === "email") setNote(`Publication email sent to ${data.emailed}.`);
+      else if (action === "email") {
+        setPreview(null);
+        setNote(
+          `Sent to ${data.emailed} — "${data.subject}"` +
+            (data.messageId ? ` · id ${data.messageId}` : "")
+        );
+      }
       else {
         setNote(
           `${data.placed} of 50 placed.` + (data.emailed ? ` Publication email sent to ${data.emailed}.` : "")
@@ -147,9 +162,14 @@ export function NetworkPanel({
           <Button variant="outline" className="w-full" onClick={() => run("refresh")} disabled={busy !== null}>
             <RefreshCw className="h-4 w-4" /> {label("refresh", "Read the links back", "Reading…")}
           </Button>
-          <Button variant="outline" className="w-full" onClick={() => run("email")} disabled={busy !== null}>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => run("preview")}
+            disabled={busy !== null}
+          >
             <Mail className="h-4 w-4" />{" "}
-            {label("email", "Send the publication email", "Sending…")}
+            {label("preview", "Read the publication email", "Loading…")}
           </Button>
           <Button
             variant="outline"
@@ -164,6 +184,40 @@ export function NetworkPanel({
             <strong>Publish the next run</strong> only to push it along — each run picks up where
             the last one stopped.
           </p>
+        </div>
+      )}
+
+      {preview && (
+        <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <p className="text-xs uppercase tracking-wide text-slate-500">This is what goes out</p>
+          <dl className="mt-2 space-y-1 text-sm">
+            <div className="flex gap-2">
+              <dt className="shrink-0 text-slate-500">To</dt>
+              <dd className="break-all font-medium text-brand-navy">{preview.to}</dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="shrink-0 text-slate-500">Subject</dt>
+              <dd className="font-medium text-brand-navy">{preview.subject}</dd>
+            </div>
+          </dl>
+          <iframe
+            title="Publication email"
+            srcDoc={preview.html}
+            className="mt-3 h-80 w-full rounded-lg border border-slate-200 bg-white"
+          />
+          <div className="mt-3 flex gap-2">
+            <Button
+              variant="accent"
+              className="flex-1"
+              onClick={() => run("email")}
+              disabled={busy !== null}
+            >
+              {label("email", `Send it to ${preview.to}`, "Sending…")}
+            </Button>
+            <Button variant="outline" onClick={() => setPreview(null)} disabled={busy !== null}>
+              Cancel
+            </Button>
+          </div>
         </div>
       )}
 

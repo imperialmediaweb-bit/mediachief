@@ -37,9 +37,12 @@ export async function sendEmail(args: SendArgs) {
   }
   const { data, error } = await resend.emails.send(payload);
   if (error) {
-    console.error("[email] Resend error:", error);
+    console.error(`[email] FAILED to ${args.to} — "${args.subject}":`, error.message);
     return { ok: false, error: error.message };
   }
+  // A send that logs nothing cannot be checked afterwards, and "did the client
+  // get it?" is the question that actually gets asked.
+  console.log(`[email] SENT to ${args.to} — "${args.subject}" — resend id ${data?.id}`);
   return { ok: true, id: data?.id };
 }
 

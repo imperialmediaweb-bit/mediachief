@@ -29,9 +29,18 @@ interface PublishedEmailArgs {
  * published two ways — by hand in the admin, or by the network once it has
  * placed the article itself — and a client who is never told is a client who
  * paid and heard nothing.
+ *
+ * Building and sending are separate so the admin can show the operator exactly
+ * what is about to go out, and to whom, before it goes.
  */
-export async function sendPublishedEmail(args: PublishedEmailArgs) {
+export function buildPublishedEmail(args: PublishedEmailArgs): {
+  to: string;
+  subject: string;
+  html: string;
+} {
   const first = (args.name || "").trim().split(" ")[0];
+  const token = reportToken(args.articleId);
+
   const rows = args.urls
     .map((url) => {
       const paper = newspaperNameFor(url);
@@ -45,9 +54,7 @@ export async function sendPublishedEmail(args: PublishedEmailArgs) {
     })
     .join("");
 
-  const token = reportToken(args.articleId);
-
-  return sendEmail({
+  return {
     to: args.to,
     subject: `Your article is live on ${args.urls.length} newspaper${args.urls.length === 1 ? "" : "s"} — ${args.title}`,
     html: wrapEmail(
@@ -69,5 +76,10 @@ export async function sendPublishedEmail(args: PublishedEmailArgs) {
       <p style="margin-top:28px;color:#64748b;font-size:13px;">We publish the article and give you the links. Whether it brings visitors or customers is not something we promise.</p>
     `
     ),
-  });
+  };
+}
+
+/** Builds it, then sends it. The admin previews with the builder first. */
+export async function sendPublishedEmail(args: PublishedEmailArgs) {
+  return sendEmail(buildPublishedEmail(args));
 }

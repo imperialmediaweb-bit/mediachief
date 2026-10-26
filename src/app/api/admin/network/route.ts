@@ -3,10 +3,11 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { getSession } from "@/lib/auth";
 import { getDb } from "@/db";
+import { sendEmail } from "@/lib/email";
 import { articles, orders, uploads, users } from "@/db/schema";
 import { findPackageById } from "@/data/packages";
 import { ensureNetworkColumns } from "@/lib/network-schema";
-import { sendPublishedEmail } from "@/lib/published-email";
+import { buildPublishedEmail, sendPublishedEmail } from "@/lib/published-email";
 import { DEFAULT_PACE } from "@/data/publishing-pace";
 import {
   createCampaign,
@@ -24,7 +25,7 @@ export const maxDuration = 300;
 
 const schema = z.object({
   articleId: z.string().min(1).max(64),
-  action: z.enum(["create", "publish", "refresh", "identical", "email"]),
+  action: z.enum(["create", "publish", "refresh", "identical", "email", "preview"]),
   /** Required on create: every placement links back to it. */
   clientUrl: z.string().url().max(500).optional(),
   /** An image for the placements when the client sent no photo of their own. */
@@ -181,8 +182,8 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // ---- tell the client, from the links already on the article
-  if (action === "email") {
+  // ---- show the operator exactly what would go out, and to whom
+  if (action === "preview" || action === "email") {
     if (!row.clientEmail) {
       return NextResponse.json(
         { ok: false, error: "This order has no client email address on it." },
@@ -196,18 +197,36 @@ export async function POST(req: NextRequest) {
         { status: 409 }
       );
     }
-    const sent = await sendPublishedEmail({
+    const mail = buildPublishedEmail({
       to: row.clientEmail,
       name: row.clientCompany || row.clientName,
       articleId: article.id,
       title: article.title,
       urls: stored,
     });
+
+    if (action === "preview") {
+      return NextResponse.json({
+        ok: true,
+        preview: { to: mail.to, subject: mail.subject, html: mail.html },
+        urls: stored.length,
+      });
+    }
+
+    const sent = await sendEmail(mail);
     if (!sent.ok) {
       console.error("[admin/network] publication email failed:", sent.error);
       return NextResponse.json({ ok: false, error: sent.error }, { status: 200 });
     }
-    return NextResponse.json({ ok: true, emailed: row.clientEmail, urls: stored.length });
+    return NextResponse.json({
+      ok: true,
+      emailed: mail.to,
+      subject: mail.subject,
+      // Resend's own id for this message: what you quote when asking them
+      // whether it was delivered.
+      messageId: sent.id || null,
+      urls: stored.length,
+    });
   }
 
   // ---- publish and refresh both need the campaign to exist

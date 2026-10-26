@@ -116,7 +116,7 @@ export default async function ReportPage({ params }: { params: { token: string }
                   <th className="px-4 py-3">#</th>
                   <th className="px-4 py-3">Newspaper</th>
                   <th className="hidden px-4 py-3 sm:table-cell">State</th>
-                  <th className="px-4 py-3">Article</th>
+                  <th className="px-4 py-3">Link</th>
                 </tr>
               </thead>
               <tbody>
@@ -132,13 +132,17 @@ export default async function ReportPage({ params }: { params: { token: string }
                         {paper?.state || "—"}
                       </td>
                       <td className="px-4 py-3">
+                        {/* The address itself, not a word that hides it: this
+                            is the page a client forwards as proof, and "Open"
+                            proves nothing on a printout or in a screenshot. */}
                         <a
                           href={u}
                           target="_blank"
                           rel="noopener"
-                          className="inline-flex items-center gap-1 text-[#c1121f] hover:underline"
+                          className="inline-flex items-start gap-1 break-all text-[#c1121f] hover:underline"
                         >
-                          Open <ExternalLink className="h-3.5 w-3.5" />
+                          <span className="font-mono text-xs">{u}</span>
+                          <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                         </a>
                       </td>
                     </tr>
