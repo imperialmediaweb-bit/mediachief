@@ -62,7 +62,9 @@ export default async function SourcesPage() {
            COALESCE(s.paid, 0)::int     AS paid,
            COALESCE(s.revenue, 0)::int  AS revenue
       FROM visits v
-      FULL OUTER JOIN sales s ON s.source IS NOT DISTINCT FROM v.source
+      -- Postgres refuses a FULL JOIN on IS NOT DISTINCT FROM; COALESCE keeps the null
+      -- (untracked) rows matched and is hash-joinable.
+      FULL OUTER JOIN sales s ON COALESCE(s.source, '') = COALESCE(v.source, '')
      ORDER BY 6 DESC, 5 DESC, 2 DESC
   `);
 
