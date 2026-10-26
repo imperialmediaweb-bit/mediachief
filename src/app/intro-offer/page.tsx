@@ -184,7 +184,11 @@ const FAQ = [
   },
   {
     q: "How do I pay, and do I get a receipt?",
-    a: `By card, through Stripe. You get a receipt by email right after payment, and the report with every link once the article is live. ${PRICE} is the final price.`,
+    a: `By card, through Stripe. ${PRICE} is the final price.`,
+  },
+  {
+    q: "When is my card charged?",
+    a: "Only after publication. At checkout the amount is only held on your card (your bank shows it as \"pending\"). When your article goes live and we email you the report with every link, the payment is captured and Stripe emails your receipt. If your article isn't published within 72 hours of receiving it, the hold is released automatically — no request needed.",
   },
   {
     q: "Is it the same article copied onto every newspaper?",

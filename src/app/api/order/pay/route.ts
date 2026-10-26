@@ -81,6 +81,9 @@ export async function POST(req: NextRequest) {
         ...(order.newspaperStates ? { states: order.newspaperStates } : {}),
       },
       payment_intent_data: {
+        // 26.10.2026 — reserved payment: the card is only authorized here and
+        // charged on publication (lib/reserved-payment.ts).
+        capture_method: "manual",
         description: `${name} — ${order.email}`,
         metadata: { orderRef: ref },
         // No invoice on Media Chief: the buyer gets Stripe's card receipt.

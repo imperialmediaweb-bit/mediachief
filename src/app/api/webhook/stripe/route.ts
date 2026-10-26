@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
+import { markReserved } from "@/lib/reserved-payment";
 import { and, eq, sql } from "drizzle-orm";
 import { getStripe, STRIPE_WEBHOOK_SECRET } from "@/lib/stripe";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
@@ -205,6 +206,12 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
       }
     }
 
+    // 26.10.2026 — reserved payment (capture_method manual): the card is only
+    // authorized. The order proceeds as paid; lib/reserved-payment.ts charges
+    // it on publication or releases it after 72 hours.
+    const reserved = session.payment_status === "unpaid";
+    if (reserved && linkedOrderId) await markReserved(linkedOrderId);
+
     if (linkedOrderId) {
       const waiting = await db
         .select({ id: articles.id, status: articles.status })
@@ -253,6 +260,13 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
         })
         // The unique index on stripe_session_id makes a Stripe retry a no-op.
         .onConflictDoNothing({ target: orders.stripeSessionId });
+      if (reserved) {
+        const [row] = await db
+          .select({ id: orders.id })
+          .from(orders)
+          .where(eq(orders.stripeSessionId, session.id));
+        if (row) await markReserved(row.id);
+      }
     }
   }
 
@@ -388,7 +402,7 @@ async function sendConfirmationEmails(
     subject: `[Stripe ${isSubscription ? "subscription" : "payment"}] ${packageLabel} — $${amount.toFixed(2)}`,
     replyTo: email || undefined,
     html: wrapEmail(
-      isSubscription ? "Subscription started — Stripe" : "Payment received — Stripe",
+      isSubscription ? "Subscription started — Stripe" : session.payment_status === "unpaid" ? "Payment RESERVED — Stripe (charged on publication)" : "Payment received — Stripe",
       `
       <p>A payment went through on Stripe.</p>
       <table style="width:100%;border-collapse:collapse;">
@@ -410,12 +424,16 @@ async function sendConfirmationEmails(
 
   await sendEmail({
     to: email,
-    subject: isSubscription ? "Subscription active — Media Chief" : "Payment confirmed — Media Chief",
+    subject: isSubscription ? "Subscription active — Media Chief" : session.payment_status === "unpaid" ? "Order confirmed — Media Chief" : "Payment confirmed — Media Chief",
     html: wrapEmail(
       isSubscription ? "Your subscription is active" : "Payment confirmed",
       `
       <p>Hi${firstName ? " " + firstName : ""},</p>
-      <p>Thank you — we received <strong>$${amount.toFixed(2)}</strong> for <strong>${packageLabel}</strong>.</p>
+      ${
+        session.payment_status === "unpaid"
+          ? `<p>Thank you — <strong>$${amount.toFixed(2)}</strong> for <strong>${packageLabel}</strong> is <strong>reserved</strong> on your card, not charged. You are charged only when your article is published and you receive your report. If we don't publish within 72 hours of receiving your article, the hold is released automatically.</p>`
+          : `<p>Thank you — we received <strong>$${amount.toFixed(2)}</strong> for <strong>${packageLabel}</strong>.</p>`
+      }
       ${
         invoiceUrl
           ? `<p>Your invoice${invoiceNumber ? ` <strong>${invoiceNumber}</strong>` : ""} is ready: <a href="${invoiceUrl}">view it online</a>${invoicePdf ? ` or <a href="${invoicePdf}">download the PDF</a>` : ""}.</p>`
