@@ -113,6 +113,10 @@ export const orders = pgTable("order", {
   articlesUsed: integer("articles_used").notNull().default(0),
   // "pick" orders carry the chosen states so the operator knows where to publish.
   newspaperStates: text("newspaper_states"),
+  // The campaign this order became in the publishing network, and the token of
+  // its public report page. Set once the order is handed over.
+  networkOrderId: integer("network_order_id"),
+  networkReportToken: text("network_report_token"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   paidAt: timestamp("paid_at"),
 }, (t) => ({
