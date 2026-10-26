@@ -12,6 +12,7 @@ import { ensureNetworkColumns } from "@/lib/network-schema";
 import { ArticleActions } from "@/components/admin/ArticleActions";
 import { NetworkPanel } from "@/components/admin/NetworkPanel";
 import { paceLabel } from "@/data/publishing-pace";
+import { reportToken, reportUrl } from "@/lib/report-link";
 
 export const metadata: Metadata = {
   title: "Admin • Article",
@@ -172,17 +173,26 @@ export default async function AdminArticlePage({ params }: { params: { id: strin
             <div className="rounded-2xl border border-slate-200 bg-white p-6">
               <h2 className="font-semibold text-brand-navy">Client report</h2>
               <p className="mt-1 text-sm text-slate-600">
-                The same two files the client can download from their account.
+                The link to send the client. It opens without a sign-in, never expires, and lives
+                on our own domain rather than on one of the newspapers.
               </p>
+              <a
+                href={reportUrl(a.id)}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 block break-all rounded-lg bg-brand-ivory p-3 font-mono text-xs text-brand-navy hover:text-brand-red"
+              >
+                {reportUrl(a.id)}
+              </a>
               <div className="mt-4 flex flex-wrap gap-2">
                 <a
-                  href={`/api/articles/${a.id}/report?format=pdf`}
+                  href={`/api/report/${reportToken(a.id)}?format=pdf`}
                   className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-brand-navy hover:bg-slate-50"
                 >
                   PDF
                 </a>
                 <a
-                  href={`/api/articles/${a.id}/report?format=csv`}
+                  href={`/api/report/${reportToken(a.id)}?format=csv`}
                   className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-brand-navy hover:bg-slate-50"
                 >
                   Excel (CSV)
