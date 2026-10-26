@@ -3,6 +3,7 @@ import { requestListSchema } from "@/lib/validators";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
 import { PICK_FIRST } from "@/data/packages";
 import { sendNetworkList } from "@/lib/network-list-email";
+import { sourceFromRequest, sourceLabel } from "@/lib/source";
 import { SITE } from "@/data/site";
 
 export const runtime = "nodejs";
@@ -38,6 +39,7 @@ export async function POST(req: NextRequest) {
     <table style="width:100%;border-collapse:collapse;">
       ${kv("Name", data.name)}
       ${kv("Email", data.email)}
+      ${kv("Came from", sourceLabel(sourceFromRequest(req)))}
       ${kv("Phone", data.phone || "—")}
       ${kv("Company", data.company || "—")}
     </table>

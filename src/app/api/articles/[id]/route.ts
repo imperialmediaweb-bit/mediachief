@@ -6,6 +6,7 @@ import { getDb } from "@/db";
 import { articles, uploads } from "@/db/schema";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
 import { SITE } from "@/data/site";
+import { sourceFromRequest, sourceLabel } from "@/lib/source";
 import { MAX_IMAGES_PER_ARTICLE, folderFor, urlIsInFolder } from "@/lib/cloudinary";
 
 export const runtime = "nodejs";
@@ -106,6 +107,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         <table style="width:100%;border-collapse:collapse;">
           ${kv("Title", title)}
           ${kv("Client", session.user?.email || "—")}
+          ${kv("Came from", sourceLabel(sourceFromRequest(req)))}
           ${kv("Existing link", url || "—")}
           ${kv("Photos", images.length ? images.map((i) => i.url).join("<br/>") : "none")}
         </table>

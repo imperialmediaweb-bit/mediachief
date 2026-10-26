@@ -6,6 +6,7 @@ import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
 import { sendNetworkList } from "@/lib/network-list-email";
 import { STANDARD_PACKAGES, PROMO_PRICE, PICK_FIRST, PICK_EACH_MORE } from "@/data/packages";
 import { TOTAL_NEWSPAPERS } from "@/data/newspapers";
+import { sourceFromRequest, sourceLabel } from "@/lib/source";
 import { SITE } from "@/data/site";
 
 export const runtime = "nodejs";
@@ -172,7 +173,7 @@ export async function POST(req: NextRequest) {
       replyTo: captured,
       html: wrapEmail(
         "New chat conversation",
-        `<table style="width:100%;border-collapse:collapse;">${kv("Visitor email", captured)}${kv(
+        `<table style="width:100%;border-collapse:collapse;">${kv("Visitor email", captured)}${kv("Came from", sourceLabel(sourceFromRequest(req)))}${kv(
           "Newspaper list",
           "sent automatically"
         )}</table>
