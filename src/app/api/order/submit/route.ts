@@ -11,6 +11,7 @@ import { createLimiter, ipFromRequest } from "@/lib/rate-limit";
 import { PROHIBITED_MESSAGE, screenContent } from "@/lib/content-policy";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
 import { SITE } from "@/data/site";
+import { ensureNetworkColumns } from "@/lib/network-schema";
 import { DEFAULT_PACE, isOfferedPace } from "@/data/publishing-pace";
 
 export const runtime = "nodejs";
@@ -78,6 +79,9 @@ export async function POST(req: NextRequest) {
     );
   }
   const d = parsed.data;
+
+  // Before the insert that writes them — see network-schema.ts.
+  await ensureNetworkColumns();
   const chosenPace = isOfferedPace(d.publishingPace, d.publishingEveryMinutes)
     ? { perRun: d.publishingPace!, everyMinutes: d.publishingEveryMinutes! }
     : DEFAULT_PACE;

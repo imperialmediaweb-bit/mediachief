@@ -27,34 +27,28 @@ export interface PaceOption {
 
 export const PACES: PaceOption[] = [
   {
-    perRun: 12,
-    everyMinutes: 5,
-    label: "Right now — about 20 minutes",
-    text: "As fast as the network goes. Everything is live inside half an hour, which is what you want when the news has a date on it: a launch, an award, a funding round.",
-  },
-  {
     perRun: 5,
     everyMinutes: 5,
     label: "Within the hour",
-    text: "All fifty inside an hour, arriving a few at a time instead of in one burst. Still a single news event, but it builds while people are watching.",
+    text: "All fifty newspapers inside an hour — as fast as the network goes. What you want when the news has a date on it: a launch, an award, a funding round.",
   },
   {
     perRun: 5,
     everyMinutes: 20,
     label: "Over three hours",
-    text: "Half a working day. The most natural of the same-day options — nobody looking at the timing would guess it was bought.",
+    text: "Half a working day. Still a single news event, but it builds while people are watching instead of landing in one burst.",
   },
   {
     perRun: 5,
-    everyMinutes: 160,
-    label: "Over one day",
-    text: "A full day of coverage, a few papers every couple of hours. Reads like the story travelling rather than like an announcement being distributed.",
+    everyMinutes: 80,
+    label: "Over twelve hours",
+    text: "Morning to evening. Reads like the story travelling between newsrooms rather than like an announcement being distributed.",
   },
   {
     perRun: 5,
-    everyMinutes: 320,
-    label: "Over two days",
-    text: "Two days, which is how a story that genuinely interests editors tends to spread. Good when you would rather look found than placed.",
+    everyMinutes: 480,
+    label: "Over three days",
+    text: "Three days, which is how a story that genuinely interests editors tends to spread. Good when you would rather look found than placed.",
   },
   {
     perRun: 2,

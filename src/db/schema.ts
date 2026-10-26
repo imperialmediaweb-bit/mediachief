@@ -122,6 +122,14 @@ export const orders = pgTable("order", {
   // no pace was chosen and the order is published by hand.
   publishingPace: integer("publishing_pace"),
   publishingEveryMinutes: integer("publishing_every_minutes"),
+  // Reserved payment: the card is authorised at checkout and charged on
+  // publication. Declared here because the columns exist in the database —
+  // reserved-payment.ts creates them — and a column the database has and this
+  // file does not is one drizzle-kit offers to "rename", which is what hung
+  // the deploy and took the site down.
+  captureState: text("capture_state"),
+  reservedAt: timestamp("reserved_at"),
+  reserveAlertAt: timestamp("reserve_alert_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   paidAt: timestamp("paid_at"),
 }, (t) => ({
