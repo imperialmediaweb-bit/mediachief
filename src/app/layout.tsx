@@ -12,6 +12,7 @@ import { ChatWidget } from "@/components/conversion/ChatWidget";
 import { MetaPixel } from "@/components/analytics/MetaPixel";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { SourceCapture } from "@/components/analytics/SourceCapture";
+import { TrackVisit } from "@/components/analytics/TrackVisit";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -101,6 +102,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <MetaPixel />
         <GoogleAnalytics />
         <SourceCapture />
+        <TrackVisit />
         <StructuredData />
         <ConversionBanner />
         <Navbar />
