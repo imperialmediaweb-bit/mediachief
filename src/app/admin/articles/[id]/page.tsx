@@ -41,6 +41,7 @@ export default async function AdminArticlePage({ params }: { params: { id: strin
       orderAmount: orders.amount,
       networkOrderId: orders.networkOrderId,
       publishingPace: orders.publishingPace,
+      publishingEveryMinutes: orders.publishingEveryMinutes,
     })
     .from(articles)
     .leftJoin(users, eq(users.id, articles.userId))
@@ -148,7 +149,7 @@ export default async function AdminArticlePage({ params }: { params: { id: strin
                 value={row.orderAmount ? `$${(row.orderAmount / 100).toFixed(2)}` : null}
               />
               <Row label="Newspapers" value={row.orderStates} />
-              <Row label="Pace" value={paceLabel(row.publishingPace)} />
+              <Row label="Pace" value={paceLabel(row.publishingPace, row.publishingEveryMinutes)} />
             </dl>
             {row.orderStates && (
               <p className="mt-3 rounded-lg bg-brand-ivory p-3 text-xs text-slate-600">
@@ -163,7 +164,8 @@ export default async function AdminArticlePage({ params }: { params: { id: strin
             articleId={a.id}
             inNetwork={Boolean(row.networkOrderId)}
             publishedCount={publishedUrls.length}
-            perDay={row.publishingPace}
+            perRun={row.publishingPace}
+            everyMinutes={row.publishingEveryMinutes}
           />
 
           {a.status === "published" && (

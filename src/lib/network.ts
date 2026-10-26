@@ -138,6 +138,10 @@ export async function createCampaign(args: {
   material: string;
   images?: string[];
   notes?: string | null;
+  /** The pace the buyer chose. Sending it is what schedules the campaign over
+   *  there; without it the network waits to be told to publish. */
+  pacePerRun?: number | null;
+  paceEveryMinutes?: number | null;
 }): Promise<NetworkResult<{ ok: true; orderId: number; reportUrl: string }>> {
   return call("/api/admin/orders", {
     method: "POST",
@@ -155,6 +159,8 @@ export async function createCampaign(args: {
       material: args.material,
       images: args.images?.length ? args.images : undefined,
       notes: args.notes || null,
+      pacePerRun: args.pacePerRun ?? undefined,
+      paceEveryMinutes: args.paceEveryMinutes ?? undefined,
     }),
   });
 }

@@ -147,7 +147,8 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
           body: sendsArticle ? body : undefined,
           brief: mode === "write" && !drafted ? briefWithExtras() : undefined,
           imageUrls: imageUrls.length ? imageUrls : undefined,
-          publishingPace: pace,
+          publishingPace: pace.perRun,
+          publishingEveryMinutes: pace.everyMinutes,
           agreed,
         }),
       });
@@ -368,9 +369,9 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
         <div className="mt-4 space-y-2">
           {PACES.map((option) => (
             <label
-              key={option.perDay}
+              key={option.label}
               className={`flex cursor-pointer gap-3 rounded-xl border p-4 transition ${
-                pace === option.perDay
+                pace === option
                   ? "border-brand-red bg-red-50/40"
                   : "border-slate-200 bg-white hover:border-slate-300"
               }`}
@@ -379,8 +380,8 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
                 type="radio"
                 name="pace"
                 className="mt-1 h-4 w-4 shrink-0 accent-brand-red"
-                checked={pace === option.perDay}
-                onChange={() => setPace(option.perDay)}
+                checked={pace === option}
+                onChange={() => setPace(option)}
               />
               <span>
                 <span className="block text-sm font-semibold text-brand-navy">{option.label}</span>

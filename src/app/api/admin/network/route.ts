@@ -152,6 +152,10 @@ export async function POST(req: NextRequest) {
       // with their own cover or logo on the placements rather than nothing.
       images: [...(imageUrl ? [imageUrl] : []), ...images.map((i) => i.url)],
       notes: article.notes,
+      // From here the network advances the campaign on its own cron at this
+      // pace; the admin's publish button stays as a way to push it along.
+      pacePerRun: order.publishingPace,
+      paceEveryMinutes: order.publishingEveryMinutes,
     });
 
     if (created.state !== "ok") {
@@ -228,7 +232,10 @@ export async function POST(req: NextRequest) {
   if (action === "publish") {
     // The buyer chose the pace on the order form; a run that says nothing
     // follows it rather than emptying the whole network in one go.
-    const run = await publishCampaign(order.networkOrderId, perRun ?? order.publishingPace ?? DEFAULT_PACE);
+    const run = await publishCampaign(
+      order.networkOrderId,
+      perRun ?? order.publishingPace ?? DEFAULT_PACE.perRun
+    );
     if (run.state === "error") {
       console.error("[admin/network] publish failed:", run.message);
       return NextResponse.json({ ok: false, error: run.message }, { status: 200 });

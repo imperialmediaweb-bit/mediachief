@@ -21,13 +21,15 @@ export function NetworkPanel({
   articleId,
   inNetwork,
   publishedCount,
-  perDay,
+  perRun,
+  everyMinutes,
 }: {
   articleId: string;
   inNetwork: boolean;
   publishedCount: number;
-  /** Newspapers per run, as the buyer chose on the order form. */
-  perDay: number | null;
+  /** The pace the buyer chose: newspapers per run, minutes between runs. */
+  perRun: number | null;
+  everyMinutes: number | null;
 }) {
   const router = useRouter();
   const [clientUrl, setClientUrl] = useState("");
@@ -53,7 +55,7 @@ export function NetworkPanel({
           // Fifty sites in one request outlives the edge timeout whatever the
           // buyer chose, so a fast order still goes out in runs — it just takes
           // bigger ones.
-          ...(action === "publish" ? { perRun: Math.min(perDay || 12, 12) } : {}),
+          ...(action === "publish" ? { perRun: Math.min(perRun || 12, 12) } : {}),
         }),
       });
       const data = await res.json();
@@ -93,7 +95,10 @@ export function NetworkPanel({
           ? `In the network — ${publishedCount} of 50 newspapers placed.`
           : "Not in the network yet."}
       </p>
-      <p className="mt-1 text-xs text-slate-500">{paceLabel(perDay)}</p>
+      <p className="mt-1 text-xs text-slate-500">
+        {paceLabel(perRun, everyMinutes)}
+        {inNetwork && perRun && everyMinutes ? " — the network advances this on its own" : ""}
+      </p>
 
       {!inNetwork && (
         <div className="mt-4 space-y-3">
@@ -155,8 +160,9 @@ export function NetworkPanel({
             {label("identical", "Use the client's text as-is", "Saving…")}
           </Button>
           <p className="text-xs text-slate-500">
-            Press <strong>Publish the next run</strong> again until it reads 50 of 50 — each run picks up
-            where the last one stopped.
+            The network keeps going at the pace above without anyone here. Press{" "}
+            <strong>Publish the next run</strong> only to push it along — each run picks up where
+            the last one stopped.
           </p>
         </div>
       )}

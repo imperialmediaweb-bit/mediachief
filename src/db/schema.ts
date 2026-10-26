@@ -117,9 +117,11 @@ export const orders = pgTable("order", {
   // its public report page. Set once the order is handed over.
   networkOrderId: integer("network_order_id"),
   networkReportToken: text("network_report_token"),
-  // Newspapers per day, as the buyer chose it on the order form. Null means
-  // they did not choose, which is read as all at once.
+  // The pace the buyer chose on the order form: how many newspapers go out in
+  // one run, and how many minutes to wait before the next. Null on both means
+  // no pace was chosen and the order is published by hand.
   publishingPace: integer("publishing_pace"),
+  publishingEveryMinutes: integer("publishing_every_minutes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   paidAt: timestamp("paid_at"),
 }, (t) => ({

@@ -11,7 +11,7 @@ import { createLimiter, ipFromRequest } from "@/lib/rate-limit";
 import { PROHIBITED_MESSAGE, screenContent } from "@/lib/content-policy";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
 import { SITE } from "@/data/site";
-import { DEFAULT_PACE, PACES } from "@/data/publishing-pace";
+import { DEFAULT_PACE, isOfferedPace } from "@/data/publishing-pace";
 
 export const runtime = "nodejs";
 
@@ -35,8 +35,10 @@ const schema = z.object({
   body: z.string().max(20000).optional(),
   brief: z.string().max(4000).optional(),
   imageUrls: z.array(z.string().url().max(500)).max(3).optional(),
-  /** Newspapers per day. Anything outside the offered set is read as all at once. */
+  /** The pace: newspapers per run, and minutes between runs. A pair we do not
+   *  offer is replaced by the default rather than refused. */
   publishingPace: z.number().int().min(1).max(50).optional(),
+  publishingEveryMinutes: z.number().int().min(1).max(60 * 24 * 7).optional(),
 
   agreed: z.literal(true, {
     errorMap: () => ({ message: "Please confirm the declaration before continuing" }),
@@ -76,6 +78,9 @@ export async function POST(req: NextRequest) {
     );
   }
   const d = parsed.data;
+  const chosenPace = isOfferedPace(d.publishingPace, d.publishingEveryMinutes)
+    ? { perRun: d.publishingPace!, everyMinutes: d.publishingEveryMinutes! }
+    : DEFAULT_PACE;
 
   const resolved = resolveOrder({
     packageId: d.packageId,
@@ -150,9 +155,8 @@ export async function POST(req: NextRequest) {
       articlesIncluded: 1,
       articlesUsed: 0,
       newspaperStates: resolved.states,
-      publishingPace: PACES.some((option) => option.perDay === d.publishingPace)
-        ? d.publishingPace
-        : DEFAULT_PACE,
+      publishingPace: chosenPace.perRun,
+      publishingEveryMinutes: chosenPace.everyMinutes,
     })
     .returning({ id: orders.id });
 
