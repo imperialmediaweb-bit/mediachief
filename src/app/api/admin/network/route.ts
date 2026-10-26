@@ -148,10 +148,11 @@ export async function POST(req: NextRequest) {
     });
 
     if (created.state !== "ok") {
-      return NextResponse.json(
-        { ok: false, error: created.state === "not-configured" ? "Network not configured" : created.message },
-        { status: 502 }
-      );
+      const reason = created.state === "not-configured" ? "Network not configured" : created.message;
+      console.error("[admin/network] create failed:", reason);
+      // Deliberately not a 5xx: the edge replaces the body of a 502 with its
+      // own error page, and the reason the network refused is the whole point.
+      return NextResponse.json({ ok: false, error: reason }, { status: 200 });
     }
 
     const token = created.data.reportUrl.replace(/^\/report\//, "");
@@ -180,16 +181,16 @@ export async function POST(req: NextRequest) {
   if (action === "publish") {
     const run = await publishCampaign(order.networkOrderId, perRun);
     if (run.state === "error") {
-      return NextResponse.json({ ok: false, error: run.message }, { status: 502 });
+      console.error("[admin/network] publish failed:", run.message);
+      return NextResponse.json({ ok: false, error: run.message }, { status: 200 });
     }
   }
 
   const campaign = await getCampaign(order.networkOrderId);
   if (campaign.state !== "ok") {
-    return NextResponse.json(
-      { ok: false, error: campaign.state === "not-configured" ? "Network not configured" : campaign.message },
-      { status: 502 }
-    );
+    const reason = campaign.state === "not-configured" ? "Network not configured" : campaign.message;
+    console.error("[admin/network] read failed:", reason);
+    return NextResponse.json({ ok: false, error: reason }, { status: 200 });
   }
 
   const placements: Placement[] = campaign.data.placements || [];
