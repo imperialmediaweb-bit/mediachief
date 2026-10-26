@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getStripe } from "@/lib/stripe";
 import { SITE } from "@/data/site";
+import { sourceFromRequest } from "@/lib/source";
 import { findOrderByRef, PENDING_PAYMENT } from "@/lib/order-ref";
 import { findPackageById } from "@/data/packages";
 import { createLimiter, ipFromRequest } from "@/lib/rate-limit";
@@ -50,6 +51,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "This order is already paid." }, { status: 409 });
   }
 
+  // Where the client came from (lib/source.ts), carried to the webhook email.
+  const source = order.source || sourceFromRequest(req);
   const pkg = findPackageById(order.packageId);
   const name =
     order.packageId === "pick"
@@ -79,6 +82,7 @@ export async function POST(req: NextRequest) {
         // This is what lets the webhook find the article already waiting.
         orderRef: ref,
         ...(order.newspaperStates ? { states: order.newspaperStates } : {}),
+        ...(source ? { source } : {}),
       },
       payment_intent_data: {
         // 26.10.2026 — reserved payment: the card is only authorized here and

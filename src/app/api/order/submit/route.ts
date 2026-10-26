@@ -10,6 +10,7 @@ import { newOrderRef, PENDING_PAYMENT } from "@/lib/order-ref";
 import { createLimiter, ipFromRequest } from "@/lib/rate-limit";
 import { PROHIBITED_MESSAGE, screenContent } from "@/lib/content-policy";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
+import { sourceFromRequest } from "@/lib/source";
 import { SITE } from "@/data/site";
 import { ensureNetworkColumns } from "@/lib/network-schema";
 import { DEFAULT_PACE, isOfferedPace } from "@/data/publishing-pace";
@@ -161,6 +162,7 @@ export async function POST(req: NextRequest) {
       newspaperStates: resolved.states,
       publishingPace: chosenPace.perRun,
       publishingEveryMinutes: chosenPace.everyMinutes,
+      source: sourceFromRequest(req),
     })
     .returning({ id: orders.id });
 

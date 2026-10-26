@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
       articlesIncluded: data.articlesIncluded,
       articlesUsed: 0,
       newspaperStates: data.newspaperStates || null,
+      source: "manual",
       paidAt: new Date(),
     })
     .returning({ id: orders.id });

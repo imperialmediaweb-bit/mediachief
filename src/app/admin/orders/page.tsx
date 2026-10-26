@@ -8,6 +8,8 @@ import { articles, orders, users } from "@/db/schema";
 import { findPackageById } from "@/data/packages";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { StatusBadge } from "@/components/account/StatusBadge";
+import { isAdSource, sourceLabel } from "@/lib/source";
+import { ensureSourceColumn } from "@/lib/source-db";
 import { NewOrderForm } from "@/components/admin/NewOrderForm";
 
 export const metadata: Metadata = {
@@ -22,6 +24,7 @@ export default async function AdminOrdersPage() {
   if (!session) redirect("/admin/login?from=/admin/orders");
 
   const db = getDb();
+  await ensureSourceColumn();
   const [rows, totals] = await Promise.all([
     db
       .select({
@@ -36,6 +39,7 @@ export default async function AdminOrdersPage() {
         used: orders.articlesUsed,
         states: orders.newspaperStates,
         sessionId: orders.stripeSessionId,
+        source: orders.source,
         clientName: users.name,
         articleId: articles.id,
         articleStatus: articles.status,
@@ -80,6 +84,7 @@ export default async function AdminOrdersPage() {
               <tr>
                 <th className="px-5 py-3 font-semibold text-brand-navy">Date</th>
                 <th className="px-5 py-3 font-semibold text-brand-navy">Client</th>
+                <th className="px-5 py-3 font-semibold text-brand-navy">Came from</th>
                 <th className="px-5 py-3 font-semibold text-brand-navy">Package</th>
                 <th className="px-5 py-3 font-semibold text-brand-navy">Amount</th>
                 <th className="px-5 py-3 font-semibold text-brand-navy">Payment</th>
@@ -97,6 +102,19 @@ export default async function AdminOrdersPage() {
                     <td className="px-5 py-4">
                       <span className="block font-medium text-brand-navy">{r.email}</span>
                       {r.clientName && <span className="text-xs text-slate-500">{r.clientName}</span>}
+                    </td>
+                    <td className="px-5 py-4">
+                      <span
+                        className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          isAdSource(r.source)
+                            ? "bg-amber-100 text-amber-800"
+                            : r.source
+                              ? "bg-emerald-100 text-emerald-800"
+                              : "bg-slate-100 text-slate-500"
+                        }`}
+                      >
+                        {r.source ? sourceLabel(r.source) : "Not tracked yet"}
+                      </span>
                     </td>
                     <td className="px-5 py-4">
                       <span className="text-slate-700">

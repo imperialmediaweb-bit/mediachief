@@ -4,6 +4,7 @@ import { getStripe } from "@/lib/stripe";
 import { findPackageById, findSubscriptionPlanById, pickPrice } from "@/data/packages";
 import { NEWSPAPERS } from "@/data/newspapers";
 import { stateAbbr } from "@/data/us-states";
+import { sourceFromRequest } from "@/lib/source";
 import { SITE } from "@/data/site";
 
 export const runtime = "nodejs";
@@ -22,6 +23,8 @@ export async function POST(req: NextRequest) {
   if (!stripe) {
     return NextResponse.json({ ok: false, error: "Stripe is not configured" }, { status: 503 });
   }
+  // Where the client came from (lib/source.ts), carried to the webhook.
+  const source = sourceFromRequest(req);
 
   let body: unknown;
   try {
@@ -75,6 +78,7 @@ export async function POST(req: NextRequest) {
           category: isCasino ? "casino" : "standard",
           newspapers: String(chosen.length),
           states: abbrs,
+          ...(source ? { source } : {}),
         },
         customer_creation: "always",
         // No invoice on Media Chief: the buyer gets Stripe's card receipt.
@@ -110,7 +114,7 @@ export async function POST(req: NextRequest) {
             quantity: 1,
           },
         ],
-        metadata: { packageId, mode, category: pkg.category },
+        metadata: { packageId, mode, category: pkg.category, ...(source ? { source } : {}) },
         customer_creation: "always",
         // No invoice on Media Chief: the buyer gets Stripe's card receipt.
         // 26.10.2026 — reserved payment: authorized now, charged on publication.
@@ -146,7 +150,7 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
-      metadata: { planId: plan.id, category, mode },
+      metadata: { planId: plan.id, category, mode, ...(source ? { source } : {}) },
       subscription_data: {
         description: `${name} — ${plan.distributionsPerMonth} article/month across the ${SITE.name} network`,
         metadata: {

@@ -4,6 +4,7 @@ import { markReserved } from "@/lib/reserved-payment";
 import { and, eq, sql } from "drizzle-orm";
 import { getStripe, STRIPE_WEBHOOK_SECRET } from "@/lib/stripe";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
+import { sourceLabel } from "@/lib/source";
 import { getDb } from "@/db";
 import { articles, orders, subscriptions, users } from "@/db/schema";
 import { findPackageById, findSubscriptionPlanById } from "@/data/packages";
@@ -256,6 +257,7 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
           articlesIncluded: 1,
           articlesUsed: 0,
           newspaperStates: session.metadata?.states ?? null,
+          source: session.metadata?.source ?? null,
           paidAt: new Date(),
         })
         // The unique index on stripe_session_id makes a Stripe retry a no-op.
@@ -399,7 +401,7 @@ async function sendConfirmationEmails(
 
   await sendEmail({
     to: ADMIN_EMAIL,
-    subject: `[Stripe ${isSubscription ? "subscription" : "payment"}] ${packageLabel} — $${amount.toFixed(2)}`,
+    subject: `[Stripe ${isSubscription ? "subscription" : "payment"}] ${packageLabel} — $${amount.toFixed(2)} — from ${sourceLabel(session.metadata?.source)}`,
     replyTo: email || undefined,
     html: wrapEmail(
       isSubscription ? "Subscription started — Stripe" : session.payment_status === "unpaid" ? "Payment RESERVED — Stripe (charged on publication)" : "Payment received — Stripe",
@@ -410,6 +412,7 @@ async function sendConfirmationEmails(
         ${kv("Amount", `$${amount.toFixed(2)}`)}
         ${kv("Client email", email)}
         ${kv("Client name", session.customer_details?.name || "—")}
+        ${kv("Came from", sourceLabel(session.metadata?.source))}
         ${kv("Newspapers", session.metadata?.states || "—")}
         ${kv("Article", articleOnFile ? "Already submitted with the order — ready to publish" : "Not yet — the client sends it from their account")}
         ${kv("Invoice", invoiceNumber ? `${invoiceNumber} — ${invoiceUrl}` : "—")}

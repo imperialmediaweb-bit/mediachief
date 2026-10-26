@@ -130,6 +130,9 @@ export const orders = pgTable("order", {
   captureState: text("capture_state"),
   reservedAt: timestamp("reserved_at"),
   reserveAlertAt: timestamp("reserve_alert_at"),
+  // Where the client came from (lib/source.ts): "google|organic|", "chatgpt|ai|"…
+  // Created by source-db.ts, like the reserved-payment columns.
+  source: text("source"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   paidAt: timestamp("paid_at"),
 }, (t) => ({
