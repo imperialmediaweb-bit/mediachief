@@ -5,6 +5,7 @@ import { getSession } from "@/lib/auth";
 import { getDb } from "@/db";
 import { articles, orders, uploads, users } from "@/db/schema";
 import { findPackageById } from "@/data/packages";
+import { ensureNetworkColumns } from "@/lib/network-schema";
 import {
   createCampaign,
   getCampaign,
@@ -65,6 +66,9 @@ export async function POST(req: NextRequest) {
     );
   }
   const { articleId, action, clientUrl, perRun } = parsed.data;
+
+  // Before the first query that reads them — see network-schema.ts.
+  await ensureNetworkColumns();
 
   const db = getDb();
   const rows = await db
