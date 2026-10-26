@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { captureForOrder } from "@/lib/reserved-payment";
 import { eq } from "drizzle-orm";
 import { getSession } from "@/lib/auth";
 import { getDb } from "@/db";
@@ -48,6 +49,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       title: articles.title,
       status: articles.status,
       userId: articles.userId,
+      orderId: articles.orderId,
       email: users.email,
       name: users.name,
     })
@@ -93,6 +95,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       });
     }
 
+    // 26.10.2026 — reserved payment: publication = the moment we charge.
+    await captureForOrder(article.orderId);
     return NextResponse.json({ ok: true, status: "published" });
   }
 
