@@ -2,6 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // 26.10.2026 — src/instrumentation.ts starts the reserved-payment check.
+  experimental: { instrumentationHook: true },
   images: {
     remotePatterns: [{ protocol: "https", hostname: "**" }],
   },

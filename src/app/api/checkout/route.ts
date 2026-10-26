@@ -78,7 +78,8 @@ export async function POST(req: NextRequest) {
         },
         customer_creation: "always",
         // No invoice on Media Chief: the buyer gets Stripe's card receipt.
-        payment_intent_data: { receipt_email: email },
+        // 26.10.2026 — reserved payment: authorized now, charged on publication.
+        payment_intent_data: { receipt_email: email, capture_method: "manual" },
         success_url: successUrl,
         cancel_url: cancelUrl,
         locale: "en",
@@ -112,7 +113,8 @@ export async function POST(req: NextRequest) {
         metadata: { packageId, mode, category: pkg.category },
         customer_creation: "always",
         // No invoice on Media Chief: the buyer gets Stripe's card receipt.
-        payment_intent_data: { receipt_email: email },
+        // 26.10.2026 — reserved payment: authorized now, charged on publication.
+        payment_intent_data: { receipt_email: email, capture_method: "manual" },
         success_url: successUrl,
         cancel_url: cancelUrl,
         locale: "en",
