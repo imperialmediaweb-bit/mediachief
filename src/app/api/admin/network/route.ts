@@ -7,6 +7,7 @@ import { articles, orders, uploads, users } from "@/db/schema";
 import { findPackageById } from "@/data/packages";
 import { ensureNetworkColumns } from "@/lib/network-schema";
 import { sendPublishedEmail } from "@/lib/published-email";
+import { DEFAULT_PACE } from "@/data/publishing-pace";
 import {
   createCampaign,
   getCampaign,
@@ -225,7 +226,9 @@ export async function POST(req: NextRequest) {
   }
 
   if (action === "publish") {
-    const run = await publishCampaign(order.networkOrderId, perRun);
+    // The buyer chose the pace on the order form; a run that says nothing
+    // follows it rather than emptying the whole network in one go.
+    const run = await publishCampaign(order.networkOrderId, perRun ?? order.publishingPace ?? DEFAULT_PACE);
     if (run.state === "error") {
       console.error("[admin/network] publish failed:", run.message);
       return NextResponse.json({ ok: false, error: run.message }, { status: 200 });

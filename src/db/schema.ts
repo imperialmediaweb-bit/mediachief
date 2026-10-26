@@ -117,6 +117,9 @@ export const orders = pgTable("order", {
   // its public report page. Set once the order is handed over.
   networkOrderId: integer("network_order_id"),
   networkReportToken: text("network_report_token"),
+  // Newspapers per day, as the buyer chose it on the order form. Null means
+  // they did not choose, which is read as all at once.
+  publishingPace: integer("publishing_pace"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   paidAt: timestamp("paid_at"),
 }, (t) => ({

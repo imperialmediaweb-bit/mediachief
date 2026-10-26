@@ -6,6 +6,7 @@ import { AlertCircle, CheckCircle2, Loader2, Mail, RefreshCw, Send, Upload } fro
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { paceLabel } from "@/data/publishing-pace";
 
 type Action = "create" | "publish" | "refresh" | "identical" | "email";
 
@@ -20,10 +21,13 @@ export function NetworkPanel({
   articleId,
   inNetwork,
   publishedCount,
+  perDay,
 }: {
   articleId: string;
   inNetwork: boolean;
   publishedCount: number;
+  /** Newspapers per run, as the buyer chose on the order form. */
+  perDay: number | null;
 }) {
   const router = useRouter();
   const [clientUrl, setClientUrl] = useState("");
@@ -46,9 +50,10 @@ export function NetworkPanel({
           ...(action === "create"
             ? { clientUrl: clientUrl.trim(), ...(imageUrl.trim() ? { imageUrl: imageUrl.trim() } : {}) }
             : {}),
-          // Publishing fifty sites in one request outlives the edge timeout,
-          // so take them in runs and press it again.
-          ...(action === "publish" ? { perRun: 12 } : {}),
+          // Fifty sites in one request outlives the edge timeout whatever the
+          // buyer chose, so a fast order still goes out in runs — it just takes
+          // bigger ones.
+          ...(action === "publish" ? { perRun: Math.min(perDay || 12, 12) } : {}),
         }),
       });
       const data = await res.json();
@@ -88,6 +93,7 @@ export function NetworkPanel({
           ? `In the network — ${publishedCount} of 50 newspapers placed.`
           : "Not in the network yet."}
       </p>
+      <p className="mt-1 text-xs text-slate-500">{paceLabel(perDay)}</p>
 
       {!inNetwork && (
         <div className="mt-4 space-y-3">

@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/account/StatusBadge";
 import { ensureNetworkColumns } from "@/lib/network-schema";
 import { ArticleActions } from "@/components/admin/ArticleActions";
 import { NetworkPanel } from "@/components/admin/NetworkPanel";
+import { paceLabel } from "@/data/publishing-pace";
 
 export const metadata: Metadata = {
   title: "Admin • Article",
@@ -39,6 +40,7 @@ export default async function AdminArticlePage({ params }: { params: { id: strin
       orderStates: orders.newspaperStates,
       orderAmount: orders.amount,
       networkOrderId: orders.networkOrderId,
+      publishingPace: orders.publishingPace,
     })
     .from(articles)
     .leftJoin(users, eq(users.id, articles.userId))
@@ -146,6 +148,7 @@ export default async function AdminArticlePage({ params }: { params: { id: strin
                 value={row.orderAmount ? `$${(row.orderAmount / 100).toFixed(2)}` : null}
               />
               <Row label="Newspapers" value={row.orderStates} />
+              <Row label="Pace" value={paceLabel(row.publishingPace)} />
             </dl>
             {row.orderStates && (
               <p className="mt-3 rounded-lg bg-brand-ivory p-3 text-xs text-slate-600">
@@ -160,6 +163,7 @@ export default async function AdminArticlePage({ params }: { params: { id: strin
             articleId={a.id}
             inNetwork={Boolean(row.networkOrderId)}
             publishedCount={publishedUrls.length}
+            perDay={row.publishingPace}
           />
 
           {a.status === "published" && (

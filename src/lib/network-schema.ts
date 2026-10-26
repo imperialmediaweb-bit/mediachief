@@ -2,7 +2,7 @@ import { sql } from "drizzle-orm";
 import { getDb } from "@/db";
 
 /**
- * Makes sure the two columns the network link writes to exist.
+ * Makes sure the columns the network link reads and writes exist.
  *
  * They are declared in the Drizzle schema and the start command runs
  * `drizzle-kit push`, but the columns did not arrive on the deploy that needed
@@ -25,5 +25,6 @@ export async function ensureNetworkColumns(): Promise<void> {
   const db = getDb();
   await db.execute(sql`ALTER TABLE "order" ADD COLUMN IF NOT EXISTS "network_order_id" integer`);
   await db.execute(sql`ALTER TABLE "order" ADD COLUMN IF NOT EXISTS "network_report_token" text`);
+  await db.execute(sql`ALTER TABLE "order" ADD COLUMN IF NOT EXISTS "publishing_pace" integer`);
   ensured = true;
 }

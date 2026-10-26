@@ -12,6 +12,8 @@ import {
   CONTENT_DECLARATION,
   CONTENT_DECLARATION_WARNING,
 } from "@/lib/content-policy";
+import { IntakePhotos } from "@/components/order/IntakePhotos";
+import { DEFAULT_PACE, PACES } from "@/data/publishing-pace";
 
 type ArticleMode = "have" | "write" | "later";
 type ArticleKind = "press_release" | "sponsored" | "seo";
@@ -66,6 +68,8 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
   const [body, setBody] = useState("");
   const [brief, setBrief] = useState("");
   const [images, setImages] = useState("");
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [pace, setPace] = useState(DEFAULT_PACE);
   const [kind, setKind] = useState<ArticleKind>("press_release");
   const [keyword, setKeyword] = useState("");
   const [links, setLinks] = useState("");
@@ -120,11 +124,12 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
     trackGaEvent("begin_checkout", { value: price, currency: "USD", items: 1 });
 
     try {
-      const imageUrls = images
+      const pasted = images
         .split(/[\s,]+/)
         .map((u) => u.trim())
-        .filter((u) => /^https?:\/\//.test(u))
-        .slice(0, 3);
+        .filter((u) => /^https?:\/\//.test(u));
+      // The files they uploaded come first: those are the ones they chose.
+      const imageUrls = [...photos, ...pasted].slice(0, 3);
 
       const res = await fetch("/api/order/submit", {
         method: "POST",
@@ -142,6 +147,7 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
           body: sendsArticle ? body : undefined,
           brief: mode === "write" && !drafted ? briefWithExtras() : undefined,
           imageUrls: imageUrls.length ? imageUrls : undefined,
+          publishingPace: pace,
           agreed,
         }),
       });
@@ -332,19 +338,60 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
       )}
 
       {mode !== "later" && (
-        <div>
-          <Label>Photo links</Label>
-          <Textarea
-            rows={2}
-            value={images}
-            onChange={(e) => setImages(e.target.value)}
-            placeholder="https://… (up to 3, one per line) — optional"
-          />
-          <p className="mt-1 text-xs text-slate-500">
-            Prefer to upload files? You can do that from your account right after payment.
+        <div className="space-y-3">
+          <IntakePhotos urls={photos} onChange={setPhotos} />
+          <details className="text-xs text-slate-500">
+            <summary className="cursor-pointer hover:text-brand-navy">
+              Rather paste links than upload files?
+            </summary>
+            <Textarea
+              rows={2}
+              value={images}
+              onChange={(e) => setImages(e.target.value)}
+              placeholder="https://… one per line"
+              className="mt-2"
+            />
+          </details>
+          <p className="text-xs text-slate-500">
+            Up to 3 photos. A photo of your own beats a stock one on every newspaper — leave it
+            empty and we pick something that fits.
           </p>
         </div>
       )}
+
+      {/* ---- how fast it goes out */}
+      <div>
+        <h2 className="font-serif text-lg font-bold text-brand-navy">Publishing pace</h2>
+        <p className="mt-1 text-sm text-slate-600">
+          Same 50 newspapers either way — this is only how the days are spread.
+        </p>
+        <div className="mt-4 space-y-2">
+          {PACES.map((option) => (
+            <label
+              key={option.perDay}
+              className={`flex cursor-pointer gap-3 rounded-xl border p-4 transition ${
+                pace === option.perDay
+                  ? "border-brand-red bg-red-50/40"
+                  : "border-slate-200 bg-white hover:border-slate-300"
+              }`}
+            >
+              <input
+                type="radio"
+                name="pace"
+                className="mt-1 h-4 w-4 shrink-0 accent-brand-red"
+                checked={pace === option.perDay}
+                onChange={() => setPace(option.perDay)}
+              />
+              <span>
+                <span className="block text-sm font-semibold text-brand-navy">{option.label}</span>
+                <span className="mt-0.5 block text-xs leading-relaxed text-slate-600">
+                  {option.text}
+                </span>
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
 
       {/* ---- where to reach you */}
       <div>

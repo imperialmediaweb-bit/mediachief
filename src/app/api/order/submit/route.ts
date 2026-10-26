@@ -11,6 +11,7 @@ import { createLimiter, ipFromRequest } from "@/lib/rate-limit";
 import { PROHIBITED_MESSAGE, screenContent } from "@/lib/content-policy";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
 import { SITE } from "@/data/site";
+import { DEFAULT_PACE, PACES } from "@/data/publishing-pace";
 
 export const runtime = "nodejs";
 
@@ -34,6 +35,8 @@ const schema = z.object({
   body: z.string().max(20000).optional(),
   brief: z.string().max(4000).optional(),
   imageUrls: z.array(z.string().url().max(500)).max(3).optional(),
+  /** Newspapers per day. Anything outside the offered set is read as all at once. */
+  publishingPace: z.number().int().min(1).max(50).optional(),
 
   agreed: z.literal(true, {
     errorMap: () => ({ message: "Please confirm the declaration before continuing" }),
@@ -147,6 +150,9 @@ export async function POST(req: NextRequest) {
       articlesIncluded: 1,
       articlesUsed: 0,
       newspaperStates: resolved.states,
+      publishingPace: PACES.some((option) => option.perDay === d.publishingPace)
+        ? d.publishingPace
+        : DEFAULT_PACE,
     })
     .returning({ id: orders.id });
 
