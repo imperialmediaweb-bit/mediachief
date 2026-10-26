@@ -39,30 +39,41 @@ export default async function SourcesPage() {
   await Promise.all([ensureSourceColumn(), ensureVisitTable()]);
   const db = getDb();
 
+  // One row per channel, built from a list of the channels that exist and two
+  // left joins. The obvious shape — FULL OUTER JOIN ... ON a IS NOT DISTINCT
+  // FROM b — is rejected by Postgres outright: a full join has to be mergeable
+  // or hashable, and IS NOT DISTINCT FROM is neither. Coalescing null to ''
+  // makes the key plain equality, which both joins can plan.
   const result = await db.execute(sql`
-    WITH visits AS (
-      SELECT source,
+    WITH channels AS (
+      SELECT DISTINCT COALESCE(source, '') AS key FROM "visit"
+      UNION
+      SELECT DISTINCT COALESCE(source, '') AS key FROM "order"
+    ),
+    visits AS (
+      SELECT COALESCE(source, '') AS key,
              COUNT(DISTINCT visitor_id) FILTER (WHERE path LIKE '/offer%' OR path LIKE '/packages%') AS reached,
              COUNT(DISTINCT visitor_id) FILTER (WHERE path LIKE '/order%') AS started
         FROM "visit"
-       GROUP BY source
+       GROUP BY 1
     ),
     sales AS (
-      SELECT source,
+      SELECT COALESCE(source, '') AS key,
              COUNT(*)::int AS orders,
              COUNT(*) FILTER (WHERE status = 'paid')::int AS paid,
              COALESCE(SUM(amount) FILTER (WHERE status = 'paid'), 0)::int AS revenue
         FROM "order"
-       GROUP BY source
+       GROUP BY 1
     )
-    SELECT COALESCE(v.source, s.source) AS source,
+    SELECT NULLIF(c.key, '')            AS source,
            COALESCE(v.reached, 0)::int  AS reached,
            COALESCE(v.started, 0)::int  AS started,
            COALESCE(s.orders, 0)::int   AS orders,
            COALESCE(s.paid, 0)::int     AS paid,
            COALESCE(s.revenue, 0)::int  AS revenue
-      FROM visits v
-      FULL OUTER JOIN sales s ON s.source IS NOT DISTINCT FROM v.source
+      FROM channels c
+      LEFT JOIN visits v ON v.key = c.key
+      LEFT JOIN sales  s ON s.key = c.key
      ORDER BY 6 DESC, 5 DESC, 2 DESC
   `);
 
