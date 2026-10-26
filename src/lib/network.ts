@@ -50,11 +50,20 @@ export type NetworkResult<T> =
   | { state: "not-configured" }
   | { state: "error"; message: string };
 
+/**
+ * Reads are quick. Publishing is not: the network rewrites the article for
+ * every paper it places, so a batch of ten is minutes, not seconds. Twenty
+ * seconds for all of it meant the publish call was abandoned while the
+ * network was still working — reported here as "did not answer in time"
+ * while placements kept landing on the other side.
+ */
 const TIMEOUT_MS = 20_000;
+const PUBLISH_TIMEOUT_MS = 280_000;
 
 async function call<T>(
   path: string,
-  init: RequestInit & { body?: string } = {}
+  init: RequestInit & { body?: string } = {},
+  timeoutMs: number = TIMEOUT_MS
 ): Promise<NetworkResult<T>> {
   if (!networkConfigured()) return { state: "not-configured" };
 
@@ -76,7 +85,7 @@ async function call<T>(
   }
 
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
     const res = await fetch(url.toString(), {
       ...init,
@@ -165,10 +174,14 @@ export async function publishCampaign(
   networkOrderId: number,
   perRun?: number
 ): Promise<NetworkResult<Record<string, unknown>>> {
-  return call("/api/admin/orders/publish", {
-    method: "POST",
-    body: JSON.stringify({ orderId: networkOrderId, ...(perRun ? { perRun } : {}) }),
-  });
+  return call(
+    "/api/admin/orders/publish",
+    {
+      method: "POST",
+      body: JSON.stringify({ orderId: networkOrderId, ...(perRun ? { perRun } : {}) }),
+    },
+    PUBLISH_TIMEOUT_MS
+  );
 }
 
 /** The client's report page — public, no password. */
