@@ -155,6 +155,9 @@ export async function POST(req: NextRequest) {
       // with their own cover or logo on the placements rather than nothing.
       images: [...(imageUrl ? [imageUrl] : []), ...images.map((i) => i.url)],
       notes: article.notes,
+      // Decided on the order form and sent with the campaign, so the first
+      // site published already obeys it.
+      identicalText: order.identicalText ?? false,
       // From here the network advances the campaign on its own cron at this
       // pace; the admin's publish button stays as a way to push it along.
       pacePerRun: order.publishingPace,

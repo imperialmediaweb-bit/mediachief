@@ -142,6 +142,11 @@ export async function createCampaign(args: {
    *  there; without it the network waits to be told to publish. */
   pacePerRun?: number | null;
   paceEveryMinutes?: number | null;
+  /** True: the client's exact words on every site, no rewriting at all. Set at
+   *  creation, because setting it afterwards leaves whatever already went out
+   *  rewritten — which is how one order went live on nineteen papers under
+   *  nineteen near-identical headlines nobody had asked for. */
+  identicalText?: boolean | null;
 }): Promise<NetworkResult<{ ok: true; orderId: number; reportUrl: string }>> {
   return call("/api/admin/orders", {
     method: "POST",
@@ -159,6 +164,7 @@ export async function createCampaign(args: {
       material: args.material,
       images: args.images?.length ? args.images : undefined,
       notes: args.notes || null,
+      identicalText: args.identicalText ?? false,
       pacePerRun: args.pacePerRun ?? undefined,
       paceEveryMinutes: args.paceEveryMinutes ?? undefined,
     }),

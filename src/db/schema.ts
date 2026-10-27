@@ -122,6 +122,11 @@ export const orders = pgTable("order", {
   // no pace was chosen and the order is published by hand.
   publishingPace: integer("publishing_pace"),
   publishingEveryMinutes: integer("publishing_every_minutes"),
+  // How the article goes out across the network. True: the buyer's exact
+  // words on every newspaper. False: a distinct version written for each one.
+  // Chosen on the order form, because discovering it afterwards means
+  // nineteen papers already carry the wrong thing.
+  identicalText: boolean("identical_text"),
   // Reserved payment: the card is authorised at checkout and charged on
   // publication. Declared here because the columns exist in the database —
   // reserved-payment.ts creates them — and a column the database has and this

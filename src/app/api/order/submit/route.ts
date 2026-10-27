@@ -41,6 +41,8 @@ const schema = z.object({
    *  offer is replaced by the default rather than refused. */
   publishingPace: z.number().int().min(1).max(50).optional(),
   publishingEveryMinutes: z.number().int().min(1).max(60 * 24 * 7).optional(),
+  /** True: the buyer's exact words everywhere. False: rewritten per newspaper. */
+  identicalText: z.boolean().optional(),
 
   agreed: z.literal(true, {
     errorMap: () => ({ message: "Please confirm the declaration before continuing" }),
@@ -160,6 +162,7 @@ export async function POST(req: NextRequest) {
       articlesIncluded: 1,
       articlesUsed: 0,
       newspaperStates: resolved.states,
+      identicalText: d.identicalText ?? false,
       publishingPace: chosenPace.perRun,
       publishingEveryMinutes: chosenPace.everyMinutes,
       source: sourceFromRequest(req),

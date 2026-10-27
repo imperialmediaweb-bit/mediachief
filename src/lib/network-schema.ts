@@ -29,5 +29,6 @@ export async function ensureNetworkColumns(): Promise<void> {
   await db.execute(
     sql`ALTER TABLE "order" ADD COLUMN IF NOT EXISTS "publishing_every_minutes" integer`
   );
+  await db.execute(sql`ALTER TABLE "order" ADD COLUMN IF NOT EXISTS "identical_text" boolean`);
   ensured = true;
 }

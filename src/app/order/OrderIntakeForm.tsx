@@ -70,6 +70,8 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
   const [images, setImages] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [pace, setPace] = useState(DEFAULT_PACE);
+  // False: a version written for each newspaper. True: their exact words everywhere.
+  const [identical, setIdentical] = useState(false);
   const [kind, setKind] = useState<ArticleKind>("press_release");
   const [keyword, setKeyword] = useState("");
   const [links, setLinks] = useState("");
@@ -147,6 +149,7 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
           body: sendsArticle ? body : undefined,
           brief: mode === "write" && !drafted ? briefWithExtras() : undefined,
           imageUrls: imageUrls.length ? imageUrls : undefined,
+          identicalText: identical,
           publishingPace: pace.perRun,
           publishingEveryMinutes: pace.everyMinutes,
           agreed,
@@ -370,6 +373,57 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
             Up to 3 photos. A photo of your own beats a stock one on every newspaper — leave it
             empty and we pick something that fits.
           </p>
+        </div>
+      )}
+
+      {/* ---- the same words everywhere, or a version per newspaper */}
+      {mode !== "later" && (
+        <div>
+          <h2 className="font-serif text-lg font-bold text-brand-navy">
+            How should it read on each newspaper?
+          </h2>
+          <p className="mt-1 text-sm text-slate-600">
+            Your facts, your links and your photos are the same either way.
+          </p>
+          <div className="mt-4 space-y-2">
+            {[
+              {
+                value: false,
+                title: "A distinct version for each newspaper",
+                text: "We rewrite your article fifty times, one per paper, keeping every fact. Search engines treat fifty different articles as fifty sources; fifty copies of one text, they treat as one.",
+              },
+              {
+                value: true,
+                title: "Exactly my text, word for word, on all of them",
+                text: "Nothing is touched — not a sentence, not the headline. Choose this when the wording is approved, legal, or quoted from someone.",
+              },
+            ].map((option) => (
+              <label
+                key={String(option.value)}
+                className={`flex cursor-pointer gap-3 rounded-xl border p-4 transition ${
+                  identical === option.value
+                    ? "border-brand-red bg-red-50/40"
+                    : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="identical"
+                  className="mt-1 h-4 w-4 shrink-0 accent-brand-red"
+                  checked={identical === option.value}
+                  onChange={() => setIdentical(option.value)}
+                />
+                <span>
+                  <span className="block text-sm font-semibold text-brand-navy">
+                    {option.title}
+                  </span>
+                  <span className="mt-0.5 block text-xs leading-relaxed text-slate-600">
+                    {option.text}
+                  </span>
+                </span>
+              </label>
+            ))}
+          </div>
         </div>
       )}
 

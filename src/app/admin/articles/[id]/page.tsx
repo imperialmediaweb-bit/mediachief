@@ -44,6 +44,7 @@ export default async function AdminArticlePage({ params }: { params: { id: strin
       networkOrderId: orders.networkOrderId,
       publishingPace: orders.publishingPace,
       publishingEveryMinutes: orders.publishingEveryMinutes,
+      identicalText: orders.identicalText,
     })
     .from(articles)
     .leftJoin(users, eq(users.id, articles.userId))
@@ -152,6 +153,14 @@ export default async function AdminArticlePage({ params }: { params: { id: strin
               />
               <Row label="Newspapers" value={row.orderStates} />
               <Row label="Pace" value={paceLabel(row.publishingPace, row.publishingEveryMinutes)} />
+              <Row
+                label="Wording"
+                value={
+                  row.identicalText
+                    ? "Their exact text on all 50"
+                    : "A distinct version per newspaper"
+                }
+              />
             </dl>
             {row.orderStates && (
               <p className="mt-3 rounded-lg bg-brand-ivory p-3 text-xs text-slate-600">
