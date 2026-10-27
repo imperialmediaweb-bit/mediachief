@@ -10,6 +10,7 @@ import { articles, orders, subscriptions, users } from "@/db/schema";
 import { findPackageById, findSubscriptionPlanById } from "@/data/packages";
 import { SITE } from "@/data/site";
 import { reportUrl } from "@/lib/report-link";
+import { materialUrl } from "@/lib/material-link";
 import { PENDING_PAYMENT } from "@/lib/order-ref";
 
 export const runtime = "nodejs";
@@ -167,6 +168,9 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
   // then has nothing left to send and the emails must not ask for it.
   let articleOnFile = false;
   let reportArticleId: string | null = null;
+  // The order a client paid for without sending an article: its link is what
+  // they get instead of instructions to go and sign in somewhere.
+  let orderIdForMaterial: string | null = null;
 
   if (session.mode === "payment") {
     const packageId = session.metadata?.packageId || "unknown";
@@ -215,12 +219,13 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
 
     if (linkedOrderId) {
       const waiting = await db
-        .select({ id: articles.id, status: articles.status })
+        .select({ id: articles.id, status: articles.status, body: articles.body })
         .from(articles)
         .where(eq(articles.orderId, linkedOrderId))
         .limit(1);
-      articleOnFile = Boolean(waiting[0]);
+      articleOnFile = Boolean(waiting[0]?.body);
       reportArticleId = waiting[0]?.id ?? null;
+      if (!articleOnFile) orderIdForMaterial = linkedOrderId;
 
       // Hand the article to the editors and spend the order's single slot. The
       // status guard makes a webhook retry a no-op, so one payment can never
@@ -279,7 +284,7 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
     await upsertSubscription(sub, userId);
   }
 
-  await sendConfirmationEmails(stripe, session, mode, articleOnFile, reportArticleId);
+  await sendConfirmationEmails(stripe, session, mode, articleOnFile, reportArticleId, orderIdForMaterial);
 }
 
 async function upsertSubscription(sub: Stripe.Subscription, userIdHint: string | null) {
@@ -373,7 +378,9 @@ async function sendConfirmationEmails(
   /** The article came in with the order, so there is nothing left to ask for. */
   articleOnFile = false,
   /** Article to link the live report to, when it came in with the order. */
-  reportArticleId: string | null = null
+  reportArticleId: string | null = null,
+  /** The order a client still owes an article on, for the write-it-here link. */
+  orderIdForMaterial: string | null = null
 ) {
   const email = (session.customer_details?.email || session.customer_email || "").trim();
   const amount = (session.amount_total || 0) / 100;
@@ -452,12 +459,14 @@ async function sendConfirmationEmails(
           : ""
       }
       <p>Want to follow it or add photos? Sign in at <a href="${SITE.url}/account/login">${SITE.domain}/account/login</a> with this same address — <strong>${email}</strong>. We email you a link; there is no password.</p>`
-          : `<p><strong>Next step: send us your article.</strong></p>
-      <ol>
-        <li>Go to <a href="${SITE.url}/account/login">${SITE.domain}/account/login</a> and enter this same email address — <strong>${email}</strong>.</li>
-        <li>We email you a sign-in link. No password to remember.</li>
-        <li>Inside, open <em>New article</em>, paste your text and add up to three photos. No text ready? Give us the topic and we write it.</li>
-      </ol>
+          : `<p><strong>Next step: send us your article.</strong> One link, no password, no account to set up:</p>
+      ${
+        orderIdForMaterial
+          ? `<p style="margin:20px 0;"><a href="${materialUrl(orderIdForMaterial)}" style="display:inline-block;background:#c1121f;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;">Write your article here</a></p>
+      <p style="color:#64748b;font-size:13px;">It opens straight onto your order. Paste your text, add up to three photos, and send. The link does not expire, so write it whenever it suits you — and open it again later if you spot something to change.</p>`
+          : `<p>Go to <a href="${SITE.url}/account/login">${SITE.domain}/account/login</a> with this same address — <strong>${email}</strong> — and open <em>New article</em>.</p>`
+      }
+      <p>No text ready? Write the facts in any order and tell us in the notes — we shape it and send it back before anything is published.</p>
       <p>We publish within one business day of receiving it and email you every link.</p>`
       }
       <p style="margin-top:24px;">Best regards,<br/><strong>The Media Chief Team</strong></p>

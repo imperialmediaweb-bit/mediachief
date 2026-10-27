@@ -41,7 +41,7 @@ const MODES: { id: ArticleMode; icon: typeof FileText; title: string; text: stri
     id: "later",
     icon: Clock,
     title: "I'll send it later",
-    text: "Pay now and send the article from your account whenever you're ready.",
+    text: "Pay now. We email you a link that opens straight onto your order — write it there, no account, no password.",
   },
 ];
 
@@ -332,10 +332,23 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
       )}
 
       {mode === "later" && (
-        <p className="rounded-lg bg-slate-50 p-4 text-sm leading-relaxed text-slate-600">
-          Fine. After payment you get a sign-in link by email — open <em>New article</em>, paste
-          your text and add photos whenever it suits you. Your order waits for you.
-        </p>
+        <div className="rounded-lg bg-slate-50 p-4 text-sm leading-relaxed text-slate-600">
+          <p>
+            <strong className="text-brand-navy">
+              As soon as you pay, we email you a link.
+            </strong>{" "}
+            It opens straight onto your order — headline, text, up to three photos — with no
+            account to create and no password to remember.
+          </p>
+          <p className="mt-2">
+            The link does not expire, so write it tonight or next week. Your slot on the whole
+            network is held either way, and you can reopen the link later to change something.
+          </p>
+          <p className="mt-2">
+            No text ready at all? Write the facts in any order and say so in the notes — we shape
+            it and send it back before anything is published.
+          </p>
+        </div>
       )}
 
       {mode !== "later" && (
