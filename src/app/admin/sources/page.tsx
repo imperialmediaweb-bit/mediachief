@@ -42,7 +42,7 @@ export default async function SourcesPage() {
   const result = await db.execute(sql`
     WITH visits AS (
       SELECT source,
-             COUNT(DISTINCT visitor_id) FILTER (WHERE path LIKE '/offer%' OR path LIKE '/packages%') AS reached,
+             COUNT(DISTINCT visitor_id) FILTER (WHERE path LIKE '/offer%' OR path LIKE '/intro-offer%' OR path LIKE '/packages%') AS reached,
              COUNT(DISTINCT visitor_id) FILTER (WHERE path LIKE '/order%') AS started
         FROM "visit"
        GROUP BY source

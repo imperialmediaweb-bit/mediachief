@@ -41,6 +41,7 @@ export const SELLING_PATHS = ["/offer", "/offer-fb", "/packages", "/order"] as c
 /** The bucket a path belongs to, or null when it is not a page that sells. */
 export function sellingBucket(path: string): "offer" | "order" | null {
   if (path.startsWith("/order")) return "order";
-  if (path.startsWith("/offer") || path.startsWith("/packages")) return "offer";
+  // The Facebook ad lands on /intro-offer; without it the ad's visitors were never counted.
+  if (path.startsWith("/offer") || path.startsWith("/intro-offer") || path.startsWith("/packages")) return "offer";
   return null;
 }
