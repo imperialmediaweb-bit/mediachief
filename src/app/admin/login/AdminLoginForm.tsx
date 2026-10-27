@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, AlertCircle, Lock } from "lucide-react";
@@ -11,9 +11,12 @@ import { Button } from "@/components/ui/button";
 import { adminLoginSchema, type AdminLoginInput } from "@/lib/validators";
 
 export function AdminLoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get("from") || "/admin/newspapers";
+  // Only our own paths: "from" comes off the query string, and sending the
+  // browser wherever it says would hand anyone an open redirect off the
+  // sign-in page.
+  const safeFrom = /^\/(?!\/)/.test(from) ? from : "/admin/newspapers";
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const {
@@ -33,8 +36,13 @@ export function AdminLoginForm() {
       });
       const body = await res.json();
       if (!res.ok || !body.ok) throw new Error(body.error || "Invalid credentials");
-      router.push(from);
-      router.refresh();
+      // A real navigation, not a client-side route change.
+      //
+      // Chrome only offers to save a password when the credentials are
+      // followed by an actual page load. router.push swapped the view without
+      // one, so the browser never noticed a sign-in had happened and the
+      // password had to be typed every time.
+      window.location.assign(safeFrom);
     } catch (e: unknown) {
       setStatus("error");
       setErrorMsg(e instanceof Error ? e.message : "Something went wrong");
