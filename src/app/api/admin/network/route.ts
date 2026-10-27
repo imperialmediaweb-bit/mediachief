@@ -9,6 +9,7 @@ import { findPackageById } from "@/data/packages";
 import { ensureNetworkColumns } from "@/lib/network-schema";
 import { buildPublishedEmail, sendPublishedEmail } from "@/lib/published-email";
 import { DEFAULT_PACE } from "@/data/publishing-pace";
+import { captureForOrder } from "@/lib/reserved-payment";
 import {
   createCampaign,
   getCampaign,
@@ -300,6 +301,17 @@ export async function POST(req: NextRequest) {
         publishedAt: article.publishedAt ?? new Date(),
       })
       .where(eq(articles.id, article.id));
+
+    // The card is charged the moment the first links are live, which is what
+    // the buyer was promised at checkout: authorised then, charged on
+    // delivery. The hourly job would have caught it within the hour, but "we
+    // charge you when we publish" should not mean "some time later". It only
+    // acts on an order still held, so a refresh cannot charge twice.
+    if (firstTime) {
+      await captureForOrder(order.id).catch((err: unknown) =>
+        console.error("[admin/network] capture failed:", err instanceof Error ? err.message : err)
+      );
+    }
 
     // The client hears it once, when the article first goes live — a later
     // refresh that only adds placements must not mail them again. Use the
