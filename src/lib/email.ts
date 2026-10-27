@@ -7,7 +7,21 @@ function getResend() {
 }
 
 const FROM = process.env.FROM_EMAIL || "Media Chief <noreply@media-chief.com>";
-const CONTACT = process.env.CONTACT_EMAIL || "contact@media-chief.com";
+/**
+ * Where notifications about the business go — a new order, an article arriving,
+ * something flagged for a human read.
+ *
+ * Not the address printed on the site: that one is in data/site.ts, public and
+ * answered by a person. This is an inbox somebody actually watches, which for
+ * a one-person operation is usually a personal one. Keeping them apart means
+ * the owner can be reachable without their own address being published, and
+ * the public address can change without silencing every alert.
+ *
+ * CONTACT_EMAIL is still read, because that is what the deploys were set up
+ * with before this had its own name.
+ */
+const CONTACT =
+  process.env.ADMIN_NOTIFY_EMAIL || process.env.CONTACT_EMAIL || "contact@media-chief.com";
 
 interface SendArgs {
   to: string;
