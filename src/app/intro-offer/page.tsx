@@ -19,11 +19,13 @@ import {
   Check,
 } from "lucide-react";
 import { PromoOffer } from "./PromoOffer";
+import { NewsTicker } from "./NewsTicker";
+import { StickyOrderBar } from "./StickyOrderBar";
 import { ClientsStrip } from "@/components/ClientsStrip";
 import { NewspaperDirectory } from "@/components/NewspaperDirectory";
 import { CoverageMap } from "@/components/CoverageMap";
 import { CompanyDetails } from "@/components/CompanyDetails";
-import { PROMO_PRICE, PROMO_PRICE_CASINO, STANDARD_PACKAGES, promoDeadlineLabel } from "@/data/packages";
+import { PROMO_PRICE, PROMO_PRICE_CASINO, PICK_FIRST, promoDeadlineLabel } from "@/data/packages";
 import { TOTAL_NEWSPAPERS, REGION_COUNTS } from "@/data/newspapers";
 import { formatPrice } from "@/lib/utils";
 
@@ -39,7 +41,6 @@ import { formatPrice } from "@/lib/utils";
 */
 
 const PRICE = `$${formatPrice(PROMO_PRICE)}`;
-const LIST_PRICE = `$${formatPrice(STANDARD_PACKAGES.find((p) => p.id === "national")?.price ?? 1500)}`;
 const N = TOTAL_NEWSPAPERS;
 const deadline = promoDeadlineLabel();
 
@@ -179,8 +180,8 @@ const CONDITIONS = [
 
 const FAQ = [
   {
-    q: `Why ${PRICE} and not ${LIST_PRICE}?`,
-    a: `It is an introductory offer for new clients who have not worked with us yet${deadline ? `, valid until ${deadline}` : ""}. The National package normally costs ${LIST_PRICE}. We want you to test the network at minimal risk — if you like the result, you stay.`,
+    q: `How can all ${N} newspapers cost only ${PRICE}?`,
+    a: `Bought one by one, a newspaper costs $${PICK_FIRST}. For new clients we cap the whole network at ${PRICE}${deadline ? `, until ${deadline}` : ""}, so you can test it at minimal risk — if you like the result, you stay.`,
   },
   {
     q: "How do I pay, and do I get a receipt?",
@@ -248,7 +249,12 @@ export default function IntroOfferPage() {
               {deadline ? `Limited offer — valid until ${deadline}` : "Limited offer"}
             </span>
             <h1 className="mt-5 font-serif text-4xl font-bold leading-tight md:text-6xl">
-              Your business, in <span className="text-brand-gold">{N} newspapers</span>. {PRICE}.
+              Your business, in{" "}
+              <span className="bg-gradient-to-r from-brand-gold via-[#f5e3ae] to-brand-gold bg-[length:200%_auto] bg-clip-text text-transparent [animation:mc-shine_4s_linear_infinite]">
+                {N} newspapers
+              </span>
+              . {PRICE}.
+              <style>{`@keyframes mc-shine{to{background-position:200% center}}`}</style>
             </h1>
             <p className="mt-6 text-lg text-white/85 md:text-xl">
               Published within one business day. Stays up permanently. You get the list of all {N}{" "}
@@ -270,6 +276,7 @@ export default function IntroOfferPage() {
             <p className="mt-4 text-sm text-white/60">Card payment • receipt by email • {PRICE}, final price</p>
           </div>
         </div>
+        <NewsTicker />
       </section>
 
       {/* Four things the buyer receives */}
@@ -615,6 +622,7 @@ export default function IntroOfferPage() {
           </div>
         </div>
       </section>
+      <StickyOrderBar price={PRICE} count={N} />
     </div>
   );
 }

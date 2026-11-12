@@ -14,6 +14,8 @@ import {
   STANDARD_PACKAGES,
   CASINO_PACKAGES,
   SUBSCRIPTION_PLANS,
+  PICK_FIRST,
+  PICK_FIRST_CASINO,
 } from "@/data/packages";
 import { TOTAL_NEWSPAPERS } from "@/data/newspapers";
 import { SITE } from "@/data/site";
@@ -150,11 +152,13 @@ export function PromoOffer({ showPrice = true }: { showPrice?: boolean }) {
       {showPrice && (
         <div className="mt-8 flex items-end justify-center gap-4">
           <div className="text-right">
-            <p className="text-sm uppercase tracking-wider text-white/50">Regular price</p>
-            <p className="font-serif text-3xl font-bold text-white/40 line-through">{offer.listPrice}</p>
+            <p className="text-sm uppercase tracking-wider text-white/50">{monthly ? "One time" : "One newspaper"}</p>
+            <p className="font-serif text-3xl font-bold text-white/50">
+              {monthly ? money(isCasino ? PROMO_PRICE_CASINO : PROMO_PRICE) : money(isCasino ? PICK_FIRST_CASINO : PICK_FIRST)}
+            </p>
           </div>
           <div className="text-left">
-            <p className="text-sm uppercase tracking-wider text-brand-gold">Now</p>
+            <p className="text-sm uppercase tracking-wider text-brand-gold">{monthly ? "Monthly" : `All ${TOTAL_NEWSPAPERS}`}</p>
             <p className="font-serif text-6xl font-bold text-brand-gold md:text-7xl">
               {money(offer.price)}
               {offer.suffix && <span className="text-2xl font-normal text-white/60 md:text-3xl">{offer.suffix}</span>}

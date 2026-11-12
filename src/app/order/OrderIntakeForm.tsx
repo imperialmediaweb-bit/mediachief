@@ -173,8 +173,35 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
       (sendsArticle && body.trim().length > 0) ||
       (mode === "write" && (brief.trim().length > 0 || website.trim().length > 0)));
 
+  // 12.11.2026 — fast lane: most buyers stall on the long form; one tap jumps
+  // to "send it later" and the email field, two fields away from payment.
+  function fastLane() {
+    setMode("later");
+    trackGaEvent("fast_lane", { package: "order" });
+    setTimeout(() => {
+      const el = document.getElementById("reach-you");
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+      (el?.querySelector("input[type=email]") as HTMLInputElement | null)?.focus();
+    }, 50);
+  }
+
   return (
     <div className="space-y-8">
+      {mode !== "later" && (
+        <button
+          type="button"
+          onClick={fastLane}
+          className="group flex w-full items-center justify-between gap-3 rounded-2xl border-2 border-[#c1121f] bg-gradient-to-r from-red-50 to-amber-50 p-4 text-left shadow-sm transition hover:shadow-md"
+        >
+          <span>
+            <span className="block text-xs font-bold uppercase tracking-wider text-[#c1121f]">Fastest way · 1 minute</span>
+            <span className="mt-0.5 block font-serif text-lg font-bold text-brand-navy">Pay now, send your article later</span>
+            <span className="mt-0.5 block text-xs text-slate-600">Just your email, then payment. We send you a link to add the text and photos whenever you&apos;re ready.</span>
+          </span>
+          <ArrowRight className="h-6 w-6 shrink-0 text-[#c1121f] transition group-hover:translate-x-1" />
+        </button>
+      )}
+
       {/* ---- what we publish */}
       <div>
         <h2 className="font-serif text-lg font-bold text-brand-navy">What should we publish?</h2>
@@ -462,7 +489,7 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
       </div>
 
       {/* ---- where to reach you */}
-      <div>
+      <div id="reach-you" className="scroll-mt-24">
         <h2 className="font-serif text-lg font-bold text-brand-navy">Where do we reach you?</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>

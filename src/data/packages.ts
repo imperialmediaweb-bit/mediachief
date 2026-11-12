@@ -288,9 +288,11 @@ export const PROMO_SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
 // of day, Eastern), then every 14 days, never past 31 December. The page
 // revalidates hourly, so the label rolls over on its own.
 export const PROMO_ROLLING = {
-  anchorIso: "2026-09-25T23:59:59-04:00",
-  periodDays: 14,
-  hardEndIso: "2026-12-31T23:59:59-05:00",
+  // 12.11.2026: fixed, honest deadline (Cyber Monday) instead of a date that
+  // rolled forward every two weeks.
+  anchorIso: "2026-11-30T23:59:59-05:00",
+  periodDays: 365,
+  hardEndIso: "2026-11-30T23:59:59-05:00",
 };
 
 export function currentPromoDeadline(now: number = Date.now()): Date | null {
