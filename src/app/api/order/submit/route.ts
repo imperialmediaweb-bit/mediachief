@@ -10,6 +10,7 @@ import { newOrderRef, PENDING_PAYMENT } from "@/lib/order-ref";
 import { createLimiter, ipFromRequest } from "@/lib/rate-limit";
 import { PROHIBITED_MESSAGE, screenContent } from "@/lib/content-policy";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
+import { setFbPromo } from "@/lib/fb-promo-db";
 import { SITE } from "@/data/site";
 import { ensureNetworkColumns } from "@/lib/network-schema";
 import { sourceFromRequest, sourceLabel } from "@/lib/source";
@@ -43,6 +44,8 @@ const schema = z.object({
   publishingEveryMinutes: z.number().int().min(1).max(60 * 24 * 7).optional(),
   /** True: the buyer's exact words everywhere. False: rewritten per newspaper. */
   identicalText: z.boolean().optional(),
+  /** Newspaper (or "your choice") for the bonus 3-day Facebook promotion. */
+  fbPromo: z.string().trim().max(120).optional(),
 
   agreed: z.literal(true, {
     errorMap: () => ({ message: "Please confirm the declaration before continuing" }),
@@ -170,6 +173,9 @@ export async function POST(req: NextRequest) {
     .returning({ id: orders.id });
 
   const orderId = inserted[0]?.id;
+  if (orderId && d.fbPromo) {
+    await setFbPromo(orderId, d.fbPromo).catch((e) => console.warn("[order/submit] fb promo", e));
+  }
   if (!orderId) {
     return NextResponse.json(
       { ok: false, error: "Could not save the order. Please try again." },

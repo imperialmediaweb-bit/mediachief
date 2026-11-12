@@ -55,6 +55,11 @@ export const revalidate = 3600;
 
 const INCLUDED = [
   {
+    icon: Award,
+    title: "Bonus: 3 days of Facebook promotion",
+    description: "We promote your article with a paid Facebook ad for 3 days, in the state of the newspaper you pick. Set up by hand, at no extra cost.",
+  },
+  {
     icon: Newspaper,
     title: `${N} publications, one order`,
     description: `One newspaper in every state, across the Northeast, Midwest, South and West. One article, sent once.`,
@@ -179,6 +184,10 @@ const CONDITIONS = [
 ];
 
 const FAQ = [
+  {
+    q: "What is the 3-day Facebook promotion?",
+    a: "A paid Facebook ad for your article, running 3 days, included in the price. When you order you pick one of the 50 newspapers (or let us choose); we target its state. We set it up by hand and check the article first, because Facebook does not allow ads on some topics such as politics or gambling — if that applies, we tell you before anything runs.",
+  },
   {
     q: `How can all ${N} newspapers cost only ${PRICE}?`,
     a: `Bought one by one, a newspaper costs $${PICK_FIRST}. For new clients we cap the whole network at ${PRICE}${deadline ? `, until ${deadline}` : ""}, so you can test it at minimal risk — if you like the result, you stay.`,

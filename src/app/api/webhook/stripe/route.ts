@@ -4,6 +4,7 @@ import { markReserved } from "@/lib/reserved-payment";
 import { and, eq, sql } from "drizzle-orm";
 import { getStripe, STRIPE_WEBHOOK_SECRET } from "@/lib/stripe";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
+import { fbPromoForSession } from "@/lib/fb-promo-db";
 import { sourceLabel } from "@/lib/source";
 import { getDb } from "@/db";
 import { articles, orders, subscriptions, users } from "@/db/schema";
@@ -406,6 +407,7 @@ async function sendConfirmationEmails(
     }
   }
 
+  const fbPromo = await fbPromoForSession(session.id).catch(() => null);
   await sendEmail({
     to: ADMIN_EMAIL,
     subject: `[Stripe ${isSubscription ? "subscription" : "payment"}] ${packageLabel} — $${amount.toFixed(2)} — from ${sourceLabel(session.metadata?.source)}`,
@@ -421,6 +423,7 @@ async function sendConfirmationEmails(
         ${kv("Client name", session.customer_details?.name || "—")}
         ${kv("Came from", sourceLabel(session.metadata?.source))}
         ${kv("Newspapers", session.metadata?.states || "—")}
+        ${kv("Bonus FB promo (3 days, set up by hand)", fbPromo || "—")}
         ${kv("Article", articleOnFile ? "Already submitted with the order — ready to publish" : "Not yet — the client sends it from their account")}
         ${kv("Invoice", invoiceNumber ? `${invoiceNumber} — ${invoiceUrl}` : "—")}
         ${kv("Session ID", session.id)}

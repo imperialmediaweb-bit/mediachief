@@ -13,6 +13,7 @@ import {
   CONTENT_DECLARATION_WARNING,
 } from "@/lib/content-policy";
 import { IntakePhotos } from "@/components/order/IntakePhotos";
+import { NEWSPAPERS } from "@/data/newspapers";
 import { DEFAULT_PACE, PACES } from "@/data/publishing-pace";
 
 type ArticleMode = "have" | "write" | "later";
@@ -72,6 +73,8 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
   const [pace, setPace] = useState(DEFAULT_PACE);
   // False: a version written for each newspaper. True: their exact words everywhere.
   const [identical, setIdentical] = useState(false);
+  // Bonus: 3 days of paid Facebook promotion on one newspaper, set up by hand.
+  const [fbPromo, setFbPromo] = useState("");
   const [kind, setKind] = useState<ArticleKind>("press_release");
   const [keyword, setKeyword] = useState("");
   const [links, setLinks] = useState("");
@@ -150,6 +153,7 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
           brief: mode === "write" && !drafted ? briefWithExtras() : undefined,
           imageUrls: imageUrls.length ? imageUrls : undefined,
           identicalText: identical,
+          fbPromo: fbPromo || "Your choice",
           publishingPace: pace.perRun,
           publishingEveryMinutes: pace.everyMinutes,
           agreed,
@@ -486,6 +490,31 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
             </label>
           ))}
         </div>
+      </div>
+
+      {/* ---- bonus: 3-day Facebook promotion (set up by hand) */}
+      <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/60 p-4">
+        <h2 className="font-serif text-lg font-bold text-brand-navy">🎁 Bonus: 3 days of Facebook promotion</h2>
+        <p className="mt-1 text-sm text-slate-600">
+          We promote your article with a paid Facebook ad for 3 days, at no extra cost. Pick the newspaper — its state is
+          the audience we reach.
+        </p>
+        <select
+          value={fbPromo}
+          onChange={(e) => setFbPromo(e.target.value)}
+          className="mt-3 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
+        >
+          <option value="">Your choice — pick the best one for me</option>
+          {NEWSPAPERS.map((n) => (
+            <option key={n.name} value={`${n.name} (${n.state || n.region})`}>
+              {n.name} — {n.state || n.region}
+            </option>
+          ))}
+        </select>
+        <p className="mt-2 text-xs text-slate-500">
+          We set each promotion up by hand and check the article first: Facebook does not allow ads on some topics
+          (politics, gambling, some health claims). If yours is one of them, we tell you before anything runs.
+        </p>
       </div>
 
       {/* ---- where to reach you */}
