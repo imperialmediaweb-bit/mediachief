@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { articleIdFromToken, orderReportToken } from "@/lib/report-link";
 import { notFound } from "next/navigation";
 import { CheckCircle2, FileText, Lock, ShieldCheck } from "lucide-react";
 import { PayNow } from "./PayNow";
@@ -22,7 +23,7 @@ export default async function PayPage({
   searchParams,
 }: {
   params: { ref: string };
-  searchParams?: { paid?: string };
+  searchParams?: { paid?: string; report?: string };
 }) {
   const order = await findOrderByRef(params.ref);
 
@@ -41,6 +42,12 @@ export default async function PayPage({
       : pkg?.name || order.packageId;
 
   const paid = !order || order.status === "paid" || searchParams?.paid === "1";
+  // 12.11.2026 — the live report link, there from the moment the order exists.
+  const reportTok = order
+    ? orderReportToken(order.id)
+    : searchParams?.report && articleIdFromToken(searchParams.report)?.startsWith("o-")
+      ? searchParams.report
+      : null;
 
   if (paid) {
     return (
@@ -68,9 +75,22 @@ export default async function PayPage({
               )}
               .
             </p>
+            {reportTok && (
+              <a
+                href={`/report/${reportTok}`}
+                className="mt-6 inline-block rounded-lg bg-[#c1121f] px-6 py-3 text-sm font-semibold text-white"
+              >
+                Follow your publication live
+              </a>
+            )}
+            {reportTok && (
+              <p className="mt-2 break-all text-xs text-slate-500">
+                Your permanent report link: {SITE.url}/report/{reportTok}
+              </p>
+            )}
             <Link
               href="/account/login"
-              className="mt-6 inline-block rounded-lg bg-[#c1121f] px-6 py-3 text-sm font-semibold text-white"
+              className={`mt-6 inline-block rounded-lg px-6 py-3 text-sm font-semibold ${reportTok ? "ml-2 border border-slate-300 text-brand-navy" : "bg-[#c1121f] text-white"}`}
             >
               Go to my account
             </Link>

@@ -30,3 +30,17 @@ export function articleIdFromToken(token: string): string | null {
   if (sig.length !== expected.length) return null;
   return crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected)) ? id : null;
 }
+
+/**
+ * 12.11.2026 — the report link for a whole ORDER, made the moment the order
+ * exists (like MediaExpres): the buyer gets it on the payment page and in the
+ * confirmation email, before an article is even on file. Same signing, with an
+ * "o-" prefix so it can never collide with an article id.
+ */
+export function orderReportToken(orderId: string): string {
+  return reportToken(`o-${orderId}`);
+}
+
+export function orderReportUrl(orderId: string): string {
+  return `${SITE.url}/report/${orderReportToken(orderId)}`;
+}

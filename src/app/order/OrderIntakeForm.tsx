@@ -75,6 +75,8 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
   const [identical, setIdentical] = useState(false);
   // Bonus: 3 days of paid Facebook promotion on one newspaper, set up by hand.
   const [fbPromo, setFbPromo] = useState("");
+  // Only the $149 offer (promo-*) carries the bonus.
+  const hasFbBonus = packageId.startsWith("promo");
   const [kind, setKind] = useState<ArticleKind>("press_release");
   const [keyword, setKeyword] = useState("");
   const [links, setLinks] = useState("");
@@ -153,7 +155,7 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
           brief: mode === "write" && !drafted ? briefWithExtras() : undefined,
           imageUrls: imageUrls.length ? imageUrls : undefined,
           identicalText: identical,
-          fbPromo: fbPromo || "Your choice",
+          fbPromo: hasFbBonus ? fbPromo || "Your choice" : undefined,
           publishingPace: pace.perRun,
           publishingEveryMinutes: pace.everyMinutes,
           agreed,
@@ -493,7 +495,7 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
       </div>
 
       {/* ---- bonus: 3-day Facebook promotion (set up by hand) */}
-      <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/60 p-4">
+      {hasFbBonus && (<div className="rounded-2xl border-2 border-amber-300 bg-amber-50/60 p-4">
         <h2 className="font-serif text-lg font-bold text-brand-navy">🎁 Bonus: 3 days of Facebook promotion</h2>
         <p className="mt-1 text-sm text-slate-600">
           We promote your article with a paid Facebook ad for 3 days, at no extra cost. Pick the newspaper — its state is
@@ -515,7 +517,7 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
           We set each promotion up by hand and check the article first: Facebook does not allow ads on some topics
           (politics, gambling, some health claims). If yours is one of them, we tell you before anything runs.
         </p>
-      </div>
+      </div>)}
 
       {/* ---- where to reach you */}
       <div id="reach-you" className="scroll-mt-24">

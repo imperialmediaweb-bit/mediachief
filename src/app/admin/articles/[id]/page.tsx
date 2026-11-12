@@ -13,7 +13,9 @@ import { ArticleActions } from "@/components/admin/ArticleActions";
 import { NetworkPanel } from "@/components/admin/NetworkPanel";
 import { ClientMessage } from "@/components/admin/ClientMessage";
 import { paceLabel } from "@/data/publishing-pace";
-import { reportToken, reportUrl } from "@/lib/report-link";
+import { orderReportUrl, reportToken, reportUrl } from "@/lib/report-link";
+import { getFbPromo } from "@/lib/fb-promo-db";
+import { FbPromoProof } from "./FbPromoProof";
 
 export const metadata: Metadata = {
   title: "Admin • Article",
@@ -54,6 +56,8 @@ export default async function AdminArticlePage({ params }: { params: { id: strin
   const row = rows[0];
   if (!row) notFound();
   const a = row.article;
+
+  const promo = a.orderId ? await getFbPromo(a.orderId).catch(() => null) : null;
 
   const images = await db
     .select({ id: uploads.id, url: uploads.url })
@@ -180,6 +184,17 @@ export default async function AdminArticlePage({ params }: { params: { id: strin
             perRun={row.publishingPace}
             everyMinutes={row.publishingEveryMinutes}
           />
+
+          {a.orderId && promo?.choice && (
+            <FbPromoProof
+              orderId={a.orderId}
+              choice={promo.choice}
+              proof={promo.proof}
+              post={promo.post}
+              days={promo.days}
+              reportUrl={orderReportUrl(a.orderId)}
+            />
+          )}
 
           {a.status === "published" && (
             <div className="rounded-2xl border border-slate-200 bg-white p-6">

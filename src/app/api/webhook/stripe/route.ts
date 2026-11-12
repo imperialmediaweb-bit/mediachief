@@ -5,6 +5,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { getStripe, STRIPE_WEBHOOK_SECRET } from "@/lib/stripe";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
 import { fbPromoForSession } from "@/lib/fb-promo-db";
+import { orderReportUrl } from "@/lib/report-link";
 import { sourceLabel } from "@/lib/source";
 import { getDb } from "@/db";
 import { articles, orders, subscriptions, users } from "@/db/schema";
@@ -408,6 +409,10 @@ async function sendConfirmationEmails(
   }
 
   const fbPromo = await fbPromoForSession(session.id).catch(() => null);
+  const orderRow = isSubscription
+    ? []
+    : await getDb().select({ id: orders.id }).from(orders).where(eq(orders.stripeSessionId, session.id)).limit(1).catch(() => []);
+  const liveReport = orderRow[0]?.id ? orderReportUrl(orderRow[0].id) : null;
   await sendEmail({
     to: ADMIN_EMAIL,
     subject: `[Stripe ${isSubscription ? "subscription" : "payment"}] ${packageLabel} — $${amount.toFixed(2)} — from ${sourceLabel(session.metadata?.source)}`,
@@ -456,8 +461,8 @@ async function sendConfirmationEmails(
         articleOnFile
           ? `<p><strong>We already have your article — there is nothing left for you to send.</strong> It is with our editors now. We publish within one business day and email you every link, together with the report in PDF and Excel.</p>
       ${
-        reportArticleId
-          ? `<p style="margin:20px 0;"><a href="${reportUrl(reportArticleId)}" style="display:inline-block;background:#c1121f;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;">Follow your publication live</a></p>
+        liveReport || reportArticleId
+          ? `<p style="margin:20px 0;"><a href="${liveReport || reportUrl(reportArticleId!)}" style="display:inline-block;background:#c1121f;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;">Follow your publication live</a></p>
       <p style="color:#64748b;font-size:13px;">That page shows every newspaper and link as soon as it goes live. Keep it — the link is permanent.</p>`
           : ""
       }
@@ -470,7 +475,12 @@ async function sendConfirmationEmails(
           : `<p>Go to <a href="${SITE.url}/account/login">${SITE.domain}/account/login</a> with this same address — <strong>${email}</strong> — and open <em>New article</em>.</p>`
       }
       <p>No text ready? Write the facts in any order and tell us in the notes — we shape it and send it back before anything is published.</p>
-      <p>We publish within one business day of receiving it and email you every link.</p>`
+      <p>We publish within one business day of receiving it and email you every link.</p>
+      ${
+        liveReport
+          ? `<p>Your live report is ready already — every newspaper appears there, with its date and time, as soon as it goes live: <a href="${liveReport}">${liveReport}</a>. Keep it, the link is permanent.</p>`
+          : ""
+      }`
       }
       <p style="margin-top:24px;">Best regards,<br/><strong>The Media Chief Team</strong></p>
     `

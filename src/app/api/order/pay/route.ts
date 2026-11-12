@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { orderReportToken } from "@/lib/report-link";
 import { z } from "zod";
 import { getStripe } from "@/lib/stripe";
 import { SITE } from "@/data/site";
@@ -95,7 +96,7 @@ export async function POST(req: NextRequest) {
       },
       customer_creation: "always",
       allow_promotion_codes: true,
-      success_url: `${SITE.url}/order/pay/${ref}?paid=1`,
+      success_url: `${SITE.url}/order/pay/${ref}?paid=1&report=${encodeURIComponent(orderReportToken(order.id))}`,
       cancel_url: `${SITE.url}/order/pay/${ref}`,
     });
     return NextResponse.json({ ok: true, url: session.url });
