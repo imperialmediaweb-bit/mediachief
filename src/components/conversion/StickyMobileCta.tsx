@@ -14,7 +14,7 @@ export function StickyMobileCta() {
           successCtaLabel="See pricing now"
           trigger={
             <Button variant="accent" size="lg" className="w-full">
-              <Mail className="h-4 w-4" /> Send me the list of newspapers
+              <Mail className="h-4 w-4" /> Send me the list before I order
             </Button>
           }
         />
