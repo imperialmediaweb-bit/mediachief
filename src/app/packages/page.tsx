@@ -17,7 +17,7 @@ import { Mail } from "lucide-react";
 export const metadata: Metadata = {
   title: "Packages and pricing — Distribution across 50 U.S. newspapers",
   description:
-    "Media Chief packages: Local ($40), Regional ($94), National 50 ($149). Casino/iGaming variants and Bronze/Silver/Gold/Platinum monthly subscriptions.",
+    "Media Chief packages: Local ($49), Regional ($94), National 50 ($149). Casino/iGaming variants and Bronze/Silver/Gold/Platinum monthly subscriptions.",
   alternates: { canonical: "/packages" },
 };
 

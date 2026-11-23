@@ -43,7 +43,7 @@ export const STANDARD_PACKAGES: Package[] = [
     name: "Local",
     tagline: "Single-state coverage",
     listPrice: 79,
-    price: 40,
+    price: 49,
     currency: "USD",
     newspapers: 1,
     reach: "1 state newspaper of your choice",
