@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { MapPin, Newspaper, Globe, Mail } from "lucide-react";
-import { RequestListModal } from "@/components/forms/RequestListModal";
+import { MapPin, Newspaper, Globe } from "lucide-react";
 import { REGION_COUNTS } from "@/data/newspapers";
+import { networkStatus } from "@/lib/network-status";
+import { NetworkGallery } from "@/components/network/NetworkGallery";
 
-// IMPORTANT: This page contains NO newspaper URLs or names.
-// It is deliberately generic to protect the network from indexing (anti-PBN).
+// 23.11.2026 (owner: show buyers the real network, like Media Express does):
+// the page now shows every paper with a real screenshot, its latest story and
+// sitemap status — no traffic numbers. It stays NOINDEX and every link to a
+// paper is NOFOLLOW, so search engines do not tie the papers to Media Chief
+// (anti-PBN). To make it public, flip robots below — nothing else.
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "Our newspaper network",
   description:
@@ -96,7 +103,10 @@ const TOTAL =
   REGION_COUNTS.South +
   REGION_COUNTS.West;
 
-export default function OurNetworkPage() {
+export default async function OurNetworkPage() {
+  const papers = await networkStatus();
+  const now = Date.now();
+  const live = papers.filter((p) => p.latestAt && now - new Date(p.latestAt).getTime() < 48 * 3600 * 1000).length;
   return (
     <>
       <section className="bg-brand-navy text-white">
@@ -107,6 +117,28 @@ export default function OurNetworkPage() {
             A solid network of partner newspapers, built over years to give our clients
             maximum nationwide visibility.
           </p>
+        </div>
+      </section>
+
+      <section className="section bg-slate-50">
+        <div className="container">
+          <div className="max-w-2xl">
+            <p className="eyebrow">See the network</p>
+            <h2 className="h2 mt-2">50 real newspapers, one in every state</h2>
+            <p className="lead mt-4">
+              These are the papers your story is published in. Each card shows the paper&apos;s
+              homepage and its latest story, live.{" "}
+              {live > 0 && <strong>{live} of {papers.length} papers published a story in the last 48 hours.</strong>}
+            </p>
+          </div>
+          <div className="mt-10">
+            <NetworkGallery papers={papers} now={now} />
+          </div>
+          <div className="mt-10 text-center">
+            <Button asChild variant="gold" size="lg">
+              <Link href="/offer">Publish in all 50 newspapers</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -160,27 +192,6 @@ export default function OurNetworkPage() {
             </div>
           </div>
 
-          {/* Lead magnet */}
-          <div className="mt-16 rounded-2xl bg-brand-navy p-10 text-white text-center lg:p-16">
-            <Mail className="mx-auto h-10 w-10 text-brand-gold" />
-            <h3 className="mt-5 font-serif text-3xl font-bold">
-              Want the full list of partner newspapers?
-            </h3>
-            <p className="mx-auto mt-4 max-w-2xl text-white/85">
-              Out of respect for our network, and to protect it from SEO abuse, we send the exact
-              names and URLs of the 50 newspapers directly by email after a short form. Free, no
-              obligation.
-            </p>
-            <div className="mt-8">
-              <RequestListModal
-                trigger={
-                  <Button variant="gold" size="lg">
-                    <Mail className="h-4 w-4" /> Request the full list
-                  </Button>
-                }
-              />
-            </div>
-          </div>
         </div>
       </section>
     </>

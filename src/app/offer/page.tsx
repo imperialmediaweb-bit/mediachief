@@ -1,5 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+
+const SHOWCASE = [
+  { slug: "arizona-express", name: "Arizona Express" },
+  { slug: "florida-expres", name: "Florida Express" },
+  { slug: "texasexpres", name: "Texas Express" },
+  { slug: "californiaexpres", name: "California Express" },
+  { slug: "alaskaexpres", name: "Alaska Express" },
+  { slug: "newyork-express", name: "New York Express" },
+];
 import {
   Mail,
   Newspaper,
@@ -115,6 +124,32 @@ export default function OfferPage() {
               value="4"
               label="regions: Northeast, Midwest, South, West"
             />
+          </div>
+
+          {/* 23.11.2026 — real screenshots of the papers, so buyers see the network before ordering */}
+          <div className="mt-12">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <h2 className="font-serif text-2xl font-bold text-brand-navy">See the network</h2>
+              <Link href="/our-network" className="text-sm font-semibold text-brand-red hover:underline">
+                All 50 papers, with their latest stories →
+              </Link>
+            </div>
+            <div className="mt-5 flex snap-x gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-3 md:overflow-visible lg:grid-cols-6">
+              {SHOWCASE.map((s) => (
+                <Link key={s.slug} href="/our-network" className="w-60 shrink-0 snap-start md:w-auto">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/network/${s.slug}-v1.webp`}
+                    alt={`${s.name} homepage`}
+                    loading="lazy"
+                    width={640}
+                    height={400}
+                    className="aspect-[16/10] w-full rounded-lg border border-slate-200 object-cover object-top shadow-sm"
+                  />
+                  <span className="mt-1.5 block text-xs font-semibold text-slate-600">{s.name}</span>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
