@@ -6,6 +6,7 @@ import { articles, orders, uploads } from "@/db/schema";
 import { orderIdFromMaterialToken } from "@/lib/material-link";
 import { PROHIBITED_MESSAGE, screenContent } from "@/lib/content-policy";
 import { createLimiter, ipFromRequest } from "@/lib/rate-limit";
+import { autoPublish } from "@/lib/auto-publish";
 import { sendEmail, wrapEmail, kv, ADMIN_EMAIL } from "@/lib/email";
 import { SITE } from "@/data/site";
 
@@ -147,6 +148,9 @@ export async function POST(req: NextRequest) {
     `
     ),
   });
+
+  // 23.11.2026 — checked and published on its own when it passes (AUTO_PUBLISH=0 stops it).
+  if (order.status === "paid") void autoPublish(articleId);
 
   return NextResponse.json({ ok: true, articleId });
 }

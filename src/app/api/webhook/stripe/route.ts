@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
+import { autoPublish } from "@/lib/auto-publish";
 import { markReserved } from "@/lib/reserved-payment";
 import { and, eq, sql } from "drizzle-orm";
 import { getStripe, STRIPE_WEBHOOK_SECRET } from "@/lib/stripe";
@@ -287,6 +288,10 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
   }
 
   await sendConfirmationEmails(stripe, session, mode, articleOnFile, reportArticleId, orderIdForMaterial);
+
+  // 23.11.2026 — the article came with the order: check it and publish it on
+  // its own, links to the client right away (AUTO_PUBLISH=0 stops it).
+  if (articleOnFile && reportArticleId) void autoPublish(reportArticleId);
 }
 
 async function upsertSubscription(sub: Stripe.Subscription, userIdHint: string | null) {
