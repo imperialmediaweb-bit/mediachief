@@ -105,6 +105,37 @@ ${body.slice(0, 12000)}`;
   }
 }
 
+/** A picture that does not open is left out rather than sent broken to 50 sites. */
+async function imageOk(url: string): Promise<boolean> {
+  try {
+    const r = await fetch(url, { method: "GET", signal: AbortSignal.timeout(15_000) });
+    return r.ok && (r.headers.get("content-type") || "").startsWith("image/");
+  } catch {
+    return false;
+  }
+}
+
+/** A dead client link (404, 410, no such site) stops the automatic run. 403/429 are
+ *  sites that refuse robots, not dead links. */
+async function deadLinks(urls: string[]): Promise<string[]> {
+  const dead: string[] = [];
+  await Promise.all(
+    urls.map(async (u) => {
+      try {
+        const r = await fetch(u, {
+          redirect: "follow",
+          headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0 Safari/537.36" },
+          signal: AbortSignal.timeout(15_000),
+        });
+        if (r.status === 404 || r.status === 410 || r.status >= 500) dead.push(`${u} (${r.status})`);
+      } catch {
+        dead.push(`${u} (does not open)`);
+      }
+    })
+  );
+  return dead;
+}
+
 async function tellAdmin(subject: string, title: string, lines: [string, string][]) {
   await sendEmail({
     to: ADMIN_EMAIL,
@@ -163,11 +194,17 @@ export async function autoPublish(articleId: string): Promise<{ state: string; r
     const clientUrl = clientUrlFrom(article.notes, body);
     if (!clientUrl) return refuse("no client website or link found");
 
+    const dead = await deadLinks(Array.from(new Set([clientUrl, ...linksIn(body)])));
+    if (dead.length) return refuse(`dead link: ${dead.join(", ")}`);
+
     const casino = findPackageById(order.packageId)?.category === "casino";
     const verdict = await aiReview(title, body, casino);
     if (!verdict.ok) return refuse(`AI review: ${verdict.reason}`);
 
-    const images = await db.select({ url: uploads.url }).from(uploads).where(eq(uploads.articleId, article.id));
+    const all = await db.select({ url: uploads.url }).from(uploads).where(eq(uploads.articleId, article.id));
+    const checked = await Promise.all(all.map(async (i) => ((await imageOk(i.url)) ? i : null)));
+    const images = checked.filter((i): i is { url: string } => i !== null);
+    const droppedImages = all.length - images.length;
     const created = await createCampaign({
       externalRef: order.id,
       client: row.company || row.name || row.email || "Media Chief client",
@@ -210,6 +247,9 @@ export async function autoPublish(articleId: string): Promise<{ state: string; r
       ["Client", row.email || "-"],
       ["Client link", clientUrl],
       ["AI review", verdict.reason || "ok"],
+      ["Text", order.identicalText ? "identical on every site (client's choice)" : "rewritten per site"],
+      ["Pace", `${order.publishingPace ?? DEFAULT_PACE.perRun} sites every ${order.publishingEveryMinutes ?? "default"} min`],
+      ["Photos", `${images.length} sent${droppedImages ? `, ${droppedImages} broken left out` : ""}`],
     ]);
     return { state: "published" };
   } catch (e) {
