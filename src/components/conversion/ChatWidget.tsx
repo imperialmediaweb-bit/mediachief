@@ -8,6 +8,14 @@ import { trackPixelEvent } from "@/components/analytics/MetaPixel";
 interface Msg {
   role: "user" | "assistant";
   content: string;
+  /** an answer written by a person from /admin/chats */
+  team?: boolean;
+}
+
+function newThreadId(): string {
+  const a = new Uint8Array(12);
+  crypto.getRandomValues(a);
+  return Array.from(a, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 const GREETING: Msg = {
@@ -27,7 +35,56 @@ export function ChatWidget() {
   // 24.11.2026: "Talk to a real person" — the next message goes to the owner, not the AI.
   const [human, setHuman] = useState(false);
   const [teaser, setTeaser] = useState(false);
+  const [thread, setThread] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const busyRef = useRef(false);
+  busyRef.current = busy;
+
+  // The thread id stays in the browser; the server keeps the conversation, so a
+  // person can answer from the admin and the answer shows up here.
+  useEffect(() => {
+    try {
+      let id = localStorage.getItem("mc-chat-thread");
+      if (!id) {
+        id = newThreadId();
+        localStorage.setItem("mc-chat-thread", id);
+      }
+      setThread(id);
+      if (localStorage.getItem("mc-chat-human") === "1") setHuman(true);
+    } catch {
+      setThread(newThreadId());
+    }
+  }, []);
+
+  // While a person is handling the chat, fetch their answers (every 5 s open, 20 s closed).
+  useEffect(() => {
+    if (!thread || !human) return;
+    let stop = false;
+    const tick = async () => {
+      if (busyRef.current) return;
+      try {
+        const r = await fetch(`/api/chat?thread=${thread}`, { cache: "no-store" });
+        const d = (await r.json()) as { messages?: Msg[] };
+        const server = d.messages || [];
+        if (stop || !server.length) return;
+        setMessages((cur) => {
+          if (server.length <= cur.length - 1) return cur;
+          const fresh = server.slice(cur.length - 1);
+          if (fresh.some((m) => m.team)) {
+            setOpen(true);
+            setTeaser(false);
+          }
+          return [GREETING, ...server];
+        });
+      } catch {}
+    };
+    const iv = setInterval(tick, open ? 5_000 : 20_000);
+    void tick();
+    return () => {
+      stop = true;
+      clearInterval(iv);
+    };
+  }, [thread, human, open]);
 
   // 24.11.2026: the conversation stays when the visitor comes back, like WhatsApp.
   useEffect(() => {
@@ -79,7 +136,6 @@ export function ChatWidget() {
   async function send(preset?: string, askHuman?: boolean) {
     const text = (preset ?? input).trim();
     if (!text || busy) return;
-    const wantHuman = askHuman || human;
     const next: Msg[] = [...messages, { role: "user", content: text }];
     setMessages(next);
     setInput("");
@@ -89,15 +145,25 @@ export function ChatWidget() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // The greeting is ours, not the model's; the API wants the user first.
-        body: JSON.stringify({ messages: next.slice(1), captured: captured || undefined, human: wantHuman || undefined }),
+        body: JSON.stringify({
+          messages: next.slice(1).slice(-200),
+          captured: captured || undefined,
+          human: askHuman || undefined,
+          thread: thread || undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error);
       if (data.captured) setCaptured(data.captured);
-      // Asked for a person but no email yet: keep the next message for the team.
-      setHuman(Boolean(wantHuman && !data.captured));
+      // From now on a person handles this chat (the server remembers it too).
+      if (askHuman) {
+        setHuman(true);
+        try {
+          localStorage.setItem("mc-chat-human", "1");
+        } catch {}
+      }
       if (data.leadCaptured) trackPixelEvent("Lead", { content_name: "chat" });
-      setMessages([...next, { role: "assistant", content: data.reply }]);
+      setMessages(data.reply ? [...next, { role: "assistant", content: data.reply }] : next);
     } catch (e) {
       setMessages([
         ...next,
@@ -121,7 +187,7 @@ export function ChatWidget() {
           <div className="flex items-center justify-between bg-brand-navy px-4 py-3 text-white">
             <div>
               <p className="font-serif text-sm font-bold">Media Chief</p>
-              <p className="text-xs text-white/70">Usually answers instantly</p>
+              <p className="text-xs text-white/70">{human ? "You're talking with our team" : "Usually answers instantly"}</p>
             </div>
             <button type="button" aria-label="Close chat" onClick={() => setOpen(false)}>
               <X className="h-5 w-5" />
@@ -134,9 +200,12 @@ export function ChatWidget() {
                 className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-3 py-2 text-sm leading-relaxed ${
                   m.role === "user"
                     ? "ml-auto bg-[#c1121f] text-white"
-                    : "bg-white text-slate-800 shadow-sm"
+                    : m.team
+                      ? "border border-emerald-200 bg-emerald-50 text-slate-800 shadow-sm"
+                      : "bg-white text-slate-800 shadow-sm"
                 }`}
               >
+                {m.team && <span className="mb-0.5 block text-[11px] font-semibold text-emerald-700">Media Chief team</span>}
                 {m.content}
               </div>
             ))}

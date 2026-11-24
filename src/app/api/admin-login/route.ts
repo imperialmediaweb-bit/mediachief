@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminLoginSchema } from "@/lib/validators";
 import {
   checkAdminCredentials,
+  isTeamUser,
   createSessionToken,
   setSessionCookie,
 } from "@/lib/auth";
@@ -25,5 +26,5 @@ export async function POST(req: NextRequest) {
   }
   const token = createSessionToken(username);
   setSessionCookie(token);
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, team: isTeamUser(username) });
 }

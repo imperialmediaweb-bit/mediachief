@@ -42,7 +42,7 @@ export function AdminLoginForm() {
       // followed by an actual page load. router.push swapped the view without
       // one, so the browser never noticed a sign-in had happened and the
       // password had to be typed every time.
-      window.location.assign(safeFrom);
+      window.location.assign(body.team ? "/admin/chats" : safeFrom);
     } catch (e: unknown) {
       setStatus("error");
       setErrorMsg(e instanceof Error ? e.message : "Something went wrong");

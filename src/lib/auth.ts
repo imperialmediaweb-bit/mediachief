@@ -38,7 +38,22 @@ export function verifySessionToken(token: string | undefined): { username: strin
   return { username };
 }
 
+function same(x: string, y: string): boolean {
+  const a = Buffer.from(x);
+  const b = Buffer.from(y);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+/** 24.11.2026: a colleague who answers the chat (TEAM_USER / TEAM_PASSWORD). They see only /admin/chats. */
+export function isTeamUser(username: string | undefined | null): boolean {
+  const u = process.env.TEAM_USER;
+  return Boolean(u && username && same(username, u));
+}
+
 export function checkAdminCredentials(username: string, password: string): boolean {
+  const tu = process.env.TEAM_USER;
+  const tp = process.env.TEAM_PASSWORD;
+  if (tu && tp && same(username, tu) && same(password, tp)) return true;
   const expectedUser = process.env.ADMIN_USER || "admin";
   const expectedPass = process.env.ADMIN_PASSWORD || "";
   if (!expectedPass) return false;
@@ -64,9 +79,12 @@ export function clearSessionCookie() {
   cookies().delete(COOKIE_NAME);
 }
 
-export function getSession(): { username: string } | null {
+/** The owner's session. A colleague's session counts only where `allowTeam` is set (the chat inbox). */
+export function getSession(opts?: { allowTeam?: boolean }): { username: string } | null {
   const token = cookies().get(COOKIE_NAME)?.value;
-  return verifySessionToken(token);
+  const s = verifySessionToken(token);
+  if (s && !opts?.allowTeam && isTeamUser(s.username)) return null;
+  return s;
 }
 
 export const SESSION_COOKIE_NAME = COOKIE_NAME;

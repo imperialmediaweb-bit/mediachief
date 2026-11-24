@@ -8,6 +8,7 @@ import { STANDARD_PACKAGES, PROMO_PRICE, PICK_FIRST, PICK_EACH_MORE } from "@/da
 import { TOTAL_NEWSPAPERS } from "@/data/newspapers";
 import { sourceFromRequest, sourceLabel } from "@/lib/source";
 import { SITE } from "@/data/site";
+import { getThread, saveThread, type ChatMsg } from "@/lib/chat-store";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -26,10 +27,13 @@ const schema = z.object({
       z.object({
         role: z.enum(["user", "assistant"]),
         content: z.string().trim().min(1).max(1500),
+        team: z.boolean().optional(),
       })
     )
     .min(1)
-    .max(30),
+    .max(200),
+  // 24.11.2026: the thread id kept in the visitor's browser (server copy, admin replies)
+  thread: z.string().regex(/^[A-Za-z0-9_-]{8,64}$/).optional(),
   // The email we already sent the list to, so it goes out once per chat.
   captured: z.string().max(200).optional(),
   // 24.11.2026: the visitor pressed "Talk to a real person"
@@ -62,12 +66,12 @@ Rules:
 - To order, send them to ${SITE.url}/intro-offer (all ${TOTAL_NEWSPAPERS}) or ${SITE.url}/packages.`;
 }
 
-function transcriptHtml(messages: { role: string; content: string }[]): string {
+function transcriptHtml(messages: { role: string; content: string; team?: boolean }[]): string {
   const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!);
   return messages
     .map(
       (m) =>
-        `<p style="margin:8px 0;"><strong>${m.role === "user" ? "Visitor" : "Assistant"}:</strong> ${esc(m.content)}</p>`
+        `<p style="margin:8px 0;"><strong>${m.role === "user" ? "Visitor" : m.team ? "Team" : "AI"}:</strong> ${esc(m.content)}</p>`
     )
     .join("");
 }
@@ -148,55 +152,58 @@ export async function POST(req: NextRequest) {
     note = `\n\n[System note: the full newspaper list was just emailed to ${email}. Confirm this to the visitor in one sentence.]`;
   }
 
-  // 24.11.2026 (owner: "să fiu anunțat rapid, pe email"): the first message of
-  // every chat reaches the owner at once, with or without an email.
-  if (messages.length === 1) {
-    void sendEmail({
+  const thread = parsed.data.thread;
+  const stored = thread ? await getThread(thread).catch(() => null) : null;
+  const src = sourceLabel(sourceFromRequest(req));
+  const adminLink = thread ? `${SITE.url}/admin/chats?id=${thread}` : `${SITE.url}/admin/chats`;
+  const save = (all: ChatMsg[], human: boolean) =>
+    thread
+      ? saveThread(thread, all, { email: captured || null, human, source: src }).catch((e: unknown) => {
+          console.error("[chat] save:", e);
+          return all;
+        })
+      : Promise.resolve(all);
+  const alert = (subject: string, title: string, all: ChatMsg[]) =>
+    sendEmail({
       to: ADMIN_EMAIL,
-      subject: `[Chat] Someone is chatting NOW: "${last.slice(0, 60)}"`,
+      subject,
       ...(captured ? { replyTo: captured } : {}),
       html: wrapEmail(
-        "A visitor just wrote in the chat",
-        `<table style="width:100%;border-collapse:collapse;">${kv("Came from", sourceLabel(sourceFromRequest(req)))}</table>
-        <div style="margin-top:16px;">${transcriptHtml(messages)}</div>
-        <p style="margin-top:20px;color:#64748b;">The AI is answering. If they ask for a real person you get a second email you can reply to.</p>`
+        title,
+        `<table style="width:100%;border-collapse:collapse;">${kv("Visitor email", captured || "not given yet")}${kv("Came from", src)}</table>
+        <p style="margin:18px 0;"><a href="${adminLink}" style="background:#c1121f;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;">Answer in the chat →</a></p>
+        <div style="margin-top:16px;">${transcriptHtml(all)}</div>
+        <p style="margin-top:20px;color:#64748b;">Your answer from the admin appears in the visitor's chat at once${captured ? "; replying to this email reaches them by email" : ""}.</p>`
       ),
-    }).catch((e: unknown) => console.error("[chat] first:", e));
+    }).catch((e: unknown) => console.error("[chat] alert:", e));
+
+  // 24.11.2026 (owner: "să fiu anunțat rapid, pe email"): the first message of
+  // every chat reaches the owner at once.
+  if (!stored && messages.filter((m) => m.role === "user").length === 1) {
+    void alert(`[Chat] Someone is chatting NOW: "${last.slice(0, 60)}"`, "A visitor just wrote in the chat", messages);
   }
 
-  // 24.11.2026 (owner: "să vorbească și cu noi"): the visitor asked for a real
-  // person. No AI reply: the owner gets the conversation at once, with Reply-To
-  // set to the visitor, and answers from the inbox.
-  if (parsed.data.human) {
-    if (!captured) {
-      return NextResponse.json({
-        ok: true,
-        captured: null,
-        reply: "Sure! Type your email address (and your question, if you like) and a real person from our team will write back to you right away.",
-      });
-    }
-    await sendEmail({
-      to: ADMIN_EMAIL,
-      subject: `[Chat] WANTS A REAL PERSON — ${captured}`,
-      replyTo: captured,
-      html: wrapEmail(
-        "A visitor wants to talk to a real person",
-        `<table style="width:100%;border-collapse:collapse;">${kv("Visitor email", captured)}${kv("Came from", sourceLabel(sourceFromRequest(req)))}</table>
-        <div style="margin-top:16px;">${transcriptHtml(messages)}</div>
-        <p style="margin-top:20px;color:#64748b;">Reply to this email to answer the visitor directly.</p>`
-      ),
-    }).catch((e: unknown) => console.error("[chat] human:", e));
-    return NextResponse.json({
-      ok: true,
-      captured,
-      leadCaptured: Boolean(note),
-      reply: `Thanks! I've passed our conversation to the team. A real person will write to ${captured} right away. You can also email ${SITE.email}.`,
-    });
+  // 24.11.2026 (owner: "să vorbească și cu noi"): a real person answers. From
+  // the moment the visitor asks, the AI stays quiet in this chat; every message
+  // reaches the owner, who answers from /admin/chats (it shows up in the chat).
+  if (parsed.data.human || stored?.human) {
+    const reply = parsed.data.human
+      ? `Got it! A real person from our team will answer you right here in the chat in a moment.${captured ? "" : " If you leave your email, we can also write to you there."}`
+      : null;
+    const all: ChatMsg[] = reply ? [...messages, { role: "assistant", content: reply }] : messages;
+    const savedAll = await save(all, true);
+    await alert(
+      parsed.data.human ? `[Chat] WANTS A REAL PERSON${captured ? ` — ${captured}` : ""}` : `[Chat] New message${captured ? ` from ${captured}` : ""}: "${last.slice(0, 60)}"`,
+      parsed.data.human ? "A visitor wants to talk with a real person" : "New message in a chat you are handling",
+      savedAll
+    );
+    return NextResponse.json({ ok: true, reply, captured: captured || null, leadCaptured: Boolean(note) });
   }
 
-  const convo = messages.map((m, i) =>
-    i === messages.length - 1 ? { role: m.role, content: m.content + note } : m
+  const convo = messages.slice(-30).map((m, i, arr) =>
+    i === arr.length - 1 ? { role: m.role, content: m.content + note } : { role: m.role, content: m.content }
   );
+  while (convo.length && convo[0].role !== "user") convo.shift();
   let reply: string;
   try {
     reply = claudeKey
@@ -231,5 +238,13 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  await save([...messages, { role: "assistant", content: reply }], false);
   return NextResponse.json({ ok: true, reply, captured: captured || null, leadCaptured: Boolean(note) });
+}
+
+/** The visitor's chat asks for the server copy, to show the team's answers. */
+export async function GET(req: NextRequest) {
+  const id = req.nextUrl.searchParams.get("thread") || "";
+  const t = await getThread(id).catch(() => null);
+  return NextResponse.json({ ok: true, messages: t?.messages || [], human: t?.human || false });
 }
