@@ -148,6 +148,22 @@ export async function POST(req: NextRequest) {
     note = `\n\n[System note: the full newspaper list was just emailed to ${email}. Confirm this to the visitor in one sentence.]`;
   }
 
+  // 24.11.2026 (owner: "să fiu anunțat rapid, pe email"): the first message of
+  // every chat reaches the owner at once, with or without an email.
+  if (messages.length === 1) {
+    void sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `[Chat] Someone is chatting NOW: "${last.slice(0, 60)}"`,
+      ...(captured ? { replyTo: captured } : {}),
+      html: wrapEmail(
+        "A visitor just wrote in the chat",
+        `<table style="width:100%;border-collapse:collapse;">${kv("Came from", sourceLabel(sourceFromRequest(req)))}</table>
+        <div style="margin-top:16px;">${transcriptHtml(messages)}</div>
+        <p style="margin-top:20px;color:#64748b;">The AI is answering. If they ask for a real person you get a second email you can reply to.</p>`
+      ),
+    }).catch((e: unknown) => console.error("[chat] first:", e));
+  }
+
   // 24.11.2026 (owner: "să vorbească și cu noi"): the visitor asked for a real
   // person. No AI reply: the owner gets the conversation at once, with Reply-To
   // set to the visitor, and answers from the inbox.
@@ -156,7 +172,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         ok: true,
         captured: null,
-        reply: "Sure! Type your email address (and your question, if you like) and a real person from our team will write back to you, usually within a few hours.",
+        reply: "Sure! Type your email address (and your question, if you like) and a real person from our team will write back to you right away.",
       });
     }
     await sendEmail({
@@ -174,7 +190,7 @@ export async function POST(req: NextRequest) {
       ok: true,
       captured,
       leadCaptured: Boolean(note),
-      reply: `Thanks! I've passed our conversation to the team. A real person will write to ${captured}, usually within a few hours (we're based in Europe). You can also email ${SITE.email}.`,
+      reply: `Thanks! I've passed our conversation to the team. A real person will write to ${captured} right away. You can also email ${SITE.email}.`,
     });
   }
 
