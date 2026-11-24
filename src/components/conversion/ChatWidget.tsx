@@ -13,7 +13,7 @@ interface Msg {
 const GREETING: Msg = {
   role: "assistant",
   content:
-    "Hi! Ask me anything about publishing in our 50 newspapers — prices, timing, how it works. Want the full newspaper list? Just leave your email.",
+    "Hi! Ask me anything about publishing in our 50 newspapers — prices, timing, how it works. Want the full newspaper list? Just leave your email. Want to talk with a real person from our team? Tap “Talk with a real person” below.",
 };
 
 /** Site chat, answered by AI; conversations with an email reach the owner. */
@@ -24,7 +24,51 @@ export function ChatWidget() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [captured, setCaptured] = useState<string | null>(null);
+  // 24.11.2026: "Talk to a real person" — the next message goes to the owner, not the AI.
+  const [human, setHuman] = useState(false);
+  const [teaser, setTeaser] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+
+  // 24.11.2026: the conversation stays when the visitor comes back, like WhatsApp.
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("mc-chat") || "null") as { messages?: Msg[]; captured?: string | null } | null;
+      if (saved?.messages?.length) setMessages(saved.messages.slice(-60));
+      if (saved?.captured) setCaptured(saved.captured);
+    } catch {}
+  }, []);
+  useEffect(() => {
+    if (messages.length < 2) return;
+    try {
+      localStorage.setItem("mc-chat", JSON.stringify({ messages: messages.slice(-60), captured }));
+    } catch {}
+  }, [messages, captured]);
+
+  // Other parts of the page (offer, order form) open the chat with this event.
+  useEffect(() => {
+    const openChat = () => {
+      setOpen(true);
+      setTeaser(false);
+    };
+    window.addEventListener("mc-open-chat", openChat);
+    return () => window.removeEventListener("mc-open-chat", openChat);
+  }, []);
+
+  // A small bubble after 15 s, once per visit. The chat itself never opens alone.
+  useEffect(() => {
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem("mc-chat-teaser") === "1";
+    } catch {}
+    if (seen) return;
+    const t = setTimeout(() => {
+      setTeaser(true);
+      try {
+        sessionStorage.setItem("mc-chat-teaser", "1");
+      } catch {}
+    }, 15_000);
+    return () => clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -32,9 +76,10 @@ export function ChatWidget() {
 
   if (!pathname || pathname.startsWith("/admin")) return null;
 
-  async function send() {
-    const text = input.trim();
+  async function send(preset?: string, askHuman?: boolean) {
+    const text = (preset ?? input).trim();
     if (!text || busy) return;
+    const wantHuman = askHuman || human;
     const next: Msg[] = [...messages, { role: "user", content: text }];
     setMessages(next);
     setInput("");
@@ -44,11 +89,13 @@ export function ChatWidget() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // The greeting is ours, not the model's; the API wants the user first.
-        body: JSON.stringify({ messages: next.slice(1), captured: captured || undefined }),
+        body: JSON.stringify({ messages: next.slice(1), captured: captured || undefined, human: wantHuman || undefined }),
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error);
       if (data.captured) setCaptured(data.captured);
+      // Asked for a person but no email yet: keep the next message for the team.
+      setHuman(Boolean(wantHuman && !data.captured));
       if (data.leadCaptured) trackPixelEvent("Lead", { content_name: "chat" });
       setMessages([...next, { role: "assistant", content: data.reply }]);
     } catch (e) {
@@ -93,6 +140,15 @@ export function ChatWidget() {
                 {m.content}
               </div>
             ))}
+            {!busy && !human && messages.at(-1)?.role === "assistant" && (
+              <button
+                type="button"
+                onClick={() => send("I'd like to talk with a real person.", true)}
+                className="mx-auto block rounded-full border border-slate-300 bg-white px-4 py-1.5 text-xs font-semibold text-brand-navy shadow-sm hover:bg-slate-100"
+              >
+                💬 Talk with a real person
+              </button>
+            )}
             {busy && (
               <div className="flex w-fit items-center gap-2 rounded-2xl bg-white px-3 py-2 text-sm text-slate-500 shadow-sm">
                 <Loader2 className="h-4 w-4 animate-spin" /> typing…
@@ -111,7 +167,7 @@ export function ChatWidget() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               maxLength={1500}
-              placeholder="Type your question…"
+              placeholder={human ? "Your email and question…" : "Type your question…"}
               className="flex-1 rounded-full border border-slate-200 px-4 py-2 text-sm outline-none focus:border-slate-400"
             />
             <button
@@ -125,10 +181,31 @@ export function ChatWidget() {
           </form>
         </div>
       )}
+      {teaser && !open && (
+        <div className="mb-3 ml-auto flex w-[min(260px,calc(100vw-2rem))] items-start gap-2 rounded-2xl bg-white p-3 text-sm text-slate-800 shadow-2xl">
+          <button
+            type="button"
+            className="flex-1 text-left"
+            onClick={() => {
+              setOpen(true);
+              setTeaser(false);
+            }}
+          >
+            <strong className="block text-brand-navy">Questions before ordering?</strong>
+            Ask me — I reply in seconds, or a real person from our team does.
+          </button>
+          <button type="button" aria-label="Dismiss" onClick={() => setTeaser(false)} className="text-slate-400">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
       <button
         type="button"
         aria-label={open ? "Close chat" : "Open chat"}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          setOpen((o) => !o);
+          setTeaser(false);
+        }}
         className="ml-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#c1121f] text-white shadow-xl transition hover:scale-105"
       >
         {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}

@@ -259,6 +259,11 @@ export function PromoOffer({ showPrice = true }: { showPrice?: boolean }) {
           <p className="mt-3 text-center text-xs text-white/60">
             {money(offer.price)}{offer.suffix} · receipt by email · published within 1 business day
           </p>
+          <p className="mt-2 text-center text-sm">
+            <button type="button" onClick={() => window.dispatchEvent(new Event("mc-open-chat"))} className="font-semibold text-white underline underline-offset-2">
+              Have a question? Talk with us
+            </button>
+          </p>
           {/* 26.10.2026 — reserved payment (lib/reserved-payment.ts); not for the monthly plan. */}
           {!offer.suffix && (
             <p className="mt-3 rounded-lg bg-emerald-500/15 p-3 text-center text-sm text-white/90">

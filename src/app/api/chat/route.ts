@@ -32,6 +32,8 @@ const schema = z.object({
     .max(30),
   // The email we already sent the list to, so it goes out once per chat.
   captured: z.string().max(200).optional(),
+  // 24.11.2026: the visitor pressed "Talk to a real person"
+  human: z.boolean().optional(),
 });
 
 const EMAIL_RE = /[^\s@<>()]+@[^\s@<>()]+\.[a-z]{2,}/i;
@@ -144,6 +146,36 @@ export async function POST(req: NextRequest) {
     await sendNetworkList(email);
     captured = email;
     note = `\n\n[System note: the full newspaper list was just emailed to ${email}. Confirm this to the visitor in one sentence.]`;
+  }
+
+  // 24.11.2026 (owner: "să vorbească și cu noi"): the visitor asked for a real
+  // person. No AI reply: the owner gets the conversation at once, with Reply-To
+  // set to the visitor, and answers from the inbox.
+  if (parsed.data.human) {
+    if (!captured) {
+      return NextResponse.json({
+        ok: true,
+        captured: null,
+        reply: "Sure! Type your email address (and your question, if you like) and a real person from our team will write back to you, usually within a few hours.",
+      });
+    }
+    await sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `[Chat] WANTS A REAL PERSON — ${captured}`,
+      replyTo: captured,
+      html: wrapEmail(
+        "A visitor wants to talk to a real person",
+        `<table style="width:100%;border-collapse:collapse;">${kv("Visitor email", captured)}${kv("Came from", sourceLabel(sourceFromRequest(req)))}</table>
+        <div style="margin-top:16px;">${transcriptHtml(messages)}</div>
+        <p style="margin-top:20px;color:#64748b;">Reply to this email to answer the visitor directly.</p>`
+      ),
+    }).catch((e: unknown) => console.error("[chat] human:", e));
+    return NextResponse.json({
+      ok: true,
+      captured,
+      leadCaptured: Boolean(note),
+      reply: `Thanks! I've passed our conversation to the team. A real person will write to ${captured}, usually within a few hours (we're based in Europe). You can also email ${SITE.email}.`,
+    });
   }
 
   const convo = messages.map((m, i) =>

@@ -605,7 +605,10 @@ export function OrderIntakeForm({ packageId, label, price, states, casino }: Pro
           )}
         </Button>
         <p className="mt-2 text-center text-xs text-slate-500">
-          Nothing is charged yet. You pay by card on the next page.
+          Nothing is charged yet. You pay by card on the next page.{" "}
+          <button type="button" onClick={() => window.dispatchEvent(new Event("mc-open-chat"))} className="font-semibold text-brand-navy underline underline-offset-2">
+            Have a question? Talk with us
+          </button>
         </p>
       </div>
     </div>
