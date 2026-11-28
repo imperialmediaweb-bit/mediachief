@@ -149,6 +149,15 @@ async function ensureUser(args: {
 }
 
 async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.Session) {
+  // The Stripe account is shared with the state newspapers: a payment made
+  // directly on a newspaper (press release, listing, lead...) is theirs, not a
+  // Media Chief order, and must not create an order or email the buyer here.
+  const md = session.metadata || {};
+  const ours = md.packageId || md.planId || md.orderRef;
+  if (!ours && (md.site || md.order_id || md.kind || md.paid_order_id)) {
+    console.log("[stripe-webhook] skipped newspaper payment", session.id);
+    return;
+  }
   const db = getDb();
   const email = (session.customer_details?.email || session.customer_email || "").trim();
   const customerId = typeof session.customer === "string" ? session.customer : session.customer?.id;
